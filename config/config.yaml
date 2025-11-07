@@ -1,9 +1,0 @@
-# Configurações centrais para pipelines e experiências
-paths:
-  raw: data/raw
-  interim: data/interim
-  processed: data/processed
-  models: models
-  figures: reports/figures
-
-random_seed: 42
