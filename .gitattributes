@@ -1,0 +1,4 @@
+# Sugerido para Git LFS
+data/raw/** filter=lfs diff=lfs merge=lfs -text
+data/external/** filter=lfs diff=lfs merge=lfs -text
+models/** filter=lfs diff=lfs merge=lfs -text

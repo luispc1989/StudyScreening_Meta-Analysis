@@ -1,0 +1,11 @@
+pandas
+numpy
+matplotlib
+scikit-learn
+pyyaml
+python-dotenv
+jupyter
+pytest
+pre-commit
+black
+ruff

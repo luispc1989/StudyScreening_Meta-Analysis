@@ -1,0 +1,30 @@
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# Editors/IDE
+.vscode/
+.idea/
+
+# Data & outputs (mantidos fora do Git ou via LFS)
+data/raw/
+data/external/
+data/interim/
+data/processed/
+models/
+reports/figures/
+reports/tables/
+reports/artefactos/
+
+# Secrets
+.env
+*.key
+*.pem
