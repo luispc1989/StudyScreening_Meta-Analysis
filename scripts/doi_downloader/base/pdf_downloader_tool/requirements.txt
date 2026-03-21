@@ -1,0 +1,5 @@
+openpyxl
+playwright
+requests
+streamlit
+urllib3
