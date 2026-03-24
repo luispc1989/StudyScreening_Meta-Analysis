@@ -30,29 +30,6 @@ configs/             # ficheiros de configuração (YAML/ENV)
 - (Opcional) R 4.3+
 - Git LFS para ficheiros grandes
 
-## Como começar
-
-```bash
-# 1) criar o repositório Git (na pasta raiz deste projeto)
-git init
-git add .
-git commit -m "Bootstrap: estrutura da dissertação"
-
-# 2) ativar Git LFS (opcional mas recomendado)
-git lfs install
-git lfs track "data/raw/**" "data/external/**" "models/**"
-
-# 3) criar e ativar ambiente Python
-python -m venv .venv
-# Windows: .venv\Scripts\activate
-# Linux/Mac: source .venv/bin/activate
-pip install -U pip
-pip install -r requirements.txt
-
-# 4) pre-commit (formatadores e linters)
-pre-commit install
-```
-
 ## Dados e LFS
 
 - **`data/raw/`** e **`data/external/`** devem ser tratados como diretórios de dados de origem.
@@ -128,4 +105,4 @@ Ver:
 
 ## Licença
 
-Indicar aqui a licença escolhida (ex.: `CC BY-NC 4.0`) ou **"All rights reserved"** até à submissão.
+All rights reserved until dissertation submission.
