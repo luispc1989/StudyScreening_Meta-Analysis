@@ -149,6 +149,7 @@ ENABLE_SPECIALIZED_RESOLVERS = True
 ENABLE_FRONTIERS_RESOLVER = True
 ENABLE_MDPI_RESOLVER = True
 ENABLE_SPRINGER_RESOLVER = True
+ENABLE_ELSEVIER_RESOLVER = True
 
 
 # =========================
@@ -188,6 +189,19 @@ SPRINGER_NETWORKIDLE_TIMEOUT_MS = 8000
 SPRINGER_DOWNLOAD_TIMEOUT_MS = 120000
 SPRINGER_POST_LOAD_WAIT_MS = 2000
 SPRINGER_ALLOWED_DOMAIN_PATTERN = r"(^|\.)springer\.com$|(^|\.)link\.springer\.com$"
+
+
+# =========================
+# ELSEVIER / PLAYWRIGHT
+# =========================
+
+ELSEVIER_BROWSER_MODE = "headed"
+ELSEVIER_HEADLESS = False
+ELSEVIER_NAVIGATION_TIMEOUT_MS = 120000
+ELSEVIER_NETWORKIDLE_TIMEOUT_MS = 30000
+ELSEVIER_DOWNLOAD_TIMEOUT_MS = 120000
+ELSEVIER_POST_LOAD_WAIT_MS = 2000
+ELSEVIER_ALLOWED_DOMAIN_PATTERN = r"(^|\.)sciencedirect\.com$|(^|\.)elsevier\.com$|(^|\.)linkinghub\.elsevier\.com$"
 
 
 # =========================
@@ -327,6 +341,7 @@ SPECIALIZED_DOWNLOADED_NOW_STATUSES = {
     "downloaded_frontiers",
     "downloaded_mdpi",
     "downloaded_springer",
+    "downloaded_elsevier",
 }
 
 

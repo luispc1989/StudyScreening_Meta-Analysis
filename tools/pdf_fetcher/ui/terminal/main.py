@@ -28,6 +28,7 @@ from tools.pdf_fetcher.core.excel_io import (
     save_session_checkpoint,
 )
 from tools.pdf_fetcher.core.pipeline import (
+    build_retry_tasks,
     run_diagnostic_for_session,
     run_phase0_doi_enrichment_for_session,
     run_phase1_for_session,
@@ -457,8 +458,40 @@ def run_phase2_menu_loop(
     previous_menu: str = "phase1",
 ) -> str:
     phase2_summary = None
+    phase2_mode: str | None = None
+    selected_resolver: str | None = None
 
     while True:
+        if phase2_mode is None:
+            resolver_counts = _build_phase2_resolver_counts(
+                session_state,
+                phase1_results_by_row,
+            )
+            choice = dashboard.show_phase2_run_mode_menu(resolver_counts)
+
+            if choice == "1":
+                phase2_mode = "automatic"
+                selected_resolver = None
+            elif choice == "2":
+                if not resolver_counts:
+                    show_message_and_wait(
+                        dashboard,
+                        "PHASE 2 - CHOOSE RESOLVER",
+                        ["No resolver candidates are available right now."],
+                    )
+                    continue
+
+                resolver_names = list(resolver_counts)
+                resolver_choice = dashboard.show_phase2_resolver_choice_menu(resolver_counts)
+                back_choice = str(len(resolver_names) + 1)
+                if resolver_choice == back_choice:
+                    continue
+
+                selected_resolver = resolver_names[int(resolver_choice) - 1]
+                phase2_mode = "manual"
+            else:
+                return previous_menu
+
         if phase2_summary is None:
             dashboard.reset_dynamic_blocks()
 
@@ -469,6 +502,7 @@ def run_phase2_menu_loop(
                 phase1_results_by_row=phase1_results_by_row,
                 phase1_summary=phase1_summary,
                 reporter=dashboard.handle_event,
+                selected_resolver=selected_resolver,
             )
 
             decision = _handle_phase_stop_reason(session_state, dashboard, stop_reason)
@@ -482,13 +516,22 @@ def run_phase2_menu_loop(
 
             save_current_after_phase(session_state, dashboard, "PHASE 2 - PDF SPECIALIZED DOWNLOAD")
 
-        choice = dashboard.show_phase2_summary_menu()
+        if phase2_mode == "manual" and selected_resolver:
+            choice = dashboard.show_phase2_manual_summary_menu(selected_resolver)
+        else:
+            choice = dashboard.show_phase2_summary_menu()
 
         if choice == "1":
             phase2_summary = None
             continue
 
-        if choice == "2":
+        if phase2_mode == "manual" and choice == "2":
+            phase2_summary = None
+            phase2_mode = None
+            selected_resolver = None
+            continue
+
+        if (phase2_mode == "manual" and choice == "3") or (phase2_mode != "manual" and choice == "2"):
             final_path = save_final_workbook(
                 session_state=session_state,
                 timestamp=session_state.timestamp or None,
@@ -516,7 +559,7 @@ def run_phase2_menu_loop(
             )
             continue
 
-        if choice == "3":
+        if (phase2_mode == "manual" and choice == "4") or (phase2_mode != "manual" and choice == "3"):
             run_diagnostic_after_phase(
                 session_state,
                 dashboard,
@@ -524,16 +567,28 @@ def run_phase2_menu_loop(
             )
             continue
 
-        if choice == "4":
+        if (phase2_mode == "manual" and choice == "5") or (phase2_mode != "manual" and choice == "4"):
             return "phase1"
 
-        if choice == "5":
+        if (phase2_mode == "manual" and choice == "6") or (phase2_mode != "manual" and choice == "5"):
             return "initial"
 
-        if choice == "6":
+        if (phase2_mode == "manual" and choice == "7") or (phase2_mode != "manual" and choice == "6"):
             stats_choice = dashboard.show_phase2_resolver_stats_menu()
             if stats_choice == "1":
                 continue
+
+
+def _build_phase2_resolver_counts(session_state, phase1_results_by_row) -> dict[str, int]:
+    retry_tasks = build_retry_tasks(session_state.records, phase1_results_by_row)
+    counter: dict[str, int] = {}
+
+    for task in retry_tasks:
+        if task.resolver_names:
+            resolver_name = task.resolver_names[0]
+            counter[resolver_name] = counter.get(resolver_name, 0) + 1
+
+    return counter
 
 
 def run_navigation_from(

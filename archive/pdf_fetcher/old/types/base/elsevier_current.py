@@ -1,19 +1,25 @@
 from pathlib import Path
 from urllib.parse import urljoin
-import re
-import time
 import random
+import re
+import sys
+import time
+
+import cloudscraper  # optional experimental dependency (pip install cloudscraper)
 import pyautogui  # optional fallback (pip install pyautogui)
-import cloudscraper  # pip install cloudscraper
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError, sync_playwright
 
 
+PROJECT_ROOT = Path(__file__).resolve().parents[5]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from tools.pdf_fetcher.core.config import SHEET_NAME, build_current_workbook_path
+from tools.pdf_fetcher.core.excel_io import build_col_map, build_record, get_optional_cell, load_workbook_and_sheet
+from tools.pdf_fetcher.core.utils import build_pdf_filename, normalize_doi
+
+
 PUBLISHER = "Elsevier / ScienceDirect"
-ARTICLE_URL = "https://doi.org/10.1016/j.sjbs.2022.103417"
-SOURCE_URL = "https://linkinghub.elsevier.com/retrieve/pii/S1319562X22003333"
-DOI = "10.1016/j.sjbs.2022.103417"
-RECORD_ID = "7"
-TITLE = "Grain and flour quality of wheat genotypes grown under heat stress"
 OUTPUT_DIR = Path.home() / "Desktop" / "resolver_tests" / "elsevier"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -27,11 +33,19 @@ def minimal_safe_filename_from_doi(doi: str) -> str:
     return f"{safe}.pdf"
 
 
+def build_output_file(record_id: str, title: str, doi: str) -> Path:
+    try:
+        file_name = build_pdf_filename(record_id, title)
+    except Exception:
+        file_name = minimal_safe_filename_from_doi(doi)
+    return OUTPUT_DIR / file_name
+
+
 def is_pdf_bytes(data: bytes) -> bool:
     return bool(data) and data.startswith(b"%PDF")
 
 
-def looks_like_pdf_url(url: str) -> str:
+def looks_like_pdf_url(url: str) -> bool:
     value = str(url or "").strip().lower()
     return (
         value.endswith(".pdf")
@@ -39,6 +53,74 @@ def looks_like_pdf_url(url: str) -> str:
         or "/pdfft" in value
         or "pdf.sciencedirectassets.com" in value
     )
+
+
+def is_elsevier_candidate(doi_raw: str, doi_link_raw: str, source_url: str = "") -> bool:
+    values = [
+        str(doi_raw or "").strip(),
+        str(doi_link_raw or "").strip(),
+        str(source_url or "").strip(),
+    ]
+
+    normalized_doi = normalize_doi(doi_raw)
+    normalized_doi_link = normalize_doi(doi_link_raw)
+
+    if normalized_doi:
+        values.append(normalized_doi)
+    if normalized_doi_link:
+        values.append(normalized_doi_link)
+
+    lowered = [v.lower() for v in values if v]
+    for value in lowered:
+        if "sciencedirect.com" in value:
+            return True
+        if "elsevier.com" in value:
+            return True
+        if "linkinghub.elsevier.com" in value:
+            return True
+        if value.startswith("10.1016/"):
+            return True
+        if "/10.1016/" in value:
+            return True
+    return False
+
+
+def collect_elsevier_cases_from_current() -> list[dict]:
+    workbook_path = build_current_workbook_path()
+    wb, ws = load_workbook_and_sheet(workbook_path, SHEET_NAME)
+
+    try:
+        col_map = build_col_map(ws)
+        cases: list[dict] = []
+
+        for row_idx in range(2, ws.max_row + 1):
+            record = build_record(ws, row_idx, col_map)
+            if record is None:
+                continue
+
+            source_url = str(get_optional_cell(ws, row_idx, col_map, "pdf_source_url", "") or "").strip()
+            if not is_elsevier_candidate(record.doi_raw, record.doi_link_raw, source_url):
+                continue
+
+            doi = normalize_doi(record.doi_raw) or normalize_doi(record.doi_link_raw)
+            if not doi:
+                continue
+
+            cases.append(
+                {
+                    "row_idx": row_idx,
+                    "record_id": record.record_id,
+                    "title": record.title,
+                    "doi": doi,
+                    "article_url": f"https://doi.org/{doi}",
+                    "source_url": source_url,
+                    "output_file": build_output_file(record.record_id, record.title, doi),
+                }
+            )
+
+        return cases
+    finally:
+        wb.close()
 
 
 def extract_doi_from_page(page, fallback_url: str | None = None) -> str:
@@ -77,23 +159,19 @@ def wait_for_page_ready(page, timeout_ms: int = 120000) -> None:
     page.wait_for_timeout(2000)
 
 
-def auto_wait_for_article_ready(page, max_wait=300):
-    """Usa Playwright + cloudscraper para superar CAPTCHA/WAF, pyautogui apenas como fallback."""
-    print("Aguardando página artigo carregar...")
-
+def auto_wait_for_article_ready(page, article_url: str) -> None:
+    print("Waiting for Elsevier article page to become ready...")
     page.wait_for_load_state("networkidle", timeout=30000)
 
-    # 1. Tentativa direta no Playwright
     try:
-        page.wait_for_selector('text="View PDF"', timeout=300000)  # 5min
-        print("Botão 'View PDF' detectado automaticamente!")
+        page.wait_for_selector('text="View PDF"', timeout=300000)
+        print("Button 'View PDF' detected automatically.")
         return
     except PlaywrightTimeoutError:
         pass
 
-    # 2. Se ainda houver CAPTCHA/WAF, tenta cloudscraper
     if page.locator('text="Are you a robot?"').count() > 0:
-        print("CAPTCHA / WAF detectado. Usando cloudscraper para pré-resolver...")
+        print("CAPTCHA / WAF detected. Trying cloudscraper as experimental pre-step...")
         scraper = cloudscraper.create_scraper(
             browser={
                 "browser": "chrome",
@@ -104,46 +182,41 @@ def auto_wait_for_article_ready(page, max_wait=300):
         )
 
         try:
-            resp = scraper.get(ARTICLE_URL, timeout=30)
+            resp = scraper.get(article_url, timeout=30)
             if resp.status_code == 200:
-                print("cloudscraper conseguiu superar o WAF.")
-
-                # 2.1. Adicionar todas as cookies para o contexto Playwright
+                print("cloudscraper returned status 200. Syncing cookies to Playwright...")
                 added_cookies = []
                 for ck in resp.cookies:
-                    added_cookies.append({
-                        "name": ck.name,
-                        "value": ck.value,
-                        "domain": ck.domain or ".elsevier.com",
-                        "path": ck.path or "/",
-                        "expires": int(time.time() + 3600)
-                        if ck.expires is None else ck.expires,
-                        "httpOnly": ck.has("httponly"),
-                        "secure": ck.secure or False,
-                    })
-                page.context.add_cookies(added_cookies)
-                print("Cookies transferidas para Playwright.")
-
-                # 2.2. Recarregar página e tentar de novo
+                    added_cookies.append(
+                        {
+                            "name": ck.name,
+                            "value": ck.value,
+                            "domain": ck.domain or ".elsevier.com",
+                            "path": ck.path or "/",
+                            "expires": int(time.time() + 3600) if ck.expires is None else ck.expires,
+                            "httpOnly": ck.has("httponly"),
+                            "secure": ck.secure or False,
+                        }
+                    )
+                if added_cookies:
+                    page.context.add_cookies(added_cookies)
                 page.reload()
                 page.wait_for_selector('text="View PDF"', timeout=120000)
-                print("Botão 'View PDF' encontrado após cloudscraper.")
+                print("Button 'View PDF' found after cloudscraper.")
                 return
-            else:
-                print(f"cloudscraper retornou status {resp.status_code}")
-        except Exception as e:
-            print(f"cloudscraper falhou: {e}")
+            print(f"cloudscraper returned status {resp.status_code}")
+        except Exception as exc:
+            print(f"cloudscraper failed: {exc}")
 
-    # 3. Fallback: se ainda estiver com CAPTCHA, tenta clique automático (pyautogui)
-    print("Usando pyautogui como fallback (botão CAPTCHA).")
+    print("Using pyautogui as fallback (experimental CAPTCHA click).")
     pyautogui.click(600, 525)
     time.sleep(3)
 
     try:
         page.wait_for_selector('text="View PDF"', timeout=60000)
-        print("Botão 'View PDF' encontrado após clique.")
+        print("Button 'View PDF' found after fallback click.")
     except PlaywrightTimeoutError:
-        raise RuntimeError("Não foi possível resolver o CAPTCHA/WAF automaticamente.")
+        raise RuntimeError("Could not resolve the Elsevier CAPTCHA/WAF automatically.")
 
 
 def find_view_pdf_href(page) -> str | None:
@@ -285,8 +358,8 @@ def try_browser_download_from_viewer(page, output_file: Path) -> bool:
         return False
 
 
-def main():
-    pyautogui.FAILSAFE = True  # Move mouse canto superior-esq para parar script
+def process_case(case: dict) -> str:
+    pyautogui.FAILSAFE = True
 
     with sync_playwright() as p:
         browser = p.chromium.launch(
@@ -295,21 +368,33 @@ def main():
         )
         context = browser.new_context(
             accept_downloads=True,
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         )
         page = context.new_page()
 
         try:
-            print(f"Opening article page: {ARTICLE_URL}")
-            page.goto(ARTICLE_URL, wait_until="domcontentloaded", timeout=120000)
+            article_url = case["article_url"]
+            output_file = case["output_file"]
 
-            # Substitui o modo manual por auto_wait + cloudscraper
-            auto_wait_for_article_ready(page)
+            if output_file.exists() and output_file.stat().st_size > 0:
+                print(f"[{case['record_id']}] duplicate_pdf -> {output_file.name}")
+                return "duplicate_pdf"
+
+            print("=" * 78)
+            print(f"publisher: {PUBLISHER}")
+            print(f"record_id: {case['record_id']}")
+            print(f"doi: {case['doi']}")
+            print(f"article_url: {article_url}")
+            print(f"source_url: {case['source_url']}")
+            print(f"title: {case['title']}")
+            print(f"output_file: {output_file}")
+
+            print(f"Opening article page: {article_url}")
+            page.goto(article_url, wait_until="domcontentloaded", timeout=120000)
+            auto_wait_for_article_ready(page, article_url)
 
             print(f"Current page URL: {page.url}")
-
             doi = extract_doi_from_page(page, fallback_url=page.url)
-            output_file = OUTPUT_DIR / minimal_safe_filename_from_doi(doi)
             print(f"Detected DOI: {doi}")
             print(f"Output file: {output_file}")
 
@@ -321,7 +406,7 @@ def main():
                 ok = try_session_request_download(context, pdf_view_url, page.url, output_file)
                 if ok:
                     print(f"PDF saved successfully: {output_file}")
-                    return
+                    return "downloaded"
 
             print("Direct request failed or no href found. Opening viewer from page...")
             viewer_page = click_view_pdf(page)
@@ -333,19 +418,54 @@ def main():
                 ok = try_session_request_download(context, direct_pdf_url, viewer_page.url, output_file)
                 if ok:
                     print(f"PDF saved successfully: {output_file}")
-                    return
+                    return "downloaded"
 
             print("Viewer request failed. Trying viewer download button...")
             ok = try_browser_download_from_viewer(viewer_page, output_file)
             if ok:
                 print(f"PDF saved successfully: {output_file}")
-                return
+                return "downloaded"
 
-            raise RuntimeError(
-                "Failed to download PDF from Elsevier after opening the viewer."
-            )
+            raise RuntimeError("Failed to download PDF from Elsevier after opening the viewer.")
         finally:
             browser.close()
+
+
+def main():
+    current_workbook = build_current_workbook_path()
+    cases = collect_elsevier_cases_from_current()
+
+    print(f"Current workbook: {current_workbook}")
+    print(f"Elsevier candidates found: {len(cases)}")
+
+    if not cases:
+        print("No Elsevier candidates found in Current workbook.")
+        return
+
+    downloaded = 0
+    duplicates = 0
+    failed = 0
+
+    for idx, case in enumerate(cases, start=1):
+        print(f"\n[{idx}/{len(cases)}] Processing Elsevier candidate...")
+        try:
+            status = process_case(case)
+            if status == "downloaded":
+                downloaded += 1
+            elif status == "duplicate_pdf":
+                duplicates += 1
+        except KeyboardInterrupt:
+            raise
+        except Exception as exc:
+            failed += 1
+            print(f"[{case['record_id']}] failed -> {type(exc).__name__}: {exc}")
+
+    print("\n" + "=" * 78)
+    print("Elsevier batch finished")
+    print(f"Candidates : {len(cases)}")
+    print(f"Downloaded : {downloaded}")
+    print(f"Duplicates : {duplicates}")
+    print(f"Failed     : {failed}")
 
 
 if __name__ == "__main__":

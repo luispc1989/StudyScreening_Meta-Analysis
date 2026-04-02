@@ -53,6 +53,7 @@ def count_pdf_files_in_output_dir() -> int:
 
 def _resolve_specialized_resolver_callable(resolver_name: str):
     resolver_specs = {
+        "elsevier": ("tools.pdf_fetcher.core.resolvers.elsevier", ("try_elsevier_resolver",)),
         "frontiers": ("tools.pdf_fetcher.core.resolvers.frontiers", ("try_frontiers_resolver",)),
         "mdpi": ("tools.pdf_fetcher.core.resolvers.mdpi", ("try_mdpi_resolver",)),
         "springer": ("tools.pdf_fetcher.core.resolvers.springer", ("try_springer_resolver",)),
@@ -100,9 +101,10 @@ def _call_with_optional_stop_event(run_fn, **kwargs):
 def build_retry_tasks(
     records: List[Record],
     phase1_results_by_row: Dict[int, DownloadResult],
+    selected_resolver: Optional[str] = None,
 ) -> List[RetryTask]:
     tasks: List[RetryTask] = []
-    resolver_order = {"mdpi": 0, "frontiers": 1, "springer": 2}
+    resolver_order = {"mdpi": 0, "frontiers": 1, "springer": 2, "elsevier": 3}
 
     if not ENABLE_SPECIALIZED_RESOLVERS:
         return tasks
@@ -114,6 +116,9 @@ def build_retry_tasks(
 
         resolver_names = get_ordered_resolver_names(record, phase1_result)
         if not resolver_names:
+            continue
+
+        if selected_resolver and resolver_names[0] != selected_resolver:
             continue
 
         tasks.append(RetryTask(record=record, resolver_names=resolver_names))
@@ -389,9 +394,14 @@ def _run_phase2_core(
     reporter: ReporterType = None,
     save_callback: SaveCallbackType = None,
     stop_event: StopEventType = None,
+    selected_resolver: Optional[str] = None,
 ) -> dict:
     total_to_process = len(records)
-    phase2_pool_tasks = build_retry_tasks(records, phase1_results_by_row)
+    phase2_pool_tasks = build_retry_tasks(
+        records,
+        phase1_results_by_row,
+        selected_resolver=selected_resolver,
+    )
     phase2_pool_total = len(phase2_pool_tasks)
     retry_tasks = [task for task in phase2_pool_tasks if task.resolver_names]
     retry_total = len(retry_tasks)
@@ -434,8 +444,10 @@ def _run_phase2_core(
     resolver_attempts: Counter[str] = Counter()
     resolver_recovered: Counter[str] = Counter()
     resolver_duplicates: Counter[str] = Counter()
+    resolver_failed: Counter[str] = Counter()
     resolver_totals: Counter[str] = Counter()
     resolver_processed: Counter[str] = Counter()
+    last_emitted_resolver = ""
 
     for task in retry_tasks:
         primary_name = task.resolver_names[0] if task.resolver_names else "none"
@@ -464,6 +476,7 @@ def _run_phase2_core(
             "resolver_attempts": {},
             "resolver_recovered": {},
             "resolver_duplicates": {},
+            "resolver_failed": {},
             "resolver_totals": dict(resolver_totals),
             "resolver_processed": {},
         },
@@ -477,6 +490,38 @@ def _run_phase2_core(
         primary_resolver_name = task.resolver_names[0] if task.resolver_names else "none"
         resolver_attempts[primary_resolver_name] += 1
         resolver_processed[primary_resolver_name] += 1
+
+        if primary_resolver_name != last_emitted_resolver:
+            pdfs_in_folder = count_pdf_files_in_output_dir()
+            emit(
+                reporter,
+                "phase2_update",
+                {
+                    "phase2_pool_total": phase2_pool_total,
+                    "retry_processed": retry_processed,
+                    "retry_total": retry_total,
+                    "unassigned_total": unassigned_total,
+                    "phase2_start_time": phase2_start_time,
+                    "resolver_name": primary_resolver_name,
+                    "last_record_id": phase2_last_record_id,
+                    "last_doi": phase2_last_doi,
+                    "last_status": phase2_last_status,
+                    "last_detail": phase2_last_detail,
+                    "pdfs_available_global": pdfs_available_global,
+                    "pdfs_in_folder": pdfs_in_folder,
+                    "downloaded_now_total": downloaded_now_total,
+                    "recovered_this_phase": recovered_this_phase,
+                    "total_records": total_to_process,
+                    "stopped_early": False,
+                    "resolver_attempts": dict(resolver_attempts),
+                    "resolver_recovered": dict(resolver_recovered),
+                    "resolver_duplicates": dict(resolver_duplicates),
+                    "resolver_failed": dict(resolver_failed),
+                    "resolver_totals": dict(resolver_totals),
+                    "resolver_processed": dict(resolver_processed),
+                },
+            )
+            last_emitted_resolver = primary_resolver_name
 
         phase2_current_resolver = primary_resolver_name
         phase2_last_record_id = record.record_id
@@ -499,6 +544,8 @@ def _run_phase2_core(
             resolver_recovered[used_resolver_name or primary_resolver_name] += 1
         elif result.pdf_download_status == "duplicate_pdf":
             resolver_duplicates[used_resolver_name or primary_resolver_name] += 1
+        else:
+            resolver_failed[used_resolver_name or primary_resolver_name] += 1
 
         if _should_emit_phase2_progress(retry_processed, retry_total):
             pdfs_in_folder = count_pdf_files_in_output_dir()
@@ -525,6 +572,7 @@ def _run_phase2_core(
                     "resolver_attempts": dict(resolver_attempts),
                     "resolver_recovered": dict(resolver_recovered),
                     "resolver_duplicates": dict(resolver_duplicates),
+                    "resolver_failed": dict(resolver_failed),
                     "resolver_totals": dict(resolver_totals),
                     "resolver_processed": dict(resolver_processed),
                 },
@@ -565,6 +613,7 @@ def _run_phase2_core(
         "resolver_attempts": dict(resolver_attempts),
         "resolver_recovered": dict(resolver_recovered),
         "resolver_duplicates": dict(resolver_duplicates),
+        "resolver_failed": dict(resolver_failed),
         "resolver_totals": dict(resolver_totals),
         "resolver_processed": dict(resolver_processed),
     }
@@ -611,6 +660,7 @@ def run_phase2(
     output_workbook_path,
     phase1_summary: dict,
     reporter: ReporterType = None,
+    selected_resolver: Optional[str] = None,
 ) -> dict:
     def legacy_save_callback(processed: int) -> Tuple[bool, str]:
         ok = safe_save_workbook(wb, output_workbook_path)
@@ -625,6 +675,7 @@ def run_phase2(
         phase1_summary=phase1_summary,
         reporter=reporter,
         save_callback=legacy_save_callback,
+        selected_resolver=selected_resolver,
     )
 
     safe_save_workbook(wb, output_workbook_path)
@@ -718,12 +769,17 @@ def run_phase2_for_session(
     phase1_summary: dict,
     reporter: ReporterType = None,
     stop_event: StopEventType = None,
+    selected_resolver: Optional[str] = None,
 ) -> dict:
     if not session_state.is_workbook_loaded:
         raise ValueError("SessionState workbook is not loaded.")
 
     session_state.current_phase = "phase2"
-    session_state.retry_tasks = build_retry_tasks(session_state.records, phase1_results_by_row)
+    session_state.retry_tasks = build_retry_tasks(
+        session_state.records,
+        phase1_results_by_row,
+        selected_resolver=selected_resolver,
+    )
 
     def session_save_callback(processed: int) -> Tuple[bool, str]:
         checkpoint_path = save_session_checkpoint(
@@ -743,6 +799,7 @@ def run_phase2_for_session(
         reporter=reporter,
         save_callback=session_save_callback,
         stop_event=stop_event,
+        selected_resolver=selected_resolver,
     )
 
     session_state.phase2_summary = Phase2Summary(

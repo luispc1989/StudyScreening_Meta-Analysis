@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import sys
 import time
+import textwrap
 from typing import Callable, Dict, List, Optional, Sequence
 
 from tools.pdf_fetcher.core.config import FORCE_SIMPLE_TERMINAL, FRAME_WIDTH
@@ -70,12 +71,34 @@ class TerminalDashboard:
 
     def fit_line(self, text: str, width: int = FRAME_WIDTH) -> str:
         text = str(text or "")
-        if len(text) > width:
-            return text[:width]
         return text.ljust(width)
 
+    def wrap_line(self, text: str, width: int = FRAME_WIDTH) -> List[str]:
+        text = str(text or "")
+        if not text:
+            return [self.fit_line("", width)]
+        if len(text) <= width:
+            return [self.fit_line(text, width)]
+        if len(set(text)) == 1:
+            return [self.fit_line(text[:width], width)]
+
+        wrapped = textwrap.wrap(
+            text,
+            width=width,
+            break_long_words=True,
+            break_on_hyphens=False,
+            replace_whitespace=False,
+            drop_whitespace=False,
+        )
+        if not wrapped:
+            return [self.fit_line("", width)]
+        return [self.fit_line(line, width) for line in wrapped]
+
     def normalize_block(self, lines: Sequence[str]) -> List[str]:
-        return [self.fit_line(line) for line in lines]
+        normalized: List[str] = []
+        for line in lines:
+            normalized.extend(self.wrap_line(line))
+        return normalized
 
     def clear_screen_simple(self) -> None:
         import subprocess
@@ -209,8 +232,12 @@ class TerminalDashboard:
         title: str,
         options: Sequence[str],
         subtitle: Optional[str] = None,
+        info_lines: Optional[Sequence[str]] = None,
     ) -> List[str]:
         lines = self.build_title_block(title, subtitle=subtitle)
+        if info_lines:
+            lines.extend(info_lines)
+            lines.append("-" * FRAME_WIDTH)
         lines.extend(options)
         lines.append("=" * FRAME_WIDTH)
         lines.append("Choose:")
@@ -394,11 +421,85 @@ class TerminalDashboard:
         self.render_static_block(panel + menu_lines)
         return self.prompt_choice(["1", "2", "3", "4", "5", "6"])
 
+    def show_phase2_run_mode_menu(self, resolver_counts: dict[str, int]) -> str:
+        info_lines: List[str] = []
+        if resolver_counts:
+            info_lines.append("Resolver candidates:")
+            for resolver_name, count in resolver_counts.items():
+                info_lines.append(f"- {resolver_name}: {count}")
+        else:
+            info_lines.append("Resolver candidates: none")
+
+        lines = self.build_menu_lines(
+            title="PHASE 2 - RUN MODE",
+            info_lines=info_lines,
+            options=[
+                "[1] Automatic - run all active resolvers",
+                "[2] Manual - choose one resolver",
+                "[3] Back",
+            ],
+        )
+        self.render_static_block(lines)
+        return self.prompt_choice(["1", "2", "3"])
+
+    def show_phase2_resolver_choice_menu(self, resolver_counts: dict[str, int]) -> str:
+        options: List[str] = []
+        valid_choices: List[str] = []
+        ordered_names = list(resolver_counts)
+
+        for idx, resolver_name in enumerate(ordered_names, start=1):
+            count = resolver_counts.get(resolver_name, 0)
+            options.append(f"[{idx}] {resolver_name} ({count} candidates)")
+            valid_choices.append(str(idx))
+
+        back_choice = str(len(ordered_names) + 1)
+        options.append(f"[{back_choice}] Back")
+        valid_choices.append(back_choice)
+
+        lines = self.build_menu_lines(
+            title="PHASE 2 - CHOOSE RESOLVER",
+            options=options,
+        )
+        self.render_static_block(lines)
+        return self.prompt_choice(valid_choices)
+
+    def show_phase2_manual_summary_menu(self, resolver_name: str) -> str:
+        if self.phase2_last_payload:
+            self.phase2_lines = self.build_phase2_lines(self.phase2_last_payload)
+
+        panel = self._strip_trailing_separator(
+            self.phase2_lines
+            if self.phase2_lines
+            else [
+                "=" * FRAME_WIDTH,
+                "PHASE 2 COMPLETED - PDF SPECIALIZED DOWNLOAD",
+                "=" * FRAME_WIDTH,
+            ]
+        )
+        menu_lines = [
+            "-" * FRAME_WIDTH,
+            "WHAT WOULD YOU LIKE TO DO NEXT?",
+            "-" * FRAME_WIDTH,
+            f"[1] Repeat resolver - {resolver_name}",
+            "[2] Back to resolver list",
+            "[3] Save final workbook",
+            "[4] Run diagnostic",
+            "[5] Back to phase 1 - PDF Basic Download",
+            "[6] Back to main menu",
+            "[7] Show all resolver stats",
+            "=" * FRAME_WIDTH,
+            "Choose:",
+        ]
+        self.reset_dynamic_blocks()
+        self.render_static_block(panel + menu_lines)
+        return self.prompt_choice(["1", "2", "3", "4", "5", "6", "7"])
+
     def build_phase2_resolver_stats_lines(self) -> List[str]:
         payload = self.phase2_last_payload or {}
         resolver_attempts = payload.get("resolver_attempts", {}) or {}
         resolver_recovered = payload.get("resolver_recovered", {}) or {}
         resolver_duplicates = payload.get("resolver_duplicates", {}) or {}
+        resolver_failed = payload.get("resolver_failed", {}) or {}
         resolver_totals = payload.get("resolver_totals", {}) or {}
         resolver_processed = payload.get("resolver_processed", {}) or {}
 
@@ -422,10 +523,12 @@ class TerminalDashboard:
             processed = resolver_processed.get(resolver_name, 0)
             recovered = resolver_recovered.get(resolver_name, 0)
             duplicates = resolver_duplicates.get(resolver_name, 0)
+            failed = resolver_failed.get(resolver_name, 0)
             lines.append(f"Resolver               : {resolver_name}")
             lines.append(f"Progress               : {processed}/{total}")
             lines.append(f"Downloads              : {recovered}/{total}")
             lines.append(f"Duplicates             : {duplicates}/{total}")
+            lines.append(f"Failed                 : {failed}/{total}")
             lines.append("-" * FRAME_WIDTH)
 
         lines.append("=" * FRAME_WIDTH)
@@ -473,6 +576,8 @@ class TerminalDashboard:
         last_status = payload.get("last_status", "")
         last_doi = payload.get("last_doi", "")
         last_confidence = payload.get("last_confidence", "")
+        current_record_id = payload.get("current_record_id", "")
+        current_action = payload.get("current_action", "")
         report_path = payload.get("report_path", "")
 
         remaining_count = max(0, total - processed)
@@ -488,7 +593,7 @@ class TerminalDashboard:
         auto_applied_rate = (enriched / eligible * 100.0) if eligible > 0 else 0.0
         potential_match_rate = ((enriched + needs_review) / eligible * 100.0) if eligible > 0 else 0.0
 
-        return [
+        lines = [
             "=" * FRAME_WIDTH,
             "PDF FETCHER - DOWNLOAD STATUS",
             "=" * FRAME_WIDTH,
@@ -515,6 +620,11 @@ class TerminalDashboard:
             f"Confidence              : {last_confidence or '-'}",
             "=" * FRAME_WIDTH,
         ]
+        if current_action:
+            lines.insert(-1, f"Current action          : {current_action}")
+            if current_record_id:
+                lines.insert(-1, f"Current record          : {current_record_id}")
+        return lines
 
     def build_phase1_lines(self, payload: Dict) -> List[str]:
         processed = payload["processed"]
@@ -591,6 +701,7 @@ class TerminalDashboard:
         resolver_attempts = payload.get("resolver_attempts", {}) or {}
         resolver_recovered = payload.get("resolver_recovered", {}) or {}
         resolver_duplicates = payload.get("resolver_duplicates", {}) or {}
+        resolver_failed = payload.get("resolver_failed", {}) or {}
         resolver_totals = payload.get("resolver_totals", {}) or {}
         resolver_processed = payload.get("resolver_processed", {}) or {}
 
@@ -630,6 +741,7 @@ class TerminalDashboard:
         current_resolver_done = resolver_processed.get(resolver_name, 0) if resolver_name else 0
         current_resolver_recovered = resolver_recovered.get(resolver_name, 0) if resolver_name else 0
         current_resolver_duplicates_count = resolver_duplicates.get(resolver_name, 0) if resolver_name else 0
+        current_resolver_failed_count = resolver_failed.get(resolver_name, 0) if resolver_name else 0
         current_resolver_progress = "-"
         if resolver_name and current_resolver_total:
             current_resolver_progress = f"{current_resolver_done}/{current_resolver_total}"
@@ -639,6 +751,9 @@ class TerminalDashboard:
         current_resolver_duplicates = "-"
         if resolver_name and current_resolver_total:
             current_resolver_duplicates = f"{current_resolver_duplicates_count}/{current_resolver_total}"
+        current_resolver_failed = "-"
+        if resolver_name and current_resolver_total:
+            current_resolver_failed = f"{current_resolver_failed_count}/{current_resolver_total}"
 
         lines = [
             "=" * FRAME_WIDTH,
@@ -649,6 +764,7 @@ class TerminalDashboard:
             f"Resolver progress       : {current_resolver_progress}",
             f"Resolver downloads      : {current_resolver_downloads}",
             f"Resolver duplicates     : {current_resolver_duplicates}",
+            f"Resolver failed         : {current_resolver_failed}",
             "-" * FRAME_WIDTH,
             f"Records in retry        : {retry_total}",
             f"Records processed       : {retry_processed}",

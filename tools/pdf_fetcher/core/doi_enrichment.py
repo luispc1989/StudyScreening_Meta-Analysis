@@ -1356,6 +1356,11 @@ def run_phase0_doi_enrichment_for_session(
     errors = 0
 
     processed_rows: list[Phase0RowResult] = []
+    last_completed_record_id = ""
+    last_completed_title = ""
+    last_completed_status = "starting"
+    last_completed_doi = ""
+    last_completed_confidence = ""
 
     emit(
         reporter,
@@ -1396,6 +1401,34 @@ def run_phase0_doi_enrichment_for_session(
         last_doi = ""
         last_confidence = ""
         last_status = "unresolved"
+
+        emit(
+            reporter,
+            "phase0_update",
+            {
+                "processed": processed,
+                "total": total_to_process,
+                "start_time": start_time,
+                "total_rows_read": scope_info["total_rows_read"],
+                "total_existing_doi": scope_info["total_existing_doi"],
+                "total_missing_doi": scope_info["total_missing_doi"],
+                "total_eligible": scope_info["total_eligible"],
+                "total_skipped_missing_title": scope_info["total_skipped_missing_title"],
+                "total_skipped_already_downloaded": scope_info["total_skipped_already_downloaded"],
+                "total_enriched": enriched,
+                "total_needs_review": needs_review,
+                "total_unresolved": unresolved,
+                "total_errors": errors,
+                "last_record_id": last_completed_record_id,
+                "last_title": last_completed_title,
+                "last_status": last_completed_status,
+                "last_doi": last_completed_doi,
+                "last_confidence": last_completed_confidence,
+                "current_record_id": record_id,
+                "current_title": title,
+                "current_action": "searching sources",
+            },
+        )
 
         try:
             candidates = gather_candidates(title, authors, publication_year)
@@ -1506,6 +1539,11 @@ def run_phase0_doi_enrichment_for_session(
             )
 
         processed += 1
+        last_completed_record_id = record_id
+        last_completed_title = title
+        last_completed_status = last_status
+        last_completed_doi = last_doi
+        last_completed_confidence = last_confidence
 
         emit(
             reporter,
@@ -1529,6 +1567,9 @@ def run_phase0_doi_enrichment_for_session(
                 "last_status": last_status,
                 "last_doi": last_doi,
                 "last_confidence": last_confidence,
+                "current_record_id": "",
+                "current_title": "",
+                "current_action": "",
             },
         )
 

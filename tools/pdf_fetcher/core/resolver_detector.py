@@ -4,6 +4,7 @@ from __future__ import annotations
 from typing import Optional
 
 from tools.pdf_fetcher.core.config import (
+    ENABLE_ELSEVIER_RESOLVER,
     ENABLE_FRONTIERS_RESOLVER,
     ENABLE_MDPI_RESOLVER,
     ENABLE_SPRINGER_RESOLVER,
@@ -12,7 +13,7 @@ from tools.pdf_fetcher.core.models import DownloadResult, Record
 from tools.pdf_fetcher.core.utils import normalize_doi
 
 
-DEFAULT_RESOLVER_ORDER = ("mdpi", "frontiers", "springer")
+DEFAULT_RESOLVER_ORDER = ("mdpi", "frontiers", "springer", "elsevier")
 
 
 def _source_url_points_to_other_known_publisher(source_url: str, target: str) -> bool:
@@ -168,6 +169,44 @@ def is_springer_candidate_from_values(
     return False
 
 
+def is_elsevier_candidate_from_values(
+    doi_raw: str,
+    doi_link_raw: str,
+    source_url: str = "",
+) -> bool:
+    values = [
+        str(doi_raw or "").strip(),
+        str(doi_link_raw or "").strip(),
+        str(source_url or "").strip(),
+    ]
+
+    normalized_doi = normalize_doi(doi_raw)
+    normalized_doi_link = normalize_doi(doi_link_raw)
+
+    if normalized_doi:
+        values.append(normalized_doi)
+    if normalized_doi_link:
+        values.append(normalized_doi_link)
+
+    lowered = [v.lower() for v in values if v]
+    source_lower = str(source_url or "").strip().lower()
+
+    if source_lower:
+        if "sciencedirect.com" in source_lower or "elsevier.com" in source_lower or "linkinghub.elsevier.com" in source_lower:
+            return True
+        if _source_url_points_to_other_known_publisher(source_lower, "elsevier"):
+            return False
+
+    for value in lowered:
+        if "sciencedirect.com" in value or "elsevier.com" in value or "linkinghub.elsevier.com" in value:
+            return True
+        if value.startswith("10.1016/"):
+            return True
+        if "/10.1016/" in value:
+            return True
+    return False
+
+
 def detect_specialized_resolver_name(
     record: Record,
     phase1_result: DownloadResult,
@@ -196,6 +235,13 @@ def detect_specialized_resolver_name(
         source_url=phase1_result.pdf_source_url,
     ):
         return "springer"
+
+    if ENABLE_ELSEVIER_RESOLVER and is_elsevier_candidate_from_values(
+        doi_raw=record.doi_raw,
+        doi_link_raw=record.doi_link_raw,
+        source_url=phase1_result.pdf_source_url,
+    ):
+        return "elsevier"
 
     return None
 
