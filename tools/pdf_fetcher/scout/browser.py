@@ -6,7 +6,7 @@ from pathlib import Path
 from playwright.sync_api import BrowserContext, Download, Error as PlaywrightError, Page, TimeoutError as PlaywrightTimeoutError, sync_playwright
 
 
-REPO_ROOT = Path(__file__).resolve().parents[4]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 PROFILE_ROOT = REPO_ROOT / "tools" / "pdf_fetcher" / "browser_profiles" / "scout"
 
 

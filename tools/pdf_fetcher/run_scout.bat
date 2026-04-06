@@ -17,6 +17,6 @@ if exist ".venv\Scripts\python.exe" (
     exit /b 1
 )
 
-"%PYTHON_EXE%" -m streamlit run tools\pdf_fetcher\ui\web\scout.py
+"%PYTHON_EXE%" -m streamlit run tools\pdf_fetcher\scout\app.py
 
 pause
