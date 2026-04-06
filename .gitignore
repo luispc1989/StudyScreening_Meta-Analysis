@@ -24,3 +24,6 @@ models/*
 logs/
 tmp/
 *.log
+
+# Local browser/runtime artifacts
+tools/pdf_fetcher/browser_profiles/

@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Scout Download Bridge",
+  "version": "0.1.0",
+  "description": "Reports completed PDF downloads to the local S.C.O.U.T. bridge.",
+  "permissions": [
+    "downloads"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:8765/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
