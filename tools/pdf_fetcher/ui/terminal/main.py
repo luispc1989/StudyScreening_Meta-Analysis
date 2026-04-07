@@ -34,6 +34,7 @@ from tools.pdf_fetcher.core.pipeline import (
     run_phase1_for_session,
     run_phase2_for_session,
 )
+from tools.pdf_fetcher.scout.launcher import export_scout_cases_report, launch_scout_with_report
 from tools.pdf_fetcher.ui.terminal.dashboard import TerminalDashboard
 
 
@@ -198,6 +199,59 @@ def show_startup_notice(dashboard: TerminalDashboard) -> None:
     )
 
 
+def launch_scout_from_terminal(session_state, dashboard: TerminalDashboard, mode: str) -> None:
+    label = "pending downloads" if mode == "pending_downloads" else "load fail test cases"
+
+    try:
+        report_path = export_scout_cases_report(
+            session_state=session_state,
+            mode=mode,
+            timestamp=session_state.timestamp or None,
+        )
+        scout_url = launch_scout_with_report(report_path)
+        show_message_and_wait(
+            dashboard,
+            "S.C.O.U.T.",
+            [
+                f"S.C.O.U.T. launched for {label}.",
+                f"Case report             : {report_path}",
+                f"Browser URL             : {scout_url}",
+            ],
+        )
+    except Exception as exc:
+        show_message_and_wait(
+            dashboard,
+            "S.C.O.U.T.",
+            [
+                f"Could not launch S.C.O.U.T.: {exc}",
+            ],
+        )
+
+
+def run_scout_menu_loop(session_state, dashboard: TerminalDashboard) -> None:
+    while True:
+        choice = dashboard.show_scout_menu()
+
+        if choice == "1":
+            launch_scout_from_terminal(
+                session_state=session_state,
+                dashboard=dashboard,
+                mode="pending_downloads",
+            )
+            continue
+
+        if choice == "2":
+            launch_scout_from_terminal(
+                session_state=session_state,
+                dashboard=dashboard,
+                mode="load_fail_test_cases",
+            )
+            continue
+
+        if choice == "3":
+            return
+
+
 def _diagnostic_wrapper(
     session_state,
     diagnostic_label: str,
@@ -310,6 +364,30 @@ def save_current_after_phase(session_state, dashboard: TerminalDashboard, phase_
         wait_for_enter()
 
 
+def sync_current_before_transition(
+    session_state,
+    dashboard: TerminalDashboard,
+    transition_label: str,
+) -> bool:
+    current_path = save_current_workbook(session_state)
+    if not current_path:
+        show_message_and_wait(
+            dashboard,
+            transition_label,
+            ["Could not update the current workbook before transition."],
+        )
+        return False
+
+    reloaded_session = reload_session_from_current(session_state)
+    session_state.workbook_path = reloaded_session.workbook_path
+    session_state.workbook = reloaded_session.workbook
+    session_state.worksheet = reloaded_session.worksheet
+    session_state.col_map = reloaded_session.col_map
+    session_state.records = reloaded_session.records
+    session_state.current_workbook_path = reloaded_session.current_workbook_path
+    return True
+
+
 def _phase0_wrapper(session_state, stop_event=None):
     return run_phase0_doi_enrichment_for_session(
         session_state=session_state,
@@ -359,6 +437,12 @@ def run_phase0_menu_loop(session_state, dashboard: TerminalDashboard) -> str:
             continue
 
         if choice == "3":
+            if not sync_current_before_transition(
+                session_state=session_state,
+                dashboard=dashboard,
+                transition_label="PHASE 0 -> PHASE 1",
+            ):
+                continue
             navigation = run_phase1_menu_loop(
                 session_state=session_state,
                 dashboard=dashboard,
@@ -421,6 +505,12 @@ def run_phase1_menu_loop(
             continue
 
         if choice == "2":
+            if not sync_current_before_transition(
+                session_state=session_state,
+                dashboard=dashboard,
+                transition_label="PHASE 1 -> PHASE 2",
+            ):
+                continue
             navigation = run_phase2_menu_loop(
                 session_state=session_state,
                 dashboard=dashboard,
@@ -670,13 +760,12 @@ def main() -> None:
                 continue
 
             if allow_phase2_start and choice == "3":
-                reloaded_session = reload_session_from_current(session_state)
-                session_state.workbook_path = reloaded_session.workbook_path
-                session_state.workbook = reloaded_session.workbook
-                session_state.worksheet = reloaded_session.worksheet
-                session_state.col_map = reloaded_session.col_map
-                session_state.records = reloaded_session.records
-                session_state.current_workbook_path = reloaded_session.current_workbook_path
+                if not sync_current_before_transition(
+                    session_state=session_state,
+                    dashboard=dashboard,
+                    transition_label="INITIAL -> PHASE 2",
+                ):
+                    continue
 
                 phase1_results_by_row, phase1_summary = reconstruct_phase1_results_from_workbook(session_state)
                 run_phase2_menu_loop(
@@ -696,6 +785,19 @@ def main() -> None:
                 continue
 
             if (allow_phase2_start and choice == "5") or (not allow_phase2_start and choice == "4"):
+                if not sync_current_before_transition(
+                    session_state=session_state,
+                    dashboard=dashboard,
+                    transition_label="CURRENT -> S.C.O.U.T.",
+                ):
+                    continue
+                run_scout_menu_loop(
+                    session_state=session_state,
+                    dashboard=dashboard,
+                )
+                continue
+
+            if (allow_phase2_start and choice == "6") or (not allow_phase2_start and choice == "5"):
                 raise SystemExit(0)
 
     except UserRequestedQuit:

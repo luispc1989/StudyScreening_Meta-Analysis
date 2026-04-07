@@ -79,8 +79,9 @@ DARK_HEADER_FILL = "FF000000"
 LIGHT_BLUE_HEADER_FILL = "FFD9EAF7"
 WHITE_FONT = "FFFFFFFF"
 
-CENTER = Alignment(horizontal="center", vertical="center")
-CENTER_TOP = Alignment(horizontal="center", vertical="top")
+CENTER = Alignment(horizontal="center", vertical="center", wrap_text=True, shrink_to_fit=False)
+CENTER_TOP = Alignment(horizontal="center", vertical="top", wrap_text=True, shrink_to_fit=False)
+LEFT_TOP = Alignment(horizontal="left", vertical="top", wrap_text=True, shrink_to_fit=False)
 
 
 # =========================
@@ -924,6 +925,12 @@ def format_table_header(ws) -> None:
         cell.alignment = CENTER_TOP
 
 
+def format_table_body(ws) -> None:
+    for row_idx in range(2, ws.max_row + 1):
+        for col_idx in range(1, ws.max_column + 1):
+            ws.cell(row=row_idx, column=col_idx).alignment = LEFT_TOP
+
+
 def build_phase0_report_headers() -> list[str]:
     return [
         "record_id",
@@ -1102,6 +1109,7 @@ def write_table_sheet_with_headers(
 
         current_row += 1
 
+    format_table_body(ws)
     autosize_columns(ws)
 
 

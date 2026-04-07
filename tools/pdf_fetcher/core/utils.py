@@ -12,6 +12,14 @@ def now_str() -> str:
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
+def format_checked_at(detail: str = "") -> str:
+    timestamp = now_str()
+    cleaned = str(detail or "").strip()
+    if not cleaned:
+        return timestamp
+    return f"{timestamp} | {cleaned}"
+
+
 def is_blank(value) -> bool:
     return value is None or str(value).strip() == ""
 

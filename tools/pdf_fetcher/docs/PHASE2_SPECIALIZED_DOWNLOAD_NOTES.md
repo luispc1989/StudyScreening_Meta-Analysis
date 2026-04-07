@@ -60,6 +60,7 @@ The current implementation includes:
 - `mdpi`
 - `frontiers`
 - `springer`
+- `wiley`
 - `elsevier`
 
 The architecture was explicitly designed so that additional resolvers can be added later without changing the overall workflow model.
@@ -133,7 +134,8 @@ The active resolver order in automatic mode is:
 1. `mdpi`
 2. `frontiers`
 3. `springer`
-4. `elsevier`
+4. `wiley`
+5. `elsevier`
 
 The specific order is not conceptually fixed forever, but the resolver-by-resolver structure is central to the current design.
 
@@ -304,6 +306,224 @@ The intended future development path for Phase 2 is:
 5. expose it automatically in the resolver menu and stats system.
 
 This makes Phase 2 not only a retrieval stage, but also the main expansion point of the app.
+
+## Implementation notes from active resolver development
+
+The Phase 2 architecture was not implemented in one step. It evolved through iterative resolver integration, runtime observation, and targeted debugging against real publisher behavior.
+
+The notes below summarize the most relevant implementation work carried out during active development and validation.
+
+### General Phase 2 development decisions
+
+Several design decisions were introduced at the orchestration level rather than inside a single resolver.
+
+#### Resolver integration model
+
+New specialized resolvers were integrated through a consistent pattern:
+
+1. validate or prototype the resolver logic in the archive area;
+2. create the active resolver under `tools/pdf_fetcher/core/resolvers/`;
+3. register the resolver in the detector;
+4. register the resolver in the Phase 2 pipeline;
+5. expose the resolver through existing automatic and manual execution modes;
+6. preserve the shared `DownloadResult` contract.
+
+This pattern was followed when Wiley was added to the active app.
+
+#### Resolver ordering
+
+Phase 2 was maintained as an ordered resolver-by-resolver process rather than a loose retry sweep. During development, the active resolver sequence became:
+
+1. `mdpi`
+2. `frontiers`
+3. `springer`
+4. `wiley`
+5. `elsevier`
+
+The specific ordering can change later, but the important point for the dissertation is that the workflow remained explicit and inspectable.
+
+#### Article-by-article terminal refresh
+
+During practical runs it became clear that refreshing the Phase 2 dashboard only every few completed records made debugging difficult, especially when validating a single resolver such as Wiley.
+
+The Phase 2 refresh logic was therefore changed so that the terminal now updates article-by-article. This made it easier to:
+
+- observe the current resolver state in real time;
+- identify where a resolver appeared to stall;
+- inspect failures one case at a time during debugging.
+
+#### Failure-detail observability
+
+Originally, many specialized failures were visible only through coarse statuses such as:
+
+- `download_failed_<resolver>`
+- `pdf_link_not_found_<resolver>`
+- `not_<resolver>`
+
+This was useful for categorization but insufficient for debugging.
+
+To improve observability without changing functional behavior, the specialized resolvers were updated so that controlled failures now also write a human-readable detail into `pdf_checked_at`.
+
+Typical failure details now include:
+
+- `final_url_not_<resolver>: ...`
+- `no_pdf_link_found_on_page: ...`
+- `session_request_http_403: ...`
+- `session_request_not_pdf: ...`
+- `browser_download_timeout: ...`
+- `viewer_open_failed_or_empty: ...`
+
+This was implemented conservatively: the success/failure logic remained the same, but the audit trail became much more informative.
+
+### Resolver-specific development: Wiley
+
+The Wiley resolver was integrated into the active app from the archive prototype area. This was one of the most important Phase 2 extensions because Wiley cases had repeatedly appeared in the unresolved set.
+
+#### Wiley integration work
+
+The active Wiley resolver was added by:
+
+- creating `tools/pdf_fetcher/core/resolvers/wiley.py`;
+- adding Wiley-specific configuration variables;
+- registering Wiley in resolver detection;
+- registering Wiley in the Phase 2 resolver pipeline;
+- treating `downloaded_wiley` as a successful specialized outcome.
+
+This brought Wiley into both:
+
+- automatic Phase 2 execution;
+- manual single-resolver testing mode.
+
+#### Wiley attribution and domain recognition
+
+An important issue emerged during early Wiley integration: the initial domain constraints were too narrow. Real Wiley cases appeared under hosts such as:
+
+- `onlinelibrary.wiley.com`
+- `acsess.onlinelibrary.wiley.com`
+- `scijournals.onlinelibrary.wiley.com`
+
+If domain matching was too strict, valid Wiley cases could be misclassified as `not_wiley`.
+
+The resolver and detector were therefore adjusted so that Wiley attribution accepts Wiley subdomains more flexibly. This was necessary because the real platform does not use one single host consistently.
+
+#### Why Wiley required iterative refinement
+
+Wiley exposed several distinct runtime behaviors that were not fully captured by the first active integration:
+
+- article pages that remained on institutional or legacy landing pages;
+- cookie banners and overlays that could obstruct interactions;
+- HTML viewer URLs that loaded a shell but not an actual PDF;
+- cases where the PDF appeared only after viewer rendering;
+- cases where the built-in viewer showed a printable/previewable document but not an immediately accessible direct link.
+
+This made Wiley a good example of why Phase 2 needed resolver-specific debugging rather than generic retry logic.
+
+### Wiley error patterns observed during validation
+
+Several concrete Wiley failure patterns were observed during real runs.
+
+#### 1. Institutional or legacy landing page instead of direct PDF access
+
+In some cases, the DOI resolved to a Wiley-hosted page that showed branding, institutional access text, and cookie consent controls, but did not immediately expose a valid PDF retrieval path.
+
+Typical signs included:
+
+- Wiley Online Library landing layout;
+- institutional access indicators;
+- cookie or consent banners;
+- absence of a directly usable PDF link.
+
+These cases were important because they looked superficially valid while still blocking automation.
+
+#### 2. Empty viewer state (`0 of 0` / `0 de 0`)
+
+Another failure pattern appeared when the resolver opened the Wiley HTML viewer successfully at the URL level, but the viewer itself remained empty and showed no loaded pages.
+
+This was a false-positive navigation success: the viewer shell loaded, but no PDF content was actually available.
+
+The active resolver was updated so that this state is no longer accepted as a meaningful viewer success. It is now classified as a viewer failure instead.
+
+#### 3. Viewer loaded, but retrieval still depended on viewer controls
+
+Some Wiley cases appeared to load successfully inside the browser PDF viewer. In those situations, the document could sometimes be interacted with through native viewer controls such as save or print, even when direct resolver extraction had not yet succeeded.
+
+This revealed an important distinction:
+
+- some viewer cases are empty and unusable;
+- some viewer cases have a real rendered PDF and are recoverable through viewer actions.
+
+### Wiley fixes applied
+
+The main Wiley refinements introduced during debugging were the following.
+
+#### Cookie-banner handling
+
+The resolver was updated to dismiss common consent banners before continuing with PDF-link detection and viewer interaction. This did not solve every Wiley case, but it removed an important class of avoidable interference.
+
+At this stage, cookie handling is still being refined resolver-by-resolver rather than abstracted globally. That decision was made intentionally so that cross-publisher common logic can be extracted later from real observed patterns instead of premature assumptions.
+
+#### Viewer readiness validation
+
+The active resolver was updated to reintroduce a stricter notion of viewer readiness. It now checks for viewer-related elements rather than assuming that any successful navigation to a viewer URL means the PDF is usable.
+
+This prevented empty viewer shells from being misinterpreted as valid progress.
+
+#### Viewer candidate extraction
+
+The active resolver was updated to reintroduce additional candidate collection from the viewer page, including JavaScript-based inspection of embedded sources such as:
+
+- `embed`
+- `iframe`
+- `object`
+- linked viewer elements
+
+This increased the chance of recovering viewer-exposed PDF sources that were not visible through simple static selectors alone.
+
+#### Native viewer save/download fallback
+
+In cases where the PDF is visibly loaded inside the Chromium viewer, the resolver now also attempts the native viewer save/download control rather than relying only on publisher HTML download links.
+
+This is important because some cases are recoverable once the PDF is genuinely rendered, even if the publisher-specific HTML flow is inconsistent.
+
+The guiding rule became:
+
+- if the viewer is empty, do not treat it as success;
+- if the viewer has loaded a real PDF, attempt native save/download as a practical fallback.
+
+### Why these notes matter for the dissertation
+
+These Phase 2 development notes are important methodologically because they show that specialized retrieval was not treated as a black-box scraping exercise.
+
+Instead, the workflow evolved through:
+
+- staged integration;
+- direct observation of publisher behavior;
+- explicit categorization of error modes;
+- conservative debugging that preserved rerun safety and auditability;
+- gradual improvement of resolver robustness based on real cases.
+
+This is especially relevant for dissertation writing because it demonstrates:
+
+- engineering traceability;
+- empirical refinement of publisher-specific automation;
+- a clear distinction between general workflow logic and resolver-specific behavior.
+
+### Open issues and next Wiley refinements
+
+Even after the improvements described above, Wiley remains an active area of refinement. The following issues should be considered still under observation rather than definitively solved:
+
+- institutional or legacy landing pages that do not expose a stable PDF path quickly;
+- cases where cookie or consent layers still interfere with the article flow;
+- viewer cases that appear to begin loading but do not fully expose a reusable PDF source;
+- cases where the browser viewer may support print preview or save actions only after delayed rendering.
+
+The practical strategy agreed during development was:
+
+1. keep refining Wiley with conservative fixes based on observed runtime behavior;
+2. avoid premature abstraction of cookie or consent handling across all publishers;
+3. only extract common utilities after similar patterns have been confirmed resolver-by-resolver.
+
+This point is important for dissertation notes because it captures not only what was implemented, but also the rationale for sequencing future work.
 
 ## Dissertation framing suggestion
 

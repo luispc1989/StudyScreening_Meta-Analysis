@@ -29,7 +29,7 @@ from tools.pdf_fetcher.core.config import (
     ENABLE_ELSEVIER_RESOLVER,
 )
 from tools.pdf_fetcher.core.models import DownloadResult, Record
-from tools.pdf_fetcher.core.utils import make_doi_url, normalize_doi, now_str, save_pdf_bytes, url_matches_domain_pattern
+from tools.pdf_fetcher.core.utils import format_checked_at, make_doi_url, normalize_doi, save_pdf_bytes, url_matches_domain_pattern
 
 
 def make_result(
@@ -39,6 +39,7 @@ def make_result(
     source_url: str = "",
     local_path: str = "",
     http_status: Optional[int] = None,
+    detail: str = "",
 ) -> DownloadResult:
     return DownloadResult(
         pdf_downloaded=downloaded,
@@ -47,7 +48,7 @@ def make_result(
         pdf_source_url=source_url,
         pdf_local_path=local_path,
         pdf_http_status=http_status,
-        pdf_checked_at=now_str(),
+        pdf_checked_at=format_checked_at(detail),
     )
 
 
@@ -205,7 +206,7 @@ def click_view_pdf(article_page):
     raise RuntimeError("Could not trigger the Elsevier 'View PDF' button.")
 
 
-def try_session_request_download(context, pdf_url: str, referer_url: str, output_file) -> bool:
+def try_session_request_download(context, pdf_url: str, referer_url: str, output_file) -> tuple[bool, Optional[int], str]:
     response = context.request.get(
         pdf_url,
         headers={"Referer": referer_url},
@@ -213,14 +214,14 @@ def try_session_request_download(context, pdf_url: str, referer_url: str, output
     )
 
     if response.status != 200:
-        return False
+        return False, response.status, f"session_request_http_{response.status}: {pdf_url}"
 
     data = response.body()
     if not is_pdf_bytes(data):
-        return False
+        return False, response.status, f"session_request_not_pdf: {pdf_url}"
 
     output_file.write_bytes(data)
-    return True
+    return True, response.status, ""
 
 
 def extract_pdf_url_from_viewer(page) -> str | None:
@@ -316,6 +317,7 @@ def _run_elsevier_attempt(record: Record, start_url: str, headless: bool) -> Dow
         page = context.new_page()
 
         try:
+            last_detail = ""
             page.goto(start_url, wait_until="domcontentloaded", timeout=ELSEVIER_NAVIGATION_TIMEOUT_MS)
             auto_wait_for_article_ready(page, start_url)
             wait_for_page_ready(page, ELSEVIER_NETWORKIDLE_TIMEOUT_MS)
@@ -327,6 +329,7 @@ def _run_elsevier_attempt(record: Record, start_url: str, headless: bool) -> Dow
                     downloaded=0,
                     status="not_elsevier",
                     source_url=final_page_url,
+                    detail=f"final_url_not_elsevier: {final_page_url}",
                 )
 
             extract_doi_from_page(page, fallback_url=final_page_url)
@@ -334,7 +337,7 @@ def _run_elsevier_attempt(record: Record, start_url: str, headless: bool) -> Dow
             view_pdf_href = find_view_pdf_href(page)
             if view_pdf_href:
                 pdf_view_url = urljoin(final_page_url, view_pdf_href)
-                ok = try_session_request_download(context, pdf_view_url, final_page_url, record.pdf_path)
+                ok, http_status, detail = try_session_request_download(context, pdf_view_url, final_page_url, record.pdf_path)
                 if ok:
                     return make_result(
                         record=record,
@@ -344,11 +347,12 @@ def _run_elsevier_attempt(record: Record, start_url: str, headless: bool) -> Dow
                         local_path=record.relative_path,
                         http_status=200,
                     )
+                last_detail = detail
 
             viewer_page = click_view_pdf(page)
             direct_pdf_url = extract_pdf_url_from_viewer(viewer_page)
             if direct_pdf_url:
-                ok = try_session_request_download(context, direct_pdf_url, viewer_page.url, record.pdf_path)
+                ok, http_status, detail = try_session_request_download(context, direct_pdf_url, viewer_page.url, record.pdf_path)
                 if ok:
                     return make_result(
                         record=record,
@@ -358,6 +362,7 @@ def _run_elsevier_attempt(record: Record, start_url: str, headless: bool) -> Dow
                         local_path=record.relative_path,
                         http_status=200,
                     )
+                last_detail = detail
 
             ok = try_browser_download_from_viewer(viewer_page, record.pdf_path)
             if ok and record.pdf_path.exists() and record.pdf_path.stat().st_size > 0:
@@ -368,19 +373,22 @@ def _run_elsevier_attempt(record: Record, start_url: str, headless: bool) -> Dow
                     source_url=viewer_page.url,
                     local_path=record.relative_path,
                 )
+            last_detail = f"browser_download_failed_from_viewer: {viewer_page.url}"
 
             return make_result(
                 record=record,
                 downloaded=0,
                 status="download_failed_elsevier",
                 source_url=final_page_url,
+                detail=last_detail or f"all_download_attempts_failed: {final_page_url}",
             )
-        except RuntimeError:
+        except RuntimeError as exc:
             return make_result(
                 record=record,
                 downloaded=0,
                 status="pdf_link_not_found_elsevier",
                 source_url=page.url,
+                detail=str(exc).strip() or f"pdf_link_not_found: {page.url}",
             )
         finally:
             browser.close()

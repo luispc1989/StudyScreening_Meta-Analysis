@@ -149,7 +149,9 @@ ENABLE_SPECIALIZED_RESOLVERS = True
 ENABLE_FRONTIERS_RESOLVER = True
 ENABLE_MDPI_RESOLVER = True
 ENABLE_SPRINGER_RESOLVER = True
-ENABLE_ELSEVIER_RESOLVER = True
+ENABLE_WILEY_RESOLVER = True
+ENABLE_ELSEVIER_RESOLVER = False
+ENABLE_SCI_HUB_RESOLVER = True
 
 
 # =========================
@@ -189,6 +191,39 @@ SPRINGER_NETWORKIDLE_TIMEOUT_MS = 8000
 SPRINGER_DOWNLOAD_TIMEOUT_MS = 120000
 SPRINGER_POST_LOAD_WAIT_MS = 2000
 SPRINGER_ALLOWED_DOMAIN_PATTERN = r"(^|\.)springer\.com$|(^|\.)link\.springer\.com$"
+
+
+# =========================
+# WILEY / PLAYWRIGHT
+# =========================
+
+WILEY_BROWSER_MODE = "headed"
+WILEY_HEADLESS = False
+WILEY_NAVIGATION_TIMEOUT_MS = 120000
+WILEY_NETWORKIDLE_TIMEOUT_MS = 8000
+WILEY_DOWNLOAD_TIMEOUT_MS = 120000
+WILEY_POST_LOAD_WAIT_MS = 2500
+WILEY_ALLOWED_DOMAIN_PATTERN = r"(^|\.)wiley\.com$|(^|\.)onlinelibrary\.wiley\.com$"
+
+
+# =========================
+# SCI-HUB / PLAYWRIGHT
+# =========================
+
+SCI_HUB_DOMAINS = [
+    "https://sci-hub.box",
+    "https://sci-hub.ru",
+    "https://sci-hub.st",
+    "https://sci-hub.red",
+    "https://sci-hub.su",
+    "https://sci-hub.se",
+]
+SCI_HUB_BROWSER_MODE = "headed"
+SCI_HUB_HEADLESS = False
+SCI_HUB_NAVIGATION_TIMEOUT_MS = 60000
+SCI_HUB_NETWORKIDLE_TIMEOUT_MS = 5000
+SCI_HUB_DOWNLOAD_TIMEOUT_MS = 60000
+SCI_HUB_POST_LOAD_WAIT_MS = 2000
 
 
 # =========================
@@ -247,7 +282,10 @@ DIAGNOSTIC_REQUIRED_INPUT_COLUMNS_SESSION = [
     "Title",
     "DOI",
     "DOI Link",
+    "pdf_downloaded",
     "pdf_download_status",
+    "pdf_source_url",
+    "pdf_http_status",
 ]
 
 DIAGNOSTIC_OUTPUT_COLUMNS = [
@@ -256,6 +294,7 @@ DIAGNOSTIC_OUTPUT_COLUMNS = [
     "Title",
     "DOI",
     "DOI Link",
+    "pdf_downloaded",
     "pdf_download_status",
     "pdf_source_url",
     "pdf_http_status",
@@ -267,12 +306,24 @@ DIAGNOSTIC_ERROR_TAB_COLUMNS = [
     "Title",
     "DOI",
     "DOI Link",
+    "pdf_downloaded",
     "pdf_download_status",
     "pdf_source_url",
     "pdf_http_status",
 ]
 
-DIAGNOSTIC_EXCLUDED_FROM_ERROR_RANKING = {"downloaded", "", None}
+DIAGNOSTIC_EXCLUDED_FROM_ERROR_RANKING = {
+    "downloaded",
+    "duplicate_pdf",
+    "downloaded_frontiers",
+    "downloaded_mdpi",
+    "downloaded_springer",
+    "downloaded_wiley",
+    "downloaded_elsevier",
+    "downloaded_sci_hub",
+    "",
+    None,
+}
 
 
 # =========================
@@ -341,7 +392,9 @@ SPECIALIZED_DOWNLOADED_NOW_STATUSES = {
     "downloaded_frontiers",
     "downloaded_mdpi",
     "downloaded_springer",
+    "downloaded_wiley",
     "downloaded_elsevier",
+    "downloaded_sci_hub",
 }
 
 

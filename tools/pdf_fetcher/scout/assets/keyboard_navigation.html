@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SCOUT Keyboard Navigation</title>
+</head>
+<body>
+  <script>
+    const parentWindow = window.parent;
+    const parentDocument = parentWindow?.document;
+
+    if (parentWindow && parentDocument && !parentWindow.__scoutKeyboardNavBound) {
+      parentWindow.__scoutKeyboardNavBound = true;
+
+      parentDocument.addEventListener("keydown", (event) => {
+        const active = parentDocument.activeElement;
+        const tag = (active?.tagName || "").toLowerCase();
+        const isTypingContext =
+          tag === "textarea" ||
+          tag === "input" ||
+          active?.isContentEditable;
+
+        if (isTypingContext) {
+          return;
+        }
+
+        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") {
+          return;
+        }
+
+        const targetLabel = event.key === "ArrowLeft" ? "Previous" : "Next";
+        const buttons = Array.from(parentDocument.querySelectorAll("button"));
+        const targetButton = buttons.find((button) => {
+          const label = (button.innerText || button.textContent || "").trim();
+          return label === targetLabel && !button.disabled;
+        });
+
+        if (!targetButton) {
+          return;
+        }
+
+        event.preventDefault();
+        targetButton.click();
+      });
+    }
+  </script>
+</body>
+</html>

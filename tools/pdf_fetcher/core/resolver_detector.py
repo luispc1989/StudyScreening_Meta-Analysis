@@ -7,13 +7,15 @@ from tools.pdf_fetcher.core.config import (
     ENABLE_ELSEVIER_RESOLVER,
     ENABLE_FRONTIERS_RESOLVER,
     ENABLE_MDPI_RESOLVER,
+    ENABLE_SCI_HUB_RESOLVER,
     ENABLE_SPRINGER_RESOLVER,
+    ENABLE_WILEY_RESOLVER,
 )
 from tools.pdf_fetcher.core.models import DownloadResult, Record
 from tools.pdf_fetcher.core.utils import normalize_doi
 
 
-DEFAULT_RESOLVER_ORDER = ("mdpi", "frontiers", "springer", "elsevier")
+DEFAULT_RESOLVER_ORDER = ("mdpi", "frontiers", "springer", "wiley", "elsevier", "sci_hub")
 
 
 def _source_url_points_to_other_known_publisher(source_url: str, target: str) -> bool:
@@ -207,6 +209,51 @@ def is_elsevier_candidate_from_values(
     return False
 
 
+def is_wiley_candidate_from_values(
+    doi_raw: str,
+    doi_link_raw: str,
+    source_url: str = "",
+) -> bool:
+    values = [
+        str(doi_raw or "").strip(),
+        str(doi_link_raw or "").strip(),
+        str(source_url or "").strip(),
+    ]
+
+    normalized_doi = normalize_doi(doi_raw)
+    normalized_doi_link = normalize_doi(doi_link_raw)
+
+    if normalized_doi:
+        values.append(normalized_doi)
+    if normalized_doi_link:
+        values.append(normalized_doi_link)
+
+    lowered = [v.lower() for v in values if v]
+    source_lower = str(source_url or "").strip().lower()
+
+    if source_lower:
+        if (
+            "onlinelibrary.wiley.com" in source_lower
+            or "wiley.com" in source_lower
+        ):
+            return True
+        if _source_url_points_to_other_known_publisher(source_lower, "wiley"):
+            return False
+
+    for value in lowered:
+        if (
+            "onlinelibrary.wiley.com" in value
+            or "wiley.com" in value
+        ):
+            return True
+        if value.startswith("10.1111/"):
+            return True
+        if "/10.1111/" in value:
+            return True
+
+    return False
+
+
 def detect_specialized_resolver_name(
     record: Record,
     phase1_result: DownloadResult,
@@ -236,6 +283,13 @@ def detect_specialized_resolver_name(
     ):
         return "springer"
 
+    if ENABLE_WILEY_RESOLVER and is_wiley_candidate_from_values(
+        doi_raw=record.doi_raw,
+        doi_link_raw=record.doi_link_raw,
+        source_url=phase1_result.pdf_source_url,
+    ):
+        return "wiley"
+
     if ENABLE_ELSEVIER_RESOLVER and is_elsevier_candidate_from_values(
         doi_raw=record.doi_raw,
         doi_link_raw=record.doi_link_raw,
@@ -252,11 +306,13 @@ def get_ordered_resolver_names(
 ) -> list[str]:
     primary = detect_specialized_resolver_name(record, phase1_result)
     if primary:
+        if ENABLE_SCI_HUB_RESOLVER:
+            return [primary, "sci_hub"]
         return [primary]
 
-    # Do not send records into a broad all-resolvers sweep when we do not have
-    # a credible publisher signal. That explodes phase 2 time without adding
-    # useful precision.
+    if ENABLE_SCI_HUB_RESOLVER:
+        return ["sci_hub"]
+
     return []
 
 
@@ -274,6 +330,8 @@ def should_retry_in_phase2(result: DownloadResult) -> bool:
         "downloaded_frontiers",
         "downloaded_mdpi",
         "downloaded_springer",
+        "downloaded_wiley",
+        "downloaded_sci_hub",
     }:
         return False
 

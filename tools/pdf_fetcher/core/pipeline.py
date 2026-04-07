@@ -56,7 +56,9 @@ def _resolve_specialized_resolver_callable(resolver_name: str):
         "elsevier": ("tools.pdf_fetcher.core.resolvers.elsevier", ("try_elsevier_resolver",)),
         "frontiers": ("tools.pdf_fetcher.core.resolvers.frontiers", ("try_frontiers_resolver",)),
         "mdpi": ("tools.pdf_fetcher.core.resolvers.mdpi", ("try_mdpi_resolver",)),
+        "sci_hub": ("tools.pdf_fetcher.core.resolvers.sci_hub", ("try_sci_hub_resolver",)),
         "springer": ("tools.pdf_fetcher.core.resolvers.springer", ("try_springer_resolver",)),
+        "wiley": ("tools.pdf_fetcher.core.resolvers.wiley", ("try_wiley_resolver",)),
     }
 
     spec = resolver_specs.get(resolver_name)
@@ -104,7 +106,7 @@ def build_retry_tasks(
     selected_resolver: Optional[str] = None,
 ) -> List[RetryTask]:
     tasks: List[RetryTask] = []
-    resolver_order = {"mdpi": 0, "frontiers": 1, "springer": 2, "elsevier": 3}
+    resolver_order = {"mdpi": 0, "frontiers": 1, "springer": 2, "wiley": 3, "elsevier": 4, "sci_hub": 5}
 
     if not ENABLE_SPECIALIZED_RESOLVERS:
         return tasks
@@ -138,7 +140,7 @@ def _should_try_next_resolver(result: DownloadResult) -> bool:
     if not status:
         return True
 
-    if status in {"downloaded", "duplicate_pdf", "downloaded_frontiers", "downloaded_mdpi", "downloaded_springer"}:
+    if status in {"downloaded", "duplicate_pdf", "downloaded_frontiers", "downloaded_mdpi", "downloaded_springer", "downloaded_wiley"}:
         return False
 
     if status.startswith("not_"):
@@ -233,9 +235,7 @@ def _should_emit_phase2_progress(processed: int, total: int) -> bool:
         return True
     if processed == total:
         return True
-    if processed % 5 == 0:
-        return True
-    return False
+    return True
 
 
 def _run_phase1_core(

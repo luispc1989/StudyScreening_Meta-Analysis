@@ -6,6 +6,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence
 
 from openpyxl import load_workbook
+from openpyxl.styles import Alignment
+from openpyxl.utils import get_column_letter
 
 from tools.pdf_fetcher.core.config import (
     ACTIVE_PROJECT_ROOT,
@@ -25,6 +27,85 @@ from tools.pdf_fetcher.core.config import (
 )
 from tools.pdf_fetcher.core.models import DownloadResult, Record, SessionState
 from tools.pdf_fetcher.core.utils import build_pdf_filename
+
+
+DOWNLOADED_STATUS_VALUES = BASE_AVAILABLE_STATUSES | SPECIALIZED_DOWNLOADED_NOW_STATUSES
+DEFAULT_CELL_ALIGNMENT = Alignment(horizontal="left", vertical="top", wrap_text=False, shrink_to_fit=False)
+WRAPPED_CELL_ALIGNMENT = Alignment(horizontal="left", vertical="top", wrap_text=True, shrink_to_fit=False)
+CENTERED_CELL_ALIGNMENT = Alignment(horizontal="center", vertical="top", wrap_text=False, shrink_to_fit=False)
+WRAPPED_HEADER_ALIGNMENT = Alignment(horizontal="center", vertical="center", wrap_text=True, shrink_to_fit=False)
+HEADER_ROW_HEIGHT = 22
+BODY_ROW_HEIGHT = 18
+HEADER_WIDTH_PADDING = 3
+HEADER_MAX_WIDTH = 36
+COLUMN_WIDTH_PRESETS = {
+    "record_id": 10,
+    "source_record_id": 12,
+    "master_id": 12,
+    "source": 10,
+    "source_priority": 12,
+    "run_id": 12,
+    "source_path": 18,
+    "source_row_index": 10,
+    "date_imported": 18,
+    "Authors": 24,
+    "Publication Year": 12,
+    "Title": 34,
+    "Abstract": 30,
+    "Author Keywords": 24,
+    "Source Title": 18,
+    "Volume": 10,
+    "Issue": 10,
+    "Begin Page": 10,
+    "End Page": 10,
+    "Article Number": 12,
+    "E-mail Address": 24,
+    "E-mail Adress": 24,
+    "DOI": 18,
+    "DOI Link": 24,
+    "pdf_downloaded": 12,
+    "pdf_download_status": 20,
+    "pdf_file_name": 28,
+    "pdf_source_url": 22,
+    "pdf_local_path": 24,
+    "pdf_http_status": 12,
+    "pdf_checked_at": 20,
+    "Label": 14,
+    "Reason to Exclude": 24,
+    "Comment": 24,
+}
+WRAPPED_BODY_COLUMNS = {
+    "Authors",
+    "Title",
+    "Abstract",
+    "Author Keywords",
+    "Source Title",
+    "E-mail Address",
+    "E-mail Adress",
+    "DOI",
+    "DOI Link",
+    "pdf_download_status",
+    "pdf_file_name",
+    "pdf_source_url",
+    "pdf_local_path",
+    "pdf_checked_at",
+    "Reason to Exclude",
+    "Comment",
+}
+CENTERED_BODY_COLUMNS = {
+    "record_id",
+    "source_priority",
+    "source_row_index",
+    "Publication Year",
+    "Volume",
+    "Issue",
+    "Begin Page",
+    "End Page",
+    "Article Number",
+    "pdf_downloaded",
+    "pdf_http_status",
+    "Label",
+}
 
 
 def load_workbook_and_sheet(workbook_path: Path, sheet_name: str):
@@ -144,7 +225,137 @@ def row_is_already_downloaded(ws, row_idx: int, col_map: Dict[str, int]) -> bool
     if str(pdf_downloaded).strip() == "1":
         return True
 
-    return pdf_status == "downloaded"
+    return pdf_status in DOWNLOADED_STATUS_VALUES
+
+
+def parse_pdf_downloaded_flag(value: Any) -> int:
+    try:
+        return 1 if int(str(value or "0").strip()) == 1 else 0
+    except Exception:
+        return 0
+
+
+def status_indicates_downloaded(status: Any) -> bool:
+    normalized = str(status or "").strip().lower()
+    return normalized in DOWNLOADED_STATUS_VALUES
+
+
+def resolve_existing_pdf_path_for_row(
+    ws,
+    row_idx: int,
+    col_map: Dict[str, int],
+) -> Optional[Path]:
+    candidate_paths: list[Path] = []
+
+    pdf_local_path = str(get_optional_cell(ws, row_idx, col_map, "pdf_local_path", "") or "").strip()
+    if pdf_local_path:
+        local_path = Path(pdf_local_path)
+        if local_path.is_absolute():
+            candidate_paths.append(local_path)
+        else:
+            candidate_paths.append(ACTIVE_PROJECT_ROOT / local_path)
+
+    pdf_file_name = str(get_optional_cell(ws, row_idx, col_map, "pdf_file_name", "") or "").strip()
+    if pdf_file_name:
+        candidate_paths.append(PDF_BASE_DIR / pdf_file_name)
+
+    record_id = str(get_optional_cell(ws, row_idx, col_map, "record_id", "") or "").strip()
+    title = str(get_optional_cell(ws, row_idx, col_map, "Title", "") or "").strip()
+    if record_id and title:
+        candidate_paths.append(PDF_BASE_DIR / build_pdf_filename(record_id, title))
+
+    seen: set[str] = set()
+    for candidate in candidate_paths:
+        normalized = str(candidate.resolve(strict=False)).lower()
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+
+        try:
+            if candidate.exists() and candidate.is_file() and candidate.stat().st_size > 0:
+                return candidate
+        except Exception:
+            continue
+
+    return None
+
+
+def reconcile_pdf_state_for_row(
+    ws,
+    row_idx: int,
+    col_map: Dict[str, int],
+) -> bool:
+    record_id = str(get_optional_cell(ws, row_idx, col_map, "record_id", "") or "").strip()
+    if not record_id:
+        return False
+
+    current_downloaded = parse_pdf_downloaded_flag(get_optional_cell(ws, row_idx, col_map, "pdf_downloaded", 0))
+    current_status = str(get_optional_cell(ws, row_idx, col_map, "pdf_download_status", "") or "").strip()
+    existing_pdf_path = resolve_existing_pdf_path_for_row(ws, row_idx, col_map)
+    changed = False
+
+    if existing_pdf_path is not None:
+        desired_file_name = existing_pdf_path.name
+        try:
+            desired_local_path = str(existing_pdf_path.relative_to(ACTIVE_PROJECT_ROOT))
+        except ValueError:
+            desired_local_path = str(existing_pdf_path)
+
+        if current_downloaded != 1:
+            set_cell(ws, row_idx, col_map, "pdf_downloaded", 1)
+            changed = True
+
+        if not status_indicates_downloaded(current_status):
+            set_cell(ws, row_idx, col_map, "pdf_download_status", "downloaded")
+            changed = True
+
+        if str(get_optional_cell(ws, row_idx, col_map, "pdf_file_name", "") or "").strip() != desired_file_name:
+            set_cell(ws, row_idx, col_map, "pdf_file_name", desired_file_name)
+            changed = True
+
+        if str(get_optional_cell(ws, row_idx, col_map, "pdf_local_path", "") or "").strip() != desired_local_path:
+            set_cell(ws, row_idx, col_map, "pdf_local_path", desired_local_path)
+            changed = True
+
+        return changed
+
+    if current_downloaded != 0:
+        set_cell(ws, row_idx, col_map, "pdf_downloaded", 0)
+        changed = True
+
+    if status_indicates_downloaded(current_status):
+        set_cell(ws, row_idx, col_map, "pdf_download_status", "file_missing")
+        changed = True
+
+    return changed
+
+
+def reconcile_pdf_state_with_filesystem(ws, col_map: Dict[str, int]) -> dict:
+    if "record_id" not in col_map or "pdf_downloaded" not in col_map or "pdf_download_status" not in col_map:
+        return {"rows_checked": 0, "rows_changed": 0, "downloaded_in_folder": 0}
+
+    rows_checked = 0
+    rows_changed = 0
+    downloaded_in_folder = 0
+
+    for row_idx in range(2, ws.max_row + 1):
+        record_id = str(get_optional_cell(ws, row_idx, col_map, "record_id", "") or "").strip()
+        if not record_id:
+            continue
+
+        rows_checked += 1
+        existing_pdf_path = resolve_existing_pdf_path_for_row(ws, row_idx, col_map)
+        if existing_pdf_path is not None:
+            downloaded_in_folder += 1
+
+        if reconcile_pdf_state_for_row(ws, row_idx, col_map):
+            rows_changed += 1
+
+    return {
+        "rows_checked": rows_checked,
+        "rows_changed": rows_changed,
+        "downloaded_in_folder": downloaded_in_folder,
+    }
 
 
 def build_record(ws, row_idx: int, col_map: Dict[str, int]) -> Optional[Record]:
@@ -294,11 +505,7 @@ def build_download_result_from_row(
     Rebuild a DownloadResult from workbook values already written by phase 1/2.
     """
     pdf_downloaded_raw = get_optional_cell(ws, row_idx, col_map, "pdf_downloaded", 0)
-    pdf_downloaded = 0
-    try:
-        pdf_downloaded = int(str(pdf_downloaded_raw or "0").strip())
-    except Exception:
-        pdf_downloaded = 0
+    pdf_downloaded = parse_pdf_downloaded_flag(pdf_downloaded_raw)
 
     pdf_http_status_raw = get_optional_cell(ws, row_idx, col_map, "pdf_http_status", "")
     pdf_http_status = None
@@ -454,11 +661,57 @@ def rebuild_session_column_map(session_state: SessionState) -> None:
     session_state.col_map = build_col_map(session_state.worksheet)
 
 
+def apply_contained_cell_layout(ws) -> None:
+    """
+    Keep cell contents visually contained inside cell boundaries.
+    """
+    headers_by_col: Dict[int, str] = {}
+    for col_idx in range(1, ws.max_column + 1):
+        header = str(ws.cell(row=1, column=col_idx).value or "").strip()
+        headers_by_col[col_idx] = header
+        column_letter = get_column_letter(col_idx)
+        width = COLUMN_WIDTH_PRESETS.get(header)
+        if width is None:
+            width = min(max(len(header) + 2, 10), 18) if header else 12
+        if header:
+            width = max(width, min(len(header) + HEADER_WIDTH_PADDING, HEADER_MAX_WIDTH))
+        ws.column_dimensions[column_letter].width = width
+
+    ws.row_dimensions[1].height = HEADER_ROW_HEIGHT
+
+    for row_idx in range(1, ws.max_row + 1):
+        if row_idx > 1:
+            ws.row_dimensions[row_idx].height = BODY_ROW_HEIGHT
+        for col_idx in range(1, ws.max_column + 1):
+            cell = ws.cell(row=row_idx, column=col_idx)
+            if row_idx == 1:
+                cell.alignment = WRAPPED_HEADER_ALIGNMENT
+                continue
+
+            header = headers_by_col.get(col_idx, "")
+            if header in CENTERED_BODY_COLUMNS:
+                cell.alignment = CENTERED_CELL_ALIGNMENT
+            elif header in WRAPPED_BODY_COLUMNS:
+                cell.alignment = WRAPPED_CELL_ALIGNMENT
+            else:
+                cell.alignment = DEFAULT_CELL_ALIGNMENT
+
+
 def safe_save_workbook(wb, output_path: Path, max_attempts: int = 2) -> bool:
     """
     Save workbook safely through a temporary file and replacement.
     """
     output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        for sheet_name in wb.sheetnames:
+            ws = wb[sheet_name]
+            if sheet_name == SHEET_NAME:
+                col_map = build_col_map(ws)
+                reconcile_pdf_state_with_filesystem(ws, col_map)
+            apply_contained_cell_layout(ws)
+    except Exception:
+        pass
 
     for attempt in range(1, max_attempts + 1):
         try:

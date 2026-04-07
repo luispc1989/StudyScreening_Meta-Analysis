@@ -16,7 +16,7 @@ from tools.pdf_fetcher.core.config import (
     MDPI_POST_LOAD_WAIT_MS,
 )
 from tools.pdf_fetcher.core.models import DownloadResult, Record
-from tools.pdf_fetcher.core.utils import make_doi_url, normalize_doi, now_str, save_pdf_bytes, url_matches_domain_pattern
+from tools.pdf_fetcher.core.utils import format_checked_at, make_doi_url, normalize_doi, save_pdf_bytes, url_matches_domain_pattern
 
 
 def make_result(
@@ -26,6 +26,7 @@ def make_result(
     source_url: str = "",
     local_path: str = "",
     http_status: Optional[int] = None,
+    detail: str = "",
 ) -> DownloadResult:
     return DownloadResult(
         pdf_downloaded=downloaded,
@@ -34,7 +35,7 @@ def make_result(
         pdf_source_url=source_url,
         pdf_local_path=local_path,
         pdf_http_status=http_status,
-        pdf_checked_at=now_str(),
+        pdf_checked_at=format_checked_at(detail),
     )
 
 
@@ -118,6 +119,7 @@ def _run_mdpi_attempt(record: Record, start_url: str, headless: bool) -> Downloa
         page = context.new_page()
 
         try:
+            last_detail = ""
             page.goto(
                 start_url,
                 wait_until="domcontentloaded",
@@ -132,6 +134,7 @@ def _run_mdpi_attempt(record: Record, start_url: str, headless: bool) -> Downloa
                     downloaded=0,
                     status="not_mdpi",
                     source_url=final_page_url,
+                    detail=f"final_url_not_mdpi: {final_page_url}",
                 )
 
             open_download_menu_if_present(page)
@@ -142,6 +145,7 @@ def _run_mdpi_attempt(record: Record, start_url: str, headless: bool) -> Downloa
                     downloaded=0,
                     status="pdf_link_not_found_mdpi",
                     source_url=final_page_url,
+                    detail=f"no_pdf_link_found_on_page: {final_page_url}",
                 )
 
             try:
@@ -168,8 +172,11 @@ def _run_mdpi_attempt(record: Record, start_url: str, headless: bool) -> Downloa
                                 local_path=record.relative_path,
                                 http_status=response.status,
                             )
+                        last_detail = f"session_request_not_pdf: {pdf_url}"
+                    else:
+                        last_detail = f"session_request_http_{response.status}: {pdf_url}"
                 except Exception:
-                    pass
+                    last_detail = f"session_request_exception: {pdf_url}"
 
             try:
                 with page.expect_download(timeout=MDPI_DOWNLOAD_TIMEOUT_MS) as download_info:
@@ -185,15 +192,16 @@ def _run_mdpi_attempt(record: Record, start_url: str, headless: bool) -> Downloa
                         local_path=record.relative_path,
                     )
             except PlaywrightTimeoutError:
-                pass
+                last_detail = "browser_download_timeout"
             except Exception:
-                pass
+                last_detail = "browser_download_exception"
 
             return make_result(
                 record=record,
                 downloaded=0,
                 status="download_failed_mdpi",
                 source_url=final_page_url,
+                detail=last_detail or f"all_download_attempts_failed: {final_page_url}",
             )
         finally:
             browser.close()

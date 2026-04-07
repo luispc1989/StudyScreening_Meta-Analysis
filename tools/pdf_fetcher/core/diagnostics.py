@@ -38,6 +38,7 @@ from tools.pdf_fetcher.core.config import (
     build_report_output_path,
 )
 from tools.pdf_fetcher.core.excel_io import build_col_map, get_optional_cell, safe_save_workbook
+from tools.pdf_fetcher.core.excel_io import reconcile_pdf_state_with_filesystem
 from tools.pdf_fetcher.core.models import DiagnosticSummary, SessionState
 
 
@@ -57,8 +58,9 @@ BLUE_SECTION_FILL = "FF1F4E78"
 LIGHT_BLUE_HEADER_FILL = "FFD9EAF7"
 WHITE_FONT = "FFFFFFFF"
 
-CENTER = Alignment(horizontal="center", vertical="center")
-CENTER_TOP = Alignment(horizontal="center", vertical="top")
+CENTER = Alignment(horizontal="center", vertical="center", wrap_text=True, shrink_to_fit=False)
+CENTER_TOP = Alignment(horizontal="center", vertical="top", wrap_text=True, shrink_to_fit=False)
+LEFT_TOP = Alignment(horizontal="left", vertical="top", wrap_text=True, shrink_to_fit=False)
 
 
 # =========================
@@ -381,6 +383,8 @@ def format_error_tab_header(ws) -> None:
 
 def format_error_tab_body(ws) -> None:
     for row_idx in range(2, ws.max_row + 1):
+        for col_idx in range(1, ws.max_column + 1):
+            ws.cell(row=row_idx, column=col_idx).alignment = LEFT_TOP
         for col_idx in (1, 6, 8):
             ws.cell(row=row_idx, column=col_idx).alignment = CENTER
 
@@ -443,6 +447,14 @@ def apply_stats_sheet_layout(ws) -> None:
     for row_idx in range(6, ws.max_row + 1):
         for col_idx in range(7, 11):
             ws.cell(row=row_idx, column=col_idx).alignment = CENTER
+
+    for row_idx in range(1, ws.max_row + 1):
+        for col_idx in range(1, ws.max_column + 1):
+            if ws.cell(row=row_idx, column=col_idx).alignment == CENTER:
+                continue
+            if ws.cell(row=row_idx, column=col_idx).alignment == CENTER_TOP:
+                continue
+            ws.cell(row=row_idx, column=col_idx).alignment = LEFT_TOP
 
     widths = {
         "A": 8,
@@ -644,6 +656,7 @@ def create_error_tabs(
                 row.get("Title", ""),
                 row.get("DOI", ""),
                 row.get("DOI Link", ""),
+                row.get("pdf_downloaded", ""),
                 row.get("pdf_download_status", ""),
                 row.get("pdf_source_url", ""),
                 row.get("pdf_http_status", ""),
@@ -656,7 +669,7 @@ def create_error_tabs(
                     cell.hyperlink = str(value)
                     cell.style = "Hyperlink"
 
-                if col_idx == 7 and value:
+                if col_idx == 8 and value:
                     cell.hyperlink = str(value)
                     cell.style = "Hyperlink"
 
@@ -711,10 +724,6 @@ def extract_rows_for_session_diagnostic(
         if not record_id:
             continue
 
-        existing_status = str(get_optional_cell(ws, row_idx, col_map, "pdf_download_status", "") or "").strip().lower()
-        if existing_status == "downloaded":
-            continue
-
         row_values = {header: get_optional_cell(ws, row_idx, col_map, header, "") for header in headers}
         row_values["_source_row_idx"] = row_idx
         row_values["_previous_pdf_download_status"] = get_optional_cell(ws, row_idx, col_map, "pdf_download_status", "")
@@ -733,8 +742,18 @@ def diagnose_single_row(row_data: dict) -> dict:
     doi_raw_str = str(row_data.get("DOI") or "").strip()
     doi_link = str(row_data.get("DOI Link") or "").strip()
     doi = normalize_doi(doi_raw_str)
+    pdf_downloaded = 0
+    try:
+        pdf_downloaded = 1 if int(str(row_data.get("pdf_downloaded") or "0").strip()) == 1 else 0
+    except Exception:
+        pdf_downloaded = 0
 
-    if not doi_raw_str and not doi_link:
+    if pdf_downloaded == 1:
+        diagnostic_status = str(row_data.get("pdf_download_status") or "").strip() or "downloaded"
+        diagnostic_http_status = row_data.get("pdf_http_status", "")
+        diagnostic_source_url = str(row_data.get("pdf_source_url") or "").strip()
+
+    elif not doi_raw_str and not doi_link:
         diagnostic_status = "missing_doi"
         diagnostic_http_status = ""
         diagnostic_source_url = ""
@@ -779,6 +798,7 @@ def diagnose_single_row(row_data: dict) -> dict:
         "Title": row_data.get("Title", ""),
         "DOI": row_data.get("DOI", ""),
         "DOI Link": row_data.get("DOI Link", ""),
+        "pdf_downloaded": pdf_downloaded,
         "pdf_download_status": diagnostic_status,
         "pdf_source_url": diagnostic_source_url,
         "pdf_http_status": diagnostic_http_status,
@@ -815,6 +835,8 @@ def run_diagnostic_for_session(
         raise ValueError("SessionState workbook is not loaded.")
 
     ws = session_state.worksheet
+    col_map = build_col_map(ws)
+    reconcile_pdf_state_with_filesystem(ws, col_map)
     col_map = build_col_map(ws)
     session_state.col_map = col_map
 

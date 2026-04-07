@@ -261,15 +261,17 @@ class TerminalDashboard:
         if allow_phase2_start:
             options.append("[3] Start from phase 2 - PDF Specialized Download")
             options.append("[4] Run initial diagnostic")
-            options.append("[5] Exit")
-            valid_choices.extend(["3", "4", "5"])
+            options.append("[5] Use S.C.O.U.T.")
+            options.append("[6] Exit")
+            valid_choices.extend(["3", "4", "5", "6"])
             subtitle = "NOTICE: Phase 1 data found in Current. You can start directly from phase 2."
             if self.terminal_mode == "ansi":
                 subtitle = f"\033[5m{subtitle}\033[0m"
         else:
             options.append("[3] Run initial diagnostic")
-            options.append("[4] Exit")
-            valid_choices.extend(["3", "4"])
+            options.append("[4] Use S.C.O.U.T.")
+            options.append("[5] Exit")
+            valid_choices.extend(["3", "4", "5"])
 
         lines = self.build_menu_lines(
             title="PDF FETCHER - Study Screening Toolkit",
@@ -278,6 +280,18 @@ class TerminalDashboard:
         )
         self.render_static_block(lines)
         return self.prompt_choice(valid_choices)
+
+    def show_scout_menu(self) -> str:
+        lines = self.build_menu_lines(
+            title="S.C.O.U.T.",
+            options=[
+                "[1] Use Scout",
+                "[2] Use Scout - Test Mode",
+                "[3] Go back",
+            ],
+        )
+        self.render_static_block(lines)
+        return self.prompt_choice(["1", "2", "3"])
 
     def show_phase0_menu(self) -> str:
         lines = self.build_menu_lines(

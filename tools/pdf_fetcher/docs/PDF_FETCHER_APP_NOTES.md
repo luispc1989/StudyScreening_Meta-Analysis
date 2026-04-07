@@ -158,6 +158,7 @@ Phase 2 currently supports:
 - MDPI
 - Frontiers
 - Springer
+- Wiley
 - Elsevier
 
 The app also supports two Phase 2 execution modes:
@@ -227,7 +228,151 @@ The design intention is that all future resolvers will follow the same pattern:
 - structured status return;
 - integration into the shared Phase 2 menu and stats system.
 
-## 10. Workbook fields used by the app
+## 10. Resolver construction strategy
+
+The resolver layer was not conceived as a collection of unrelated publisher scripts. A deliberate construction strategy was followed so that new resolvers could be added incrementally without destabilizing the app.
+
+### 10.1 Why resolvers were built incrementally
+
+Publisher-specific automation was treated as an empirical engineering problem rather than a purely theoretical design task. In practice, publisher platforms differ in:
+
+- navigation structure;
+- cookie and consent behavior;
+- DOI redirection behavior;
+- PDF exposure mechanism;
+- viewer design;
+- access-control or institutional layers.
+
+Because of this variability, resolvers were built incrementally and validated against real cases before being incorporated into the active Phase 2 workflow.
+
+### 10.2 Practical construction workflow
+
+The construction strategy for a new resolver follows a recurring sequence:
+
+1. identify an unresolved publisher cluster through diagnostics or repeated failures;
+2. create or adapt a prototype in the archive area;
+3. validate the retrieval flow in isolation on real examples;
+4. identify the concrete failure modes of that publisher;
+5. translate the validated logic into the active resolver architecture;
+6. register the resolver in detection and in the Phase 2 pipeline;
+7. test the resolver in manual mode;
+8. observe runtime failures and refine the resolver conservatively;
+9. keep the output contract stable through `DownloadResult`.
+
+This workflow matters because it allows resolver development to remain controlled and reproducible.
+
+### 10.3 Design principles used during resolver construction
+
+Several principles were followed while building resolvers.
+
+#### Preserve the shared contract
+
+Every resolver is expected to return a standardized `DownloadResult`. This means that even though the internal publisher logic can differ greatly, the surrounding pipeline remains stable.
+
+#### Keep publisher logic local
+
+Each resolver should contain publisher-specific navigation and download behavior, but should avoid:
+
+- workbook logic;
+- terminal logic;
+- Streamlit logic;
+- cross-phase orchestration logic.
+
+This separation keeps the pipeline maintainable.
+
+#### Start conservative and widen only when justified
+
+Resolver attribution, domain matching, and fallback logic were introduced conservatively first, then widened only when real cases showed that the original assumptions were too narrow.
+
+This was particularly important for Wiley, where valid cases appeared under multiple Wiley subdomains rather than a single canonical host.
+
+#### Use real failure observation as part of development
+
+Resolver development was not limited to implementing the intended happy path. Runtime observation of actual failures became a formal part of the construction process.
+
+Typical observations included:
+
+- wrong landing pages;
+- viewer shells with no PDF loaded;
+- missing HTML download links;
+- session requests returning non-PDF content;
+- cookie or consent interference;
+- browser controls becoming relevant only after viewer rendering.
+
+This observation-driven process directly informed resolver refinement.
+
+### 10.4 Resolver development as staged refinement
+
+In methodological terms, a resolver is not implemented once and then considered finished. Instead, resolver construction follows a staged refinement model:
+
+1. baseline prototype;
+2. active integration;
+3. runtime observation;
+4. failure categorization;
+5. conservative fixes;
+6. retesting.
+
+This is one of the most important practical lessons of the app: specialized retrieval becomes robust not through one large implementation step, but through repeated adjustment against real publisher behavior.
+
+### 10.5 Relationship between general logic and resolver-specific logic
+
+The app intentionally distinguishes between:
+
+- general workflow logic;
+- resolver-specific logic.
+
+General workflow logic includes:
+
+- workbook persistence;
+- phase orchestration;
+- retry-task construction;
+- shared statuses;
+- terminal and UI reporting.
+
+Resolver-specific logic includes:
+
+- publisher-domain recognition;
+- page interaction flow;
+- viewer handling;
+- PDF-link extraction;
+- download fallbacks;
+- resolver-specific cookie or session handling.
+
+This distinction is important because it prevents Phase 2 from collapsing into a monolithic downloader with publisher behavior mixed into the core workflow.
+
+### 10.6 Why common abstractions were delayed in some cases
+
+Some behaviors, such as cookie-banner interference, appear across multiple publishers. However, the app did not immediately abstract those behaviors into a single generic utility.
+
+That choice was intentional.
+
+During active resolver development, it was often more useful to solve the issue publisher-by-publisher first, because:
+
+- the exact interaction patterns still needed to be observed;
+- different publishers exposed superficially similar but technically different problems;
+- premature abstraction could hide important publisher-specific constraints.
+
+The intended strategy is therefore:
+
+1. refine behavior resolver-by-resolver first;
+2. observe recurring patterns across publishers;
+3. abstract only what proves to be genuinely common.
+
+### 10.7 Dissertation relevance
+
+For dissertation purposes, the resolver construction strategy demonstrates that the specialized retrieval layer was developed through a systematic and auditable methodology.
+
+It shows that:
+
+- unresolved cases were used as evidence for extension priorities;
+- prototypes were validated before integration;
+- integration preserved architectural consistency;
+- debugging relied on observed runtime behavior rather than guesswork;
+- improvements were introduced conservatively to avoid breaking the broader workflow.
+
+This makes the resolver layer defensible not only as software engineering work, but also as a methodologically structured part of the research-support system.
+
+## 11. Workbook fields used by the app
 
 The workbook acts as the operational memory between phases. Key fields used by the app include:
 
@@ -243,7 +388,7 @@ The workbook acts as the operational memory between phases. Key fields used by t
 
 These fields are intentionally operational. They store the minimum persistent state needed for the next phase and for auditability.
 
-## 11. Terminal interface
+## 12. Terminal interface
 
 The terminal interface was designed to provide operational clarity without overwhelming the user.
 
@@ -267,7 +412,7 @@ Phase 2, in particular, now supports:
 
 This is important for the dissertation context because it demonstrates that the tool was not only implemented, but also made operable and inspectable for iterative research work.
 
-## 12. Reporting and diagnostics
+## 13. Reporting and diagnostics
 
 The app can generate diagnostic Excel reports to support:
 
@@ -278,7 +423,7 @@ The app can generate diagnostic Excel reports to support:
 
 This reporting layer is particularly important because the unresolved set is not merely a set of failures; it is also a guide for future system extension. For example, unresolved clusters by publisher can indicate which resolver should be implemented next.
 
-## 13. Safety and rerun behavior
+## 14. Safety and rerun behavior
 
 One of the core practical goals of the app was rerun safety.
 
@@ -292,7 +437,7 @@ This was achieved through:
 
 This means the workflow can be rerun iteratively without redownloading everything from scratch and without losing the audit trail of what happened.
 
-## 14. Methodological strengths
+## 15. Methodological strengths
 
 From a dissertation perspective, the strongest features of the app are:
 
@@ -306,7 +451,7 @@ From a dissertation perspective, the strongest features of the app are:
 
 These strengths make the tool suitable not just for automation, but for methodologically defensible research support.
 
-## 15. Current limitations
+## 16. Current limitations
 
 The app also has clear limitations, which are important to acknowledge in academic writing:
 
@@ -318,7 +463,7 @@ The app also has clear limitations, which are important to acknowledge in academ
 
 These limitations are not accidental. In several places, the system was intentionally designed to remain conservative rather than over-automate risky cases.
 
-## 16. Evolution logic
+## 17. Evolution logic
 
 The app was developed to support gradual expansion. The intended evolution pattern is:
 
@@ -336,13 +481,13 @@ This pattern has already been used in practice for resolvers such as:
 
 This gradual integration strategy is one of the strongest architectural features of the tool.
 
-## 17. Suggested dissertation framing
+## 18. Suggested dissertation framing
 
 A good concise way to describe the app in the dissertation would be:
 
 > The PDF Fetcher app is a staged retrieval system that combines DOI enrichment, generic full-text acquisition, and publisher-specific PDF resolution in a workbook-driven workflow. Its design prioritizes reproducibility, auditability, rerun safety, and progressive extensibility, making it suitable for systematic-review support in a dissertation context.
 
-## 18. Suggested chapter structure for writing
+## 19. Suggested chapter structure for writing
 
 If these notes are to be turned into dissertation text, a good structure would be:
 

@@ -17,7 +17,7 @@ from tools.pdf_fetcher.core.config import (
     SPRINGER_POST_LOAD_WAIT_MS,
 )
 from tools.pdf_fetcher.core.models import DownloadResult, Record
-from tools.pdf_fetcher.core.utils import make_doi_url, normalize_doi, now_str, save_pdf_bytes, url_matches_domain_pattern
+from tools.pdf_fetcher.core.utils import format_checked_at, make_doi_url, normalize_doi, save_pdf_bytes, url_matches_domain_pattern
 
 
 def make_result(
@@ -27,6 +27,7 @@ def make_result(
     source_url: str = "",
     local_path: str = "",
     http_status: Optional[int] = None,
+    detail: str = "",
 ) -> DownloadResult:
     return DownloadResult(
         pdf_downloaded=downloaded,
@@ -35,7 +36,7 @@ def make_result(
         pdf_source_url=source_url,
         pdf_local_path=local_path,
         pdf_http_status=http_status,
-        pdf_checked_at=now_str(),
+        pdf_checked_at=format_checked_at(detail),
     )
 
 
@@ -164,6 +165,7 @@ def _run_springer_attempt(record: Record, start_url: str, headless: bool) -> Dow
         page = context.new_page()
 
         try:
+            last_detail = ""
             page.goto(
                 start_url,
                 wait_until="domcontentloaded",
@@ -178,6 +180,7 @@ def _run_springer_attempt(record: Record, start_url: str, headless: bool) -> Dow
                     downloaded=0,
                     status="not_springer",
                     source_url=final_page_url,
+                    detail=f"final_url_not_springer: {final_page_url}",
                 )
 
             extract_doi_from_page(page, fallback_url=final_page_url)
@@ -188,6 +191,7 @@ def _run_springer_attempt(record: Record, start_url: str, headless: bool) -> Dow
                     downloaded=0,
                     status="pdf_link_not_found_springer",
                     source_url=final_page_url,
+                    detail=f"no_pdf_link_found_on_page: {final_page_url}",
                 )
 
             pdf_url = urljoin(final_page_url, pdf_href)
@@ -206,11 +210,14 @@ def _run_springer_attempt(record: Record, start_url: str, headless: bool) -> Dow
                             downloaded=1,
                             status="downloaded_springer",
                             source_url=pdf_url,
-                            local_path=record.relative_path,
-                            http_status=response.status,
-                        )
+                                local_path=record.relative_path,
+                                http_status=response.status,
+                            )
+                    last_detail = f"session_request_not_pdf: {pdf_url}"
+                else:
+                    last_detail = f"session_request_http_{response.status}: {pdf_url}"
             except Exception:
-                pass
+                last_detail = f"session_request_exception: {pdf_url}"
 
             selectors = [
                 "a[data-test='pdf-link']",
@@ -237,8 +244,10 @@ def _run_springer_attempt(record: Record, start_url: str, headless: bool) -> Dow
                             local_path=record.relative_path,
                         )
                 except PlaywrightTimeoutError:
+                    last_detail = f"browser_download_timeout: {selector}"
                     continue
                 except Exception:
+                    last_detail = f"browser_download_exception: {selector}"
                     continue
 
             return make_result(
@@ -246,6 +255,7 @@ def _run_springer_attempt(record: Record, start_url: str, headless: bool) -> Dow
                 downloaded=0,
                 status="download_failed_springer",
                 source_url=final_page_url,
+                detail=last_detail or f"all_download_attempts_failed: {final_page_url}",
             )
         finally:
             browser.close()
