@@ -200,6 +200,7 @@ class TerminalDashboard:
         self.diagnostic_lines = []
 
         self.show_controls_bar = False
+        self.suppress_live_updates = False
 
     def _build_controls_bar(self) -> List[str]:
         col = FRAME_WIDTH // 3
@@ -275,6 +276,27 @@ class TerminalDashboard:
 
         lines = self.build_menu_lines(
             title="PDF FETCHER - Study Screening Toolkit",
+            options=options,
+            subtitle=subtitle,
+        )
+        self.render_static_block(lines)
+        return self.prompt_choice(valid_choices)
+
+    def show_startup_session_mode_menu(self, has_saved_phase_workbooks: bool) -> str:
+        options = ["[1] Start new run from Input workbook"]
+        valid_choices = ["1"]
+        subtitle = "Choose whether the terminal should start fresh or resume from the last saved phase state."
+
+        if has_saved_phase_workbooks:
+            options.append("[2] Continue previous run from saved phase workbooks")
+            valid_choices.append("2")
+        else:
+            subtitle = (
+                "No saved phase workbooks were found yet. Start a new run from the Input workbook."
+            )
+
+        lines = self.build_menu_lines(
+            title="SESSION START",
             options=options,
             subtitle=subtitle,
         )
@@ -370,14 +392,13 @@ class TerminalDashboard:
             "[1] Repeat phase 0 - DOI Enrichment",
             "[2] Generate phase 0 report",
             "[3] Move to phase 1 - PDF Basic Download",
-            "[4] Run diagnostic",
-            "[5] Back to main menu",
+            "[4] Back to main menu",
             "=" * FRAME_WIDTH,
             "Choose:",
         ]
         self.reset_dynamic_blocks()
         self.render_static_block(panel + menu_lines)
-        return self.prompt_choice(["1", "2", "3", "4", "5"])
+        return self.prompt_choice(["1", "2", "3", "4"])
 
     def show_phase1_summary_menu(self) -> str:
         panel = self._strip_trailing_separator(
@@ -577,6 +598,9 @@ class TerminalDashboard:
         existing_doi = payload.get("total_existing_doi", 0)
         missing_doi = payload.get("total_missing_doi", total)
         eligible = payload.get("total_eligible", total)
+        original_baseline_available = payload.get("original_baseline_available", True)
+        original_missing_doi = payload.get("original_total_missing_doi", missing_doi)
+        original_eligible = payload.get("original_total_eligible", eligible)
         skipped_missing_title = payload.get("total_skipped_missing_title", 0)
         skipped_already_downloaded = payload.get("total_skipped_already_downloaded", 0)
 
@@ -614,8 +638,36 @@ class TerminalDashboard:
             "Current phase           : Phase 0 - DOI Enrichment",
             "-" * FRAME_WIDTH,
             f"Records read            : {total_rows_read}",
-            f"Eligible for lookup     : {eligible}",
-            f"Missing DOI             : {missing_doi}",
+        ]
+
+        if not original_baseline_available:
+            lines.extend(
+                [
+                    "Original missing DOI    : unknown (baseline not available in this saved phase 0 workbook)",
+                    f"Current missing DOI     : {missing_doi}",
+                    "Original eligible       : unknown (baseline not available in this saved phase 0 workbook)",
+                    f"Current eligible        : {eligible}",
+                ]
+            )
+        elif original_missing_doi != missing_doi or original_eligible != eligible:
+            lines.extend(
+                [
+                    f"Original missing DOI    : {original_missing_doi}",
+                    f"Current missing DOI     : {missing_doi}",
+                    f"Original eligible       : {original_eligible}",
+                    f"Current eligible        : {eligible}",
+                ]
+            )
+        else:
+            lines.extend(
+                [
+                    f"Eligible for lookup     : {eligible}",
+                    f"Missing DOI             : {missing_doi}",
+                ]
+            )
+
+        lines.extend(
+            [
             "-" * FRAME_WIDTH,
             f"Enriched DOIs           : {enriched}",
             f"Needs review            : {needs_review}",
@@ -633,7 +685,8 @@ class TerminalDashboard:
             f"Last result             : {last_status or '-'}",
             f"Confidence              : {last_confidence or '-'}",
             "=" * FRAME_WIDTH,
-        ]
+            ]
+        )
         if current_action:
             lines.insert(-1, f"Current action          : {current_action}")
             if current_record_id:
@@ -925,6 +978,9 @@ class TerminalDashboard:
         self.diagnostic_rendered = True
 
     def handle_event(self, event_name: str, payload: Dict) -> None:
+        if self.suppress_live_updates:
+            return
+
         if event_name in {"phase0_start", "phase0_update", "phase0_end"}:
             self.phase0_lines = self.build_phase0_lines(payload)
             self.render_phase0_block(self.phase0_lines)

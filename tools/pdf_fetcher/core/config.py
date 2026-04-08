@@ -17,27 +17,41 @@ DEFAULT_PROJECT_NAME = os.environ.get("SSTK_PROJECT_NAME", "My Project")
 
 TOOL_DISPLAY_NAME = "PDF Fetcher"
 TOOL_SLUG = "pdf_fetcher"
+PHASE_SEQUENCE = ("phase0", "phase1", "phase2")
+PHASE_CURRENT_WORKBOOK_NAMES = {
+    "phase0": "wos_workbook_current_phase_0.xlsx",
+    "phase1": "wos_workbook_current_phase_1.xlsx",
+    "phase2": "wos_workbook_current_phase_2.xlsx",
+}
 
 USER_DOCUMENTS_DIR = Path.home() / "Documents"
 TOOLKIT_ROOT_DIR = Path(os.environ.get("SSTK_ROOT", str(USER_DOCUMENTS_DIR / TOOLKIT_NAME)))
 PROJECTS_ROOT_DIR = TOOLKIT_ROOT_DIR / PROJECTS_DIR_NAME
 ACTIVE_PROJECT_ROOT = PROJECTS_ROOT_DIR / DEFAULT_PROJECT_NAME
 
-EXCEL_ROOT_DIR = ACTIVE_PROJECT_ROOT / "Excel"
+TOOL_ROOT_DIR = ACTIVE_PROJECT_ROOT / TOOL_DISPLAY_NAME
+EXCEL_ROOT_DIR = TOOL_ROOT_DIR / "Excel"
 INPUT_EXCEL_DIR = EXCEL_ROOT_DIR / "Input"
 CURRENT_EXCEL_DIR = EXCEL_ROOT_DIR / "Current"
 HISTORY_EXCEL_DIR = EXCEL_ROOT_DIR / "History"
 FINAL_EXCEL_DIR = EXCEL_ROOT_DIR / "Final"
 
-TOOL_ROOT_DIR = ACTIVE_PROJECT_ROOT / TOOL_DISPLAY_NAME
 PDF_BASE_DIR = TOOL_ROOT_DIR / "PDFs"
 REPORTS_OUTPUT_DIR = TOOL_ROOT_DIR / "Reports"
 TEMP_OUTPUT_DIR = TOOL_ROOT_DIR / "Checkpoints"
 FINAL_OUTPUT_DIR = FINAL_EXCEL_DIR
+REPORTS_PHASE0_DIR = REPORTS_OUTPUT_DIR / "Phase 0"
+REPORTS_PHASE1_DIR = REPORTS_OUTPUT_DIR / "Phase 1"
+REPORTS_PHASE2_DIR = REPORTS_OUTPUT_DIR / "Phase 2"
+REPORTS_SCOUT_DIR = REPORTS_OUTPUT_DIR / "SCOUT"
+CHECKPOINTS_PHASE0_DIR = TEMP_OUTPUT_DIR / "Phase 0"
+CHECKPOINTS_PHASE1_DIR = TEMP_OUTPUT_DIR / "Phase 1"
+CHECKPOINTS_PHASE2_DIR = TEMP_OUTPUT_DIR / "Phase 2"
+CHECKPOINTS_SCOUT_DIR = TEMP_OUTPUT_DIR / "SCOUT"
 
 DEFAULT_INPUT_WORKBOOK_NAME = "wos_workbook_input.xlsx"
 DEFAULT_CURRENT_WORKBOOK_NAME = "wos_workbook_current.xlsx"
-PREFERRED_WORKBOOK_PATH = CURRENT_EXCEL_DIR / DEFAULT_CURRENT_WORKBOOK_NAME
+PREFERRED_WORKBOOK_PATH = CURRENT_EXCEL_DIR / PHASE_CURRENT_WORKBOOK_NAMES["phase2"]
 
 
 # =========================
@@ -75,8 +89,8 @@ DOI_EARLY_STOP_MIN_CONFIDENCE_SCORE = 88.0
 DOI_EARLY_STOP_MIN_SOURCE_COUNT = 2
 DOI_ACCEPT_FIRST_VARIANT_IF_PLAUSIBLE = True
 
-DOI_CONNECT_TIMEOUT = 4
-DOI_READ_TIMEOUT = 8
+DOI_CONNECT_TIMEOUT = 2
+DOI_READ_TIMEOUT = 3
 DOI_REQUEST_TIMEOUT = (DOI_CONNECT_TIMEOUT, DOI_READ_TIMEOUT)
 DOI_SLEEP_BETWEEN_REQUESTS = 0.05
 
@@ -422,10 +436,34 @@ def ensure_project_directories() -> None:
         TOOL_ROOT_DIR,
         PDF_BASE_DIR,
         REPORTS_OUTPUT_DIR,
+        REPORTS_PHASE0_DIR,
+        REPORTS_PHASE1_DIR,
+        REPORTS_PHASE2_DIR,
+        REPORTS_SCOUT_DIR,
         TEMP_OUTPUT_DIR,
+        CHECKPOINTS_PHASE0_DIR,
+        CHECKPOINTS_PHASE1_DIR,
+        CHECKPOINTS_PHASE2_DIR,
+        CHECKPOINTS_SCOUT_DIR,
     ]
     for directory in directories:
         directory.mkdir(parents=True, exist_ok=True)
+
+
+def normalize_phase_name(phase: str | None) -> str | None:
+    normalized = str(phase or "").strip().lower().replace("-", "").replace("_", "")
+    mapping = {
+        "phase0": "phase0",
+        "0": "phase0",
+        "phase1": "phase1",
+        "1": "phase1",
+        "phase2": "phase2",
+        "2": "phase2",
+        "scout": "phase2",
+        "phase3": "phase2",
+        "3": "phase2",
+    }
+    return mapping.get(normalized)
 
 
 def build_timestamp() -> str:
@@ -443,6 +481,31 @@ def _sorted_xlsx_candidates(directory: Path) -> list[Path]:
     )
 
 
+def build_phase_current_workbook_path(phase: str) -> Path:
+    ensure_project_directories()
+    normalized = normalize_phase_name(phase)
+    if normalized not in PHASE_CURRENT_WORKBOOK_NAMES:
+        raise ValueError(f"Unsupported phase name for current workbook: {phase}")
+    return CURRENT_EXCEL_DIR / PHASE_CURRENT_WORKBOOK_NAMES[normalized]
+
+
+def latest_phase_current_workbook_path(min_phase: str | None = None) -> Path | None:
+    ensure_project_directories()
+    min_normalized = normalize_phase_name(min_phase) if min_phase else None
+    min_index = PHASE_SEQUENCE.index(min_normalized) if min_normalized else 0
+
+    for phase in reversed(PHASE_SEQUENCE[min_index:]):
+        candidate = build_phase_current_workbook_path(phase)
+        if candidate.exists():
+            return candidate
+
+    legacy_current = CURRENT_EXCEL_DIR / DEFAULT_CURRENT_WORKBOOK_NAME
+    if legacy_current.exists() and min_index == 0:
+        return legacy_current
+
+    return None
+
+
 def resolve_workbook_path() -> Path:
     ensure_project_directories()
 
@@ -450,8 +513,9 @@ def resolve_workbook_path() -> Path:
     if input_candidates:
         return input_candidates[0]
 
-    if PREFERRED_WORKBOOK_PATH.exists():
-        return PREFERRED_WORKBOOK_PATH
+    latest_current = latest_phase_current_workbook_path()
+    if latest_current is not None:
+        return latest_current
 
     for directory in (CURRENT_EXCEL_DIR, INPUT_EXCEL_DIR):
         candidates = _sorted_xlsx_candidates(directory)
@@ -464,6 +528,45 @@ def resolve_workbook_path() -> Path:
     )
 
 
+def resolve_workbook_path_for_stage(stage: str) -> Path:
+    raw_stage = str(stage or "").strip().lower()
+    if raw_stage == "scout":
+        phase2_path = build_phase_current_workbook_path("phase2")
+        if phase2_path.exists():
+            return phase2_path
+        raise FileNotFoundError(
+            f"S.C.O.U.T. requires the Phase 2 workbook, but it was not found: {phase2_path}"
+        )
+
+    normalized = normalize_phase_name(stage)
+    if normalized == "phase0":
+        return resolve_workbook_path()
+
+    if normalized == "phase1":
+        phase0_path = build_phase_current_workbook_path("phase0")
+        if phase0_path.exists():
+            return phase0_path
+        phase1_path = build_phase_current_workbook_path("phase1")
+        if phase1_path.exists():
+            return phase1_path
+        raise FileNotFoundError(
+            f"Phase 1 requires the Phase 0 workbook, but it was not found: {phase0_path}"
+        )
+
+    if normalized == "phase2":
+        phase1_path = build_phase_current_workbook_path("phase1")
+        if phase1_path.exists():
+            return phase1_path
+        phase2_path = build_phase_current_workbook_path("phase2")
+        if phase2_path.exists():
+            return phase2_path
+        raise FileNotFoundError(
+            f"Phase 2 requires the Phase 1 workbook, but it was not found: {phase1_path}"
+        )
+
+    raise ValueError(f"Unsupported stage name: {stage}")
+
+
 def ensure_output_directories() -> None:
     ensure_project_directories()
 
@@ -474,7 +577,17 @@ def build_output_workbook_path(workbook_path: Path) -> Path:
 
 def build_current_workbook_path() -> Path:
     ensure_project_directories()
-    return CURRENT_EXCEL_DIR / CURRENT_WORKBOOK_NAME
+    latest_existing = latest_phase_current_workbook_path()
+    if latest_existing is not None:
+        return latest_existing
+    return build_phase_current_workbook_path("phase2")
+
+
+def build_current_workbook_path_for_phase(phase: str | None) -> Path:
+    normalized = normalize_phase_name(phase)
+    if normalized is None:
+        return build_current_workbook_path()
+    return build_phase_current_workbook_path(normalized)
 
 
 def build_input_workbook_path(file_name: str = DEFAULT_INPUT_WORKBOOK_NAME) -> Path:
@@ -525,11 +638,33 @@ def build_final_workbook_path(timestamp: Optional[str] = None) -> Path:
 def build_report_output_path(report_prefix: str, timestamp: Optional[str] = None) -> Path:
     ensure_project_directories()
     ts = timestamp or build_timestamp()
-    return REPORTS_OUTPUT_DIR / f"{report_prefix}_{ts}.xlsx"
+    phase_dir_map: dict[str, Path] = {
+        REPORT_NAME_DIAGNOSTICO_INICIAL: REPORTS_PHASE0_DIR,
+        REPORT_NAME_FASE0_DOI: REPORTS_PHASE0_DIR,
+        REPORT_NAME_DIAGNOSTICO_FASE0: REPORTS_PHASE0_DIR,
+        REPORT_NAME_DIAGNOSTICO_FASE1: REPORTS_PHASE1_DIR,
+        REPORT_NAME_DIAGNOSTICO_FASE2: REPORTS_PHASE2_DIR,
+    }
+    target_dir = phase_dir_map.get(report_prefix, REPORTS_PHASE0_DIR)
+    target_dir.mkdir(parents=True, exist_ok=True)
+    return target_dir / f"{report_prefix}_{ts}.xlsx"
 
 
-def build_temp_workbook_path(label: str, timestamp: Optional[str] = None) -> Path:
+def build_temp_workbook_path(label: str, timestamp: Optional[str] = None, phase: str | None = None) -> Path:
     ensure_project_directories()
     ts = timestamp or build_timestamp()
     safe_label = str(label).strip().replace(" ", "_")
-    return TEMP_OUTPUT_DIR / f"{safe_label}_{ts}.xlsx"
+    raw_phase = str(phase or "").strip().lower()
+    normalized_phase = normalize_phase_name(phase)
+    if raw_phase == "scout":
+        target_dir = CHECKPOINTS_SCOUT_DIR
+    elif normalized_phase == "phase0":
+        target_dir = CHECKPOINTS_PHASE0_DIR
+    elif normalized_phase == "phase1":
+        target_dir = CHECKPOINTS_PHASE1_DIR
+    elif normalized_phase == "phase2":
+        target_dir = CHECKPOINTS_PHASE2_DIR
+    else:
+        target_dir = CHECKPOINTS_PHASE0_DIR
+    target_dir.mkdir(parents=True, exist_ok=True)
+    return target_dir / f"{safe_label}_{ts}.xlsx"

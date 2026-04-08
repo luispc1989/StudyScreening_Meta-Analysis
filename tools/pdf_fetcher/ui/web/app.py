@@ -184,15 +184,13 @@ def render_app_header() -> None:
 
 def save_uploaded_file_to_project(uploaded_file) -> Path:
     """
-    Save the uploaded workbook into the active project and return the current workbook path.
+    Save the uploaded workbook into the active project input folder and return its path.
     """
     source_name = uploaded_file.name or "input_workbook.xlsx"
     input_path = build_input_workbook_path(source_name)
-    current_path = build_current_workbook_path()
 
     input_path.write_bytes(uploaded_file.getbuffer())
-    current_path.write_bytes(uploaded_file.getbuffer())
-    return current_path
+    return input_path
 
 
 def create_live_placeholders() -> dict:

@@ -15,8 +15,12 @@ from tools.pdf_fetcher.core.config import (
     PDF_BASE_DIR,
     SHEET_NAME,
     build_timestamp,
+    build_current_workbook_path_for_phase,
     ensure_project_directories,
+    latest_phase_current_workbook_path,
+    normalize_phase_name,
     resolve_workbook_path,
+    resolve_workbook_path_for_stage,
 )
 from tools.pdf_fetcher.core.excel_io import (
     current_workbook_has_phase1_data,
@@ -101,6 +105,7 @@ def _run_phase_with_controls(
         if key in valid_controls:
             stop_reason[0] = valid_controls[key]
             stop_event.set()
+            dashboard.suppress_live_updates = True
             dashboard.show_message(
                 "STOP REQUEST RECEIVED",
                 [
@@ -108,12 +113,15 @@ def _run_phase_with_controls(
                     "Waiting for the current lookup step to finish safely...",
                 ],
             )
-            thread.join()
+            while not phase_done.wait(timeout=0.1):
+                pass
             break
     else:
-        thread.join()
+        while not phase_done.wait(timeout=0.1):
+            pass
 
     dashboard.show_controls_bar = False
+    dashboard.suppress_live_updates = False
 
     if result_holder[1] is not None:
         raise result_holder[1]
@@ -126,6 +134,7 @@ def _quit_app_with_checkpoint(session_state, dashboard: TerminalDashboard) -> No
         session_state=session_state,
         label="user_quit",
         timestamp=session_state.timestamp or None,
+        fast=True,
     )
     if checkpoint_path:
         dashboard.show_message(
@@ -199,6 +208,62 @@ def show_startup_notice(dashboard: TerminalDashboard) -> None:
     )
 
 
+def choose_startup_session_mode(dashboard: TerminalDashboard) -> str:
+    has_saved_phase_workbooks = latest_phase_current_workbook_path() is not None
+    choice = dashboard.show_startup_session_mode_menu(has_saved_phase_workbooks)
+    return "new" if choice == "1" else "continue"
+
+
+def _apply_session_reload(session_state, reloaded_session) -> None:
+    session_state.workbook_path = reloaded_session.workbook_path
+    session_state.project_root = reloaded_session.project_root
+    session_state.tool_root = reloaded_session.tool_root
+    session_state.workbook = reloaded_session.workbook
+    session_state.worksheet = reloaded_session.worksheet
+    session_state.col_map = reloaded_session.col_map
+    session_state.records = reloaded_session.records
+    session_state.retry_tasks = reloaded_session.retry_tasks
+    session_state.current_phase = reloaded_session.current_phase
+    session_state.phase0_summary = reloaded_session.phase0_summary
+    session_state.phase1_summary = reloaded_session.phase1_summary
+    session_state.phase2_summary = reloaded_session.phase2_summary
+    session_state.diagnostics_history = reloaded_session.diagnostics_history
+    session_state.generated_report_paths = reloaded_session.generated_report_paths
+    session_state.final_workbook_path = reloaded_session.final_workbook_path
+    session_state.temp_workbook_path = reloaded_session.temp_workbook_path
+    session_state.current_workbook_path = reloaded_session.current_workbook_path
+    session_state.history_workbook_path = reloaded_session.history_workbook_path
+    session_state.timestamp = reloaded_session.timestamp
+    session_state._dashboard_reporter = getattr(reloaded_session, "_dashboard_reporter", None)
+
+
+def _reload_session_from_stage(session_state, stage: str) -> None:
+    workbook_path = _resolve_stage_workbook_path(stage, getattr(session_state, "startup_session_mode", "new"))
+    reloaded = initialize_session_state(
+        workbook_path=workbook_path,
+        sheet_name=session_state.sheet_name or SHEET_NAME,
+    )
+    reloaded.timestamp = session_state.timestamp
+    reloaded._dashboard_reporter = getattr(session_state, "_dashboard_reporter", None)
+    _apply_session_reload(session_state, reloaded)
+
+
+def _resolve_stage_workbook_path(stage: str, startup_session_mode: str) -> Path:
+    normalized = normalize_phase_name(stage)
+    raw_stage = str(stage or "").strip().lower()
+    continue_previous = startup_session_mode == "continue"
+
+    if raw_stage == "scout":
+        return resolve_workbook_path_for_stage("scout")
+
+    if continue_previous and normalized in {"phase0", "phase1", "phase2"}:
+        existing_path = build_current_workbook_path_for_phase(normalized)
+        if existing_path.exists():
+            return existing_path
+
+    return resolve_workbook_path_for_stage(stage)
+
+
 def launch_scout_from_terminal(session_state, dashboard: TerminalDashboard, mode: str) -> None:
     label = "pending downloads" if mode == "pending_downloads" else "load fail test cases"
 
@@ -206,7 +271,7 @@ def launch_scout_from_terminal(session_state, dashboard: TerminalDashboard, mode
         report_path = export_scout_cases_report(
             session_state=session_state,
             mode=mode,
-            timestamp=session_state.timestamp or None,
+            timestamp=None,
         )
         scout_url = launch_scout_with_report(report_path)
         show_message_and_wait(
@@ -341,12 +406,7 @@ def save_current_after_phase(session_state, dashboard: TerminalDashboard, phase_
     current_path = save_current_workbook(session_state)
     if current_path:
         reloaded_session = reload_session_from_current(session_state)
-        session_state.workbook_path = reloaded_session.workbook_path
-        session_state.workbook = reloaded_session.workbook
-        session_state.worksheet = reloaded_session.worksheet
-        session_state.col_map = reloaded_session.col_map
-        session_state.records = reloaded_session.records
-        session_state.current_workbook_path = reloaded_session.current_workbook_path
+        _apply_session_reload(session_state, reloaded_session)
         dashboard.show_message(
             phase_label,
             [
@@ -379,12 +439,7 @@ def sync_current_before_transition(
         return False
 
     reloaded_session = reload_session_from_current(session_state)
-    session_state.workbook_path = reloaded_session.workbook_path
-    session_state.workbook = reloaded_session.workbook
-    session_state.worksheet = reloaded_session.worksheet
-    session_state.col_map = reloaded_session.col_map
-    session_state.records = reloaded_session.records
-    session_state.current_workbook_path = reloaded_session.current_workbook_path
+    _apply_session_reload(session_state, reloaded_session)
     return True
 
 
@@ -455,14 +510,6 @@ def run_phase0_menu_loop(session_state, dashboard: TerminalDashboard) -> str:
             continue
 
         if choice == "4":
-            run_diagnostic_after_phase(
-                session_state,
-                dashboard,
-                "phase 0 diagnostic",
-            )
-            continue
-
-        if choice == "5":
             return "initial"
 
 def run_phase1_menu_loop(
@@ -686,6 +733,7 @@ def run_navigation_from(
     dashboard: TerminalDashboard,
     start_phase: str,
 ) -> None:
+    _reload_session_from_stage(session_state, start_phase)
     current = start_phase
 
     while True:
@@ -723,15 +771,26 @@ def main() -> None:
     dashboard = TerminalDashboard(input_fn=_get_line)
     dashboard.init_terminal_mode()
     show_startup_notice(dashboard)
+    startup_session_mode = choose_startup_session_mode(dashboard)
 
     ensure_project_directories()
-    workbook_path = resolve_workbook_path()
+    workbook_path = resolve_workbook_path() if startup_session_mode == "new" else _resolve_stage_workbook_path("phase0", startup_session_mode)
     PDF_BASE_DIR.mkdir(parents=True, exist_ok=True)
+
+    dashboard.show_message(
+        "LOADING SESSION",
+        [
+            f"Mode                   : {'Start new run' if startup_session_mode == 'new' else 'Continue previous run'}",
+            f"Workbook               : {workbook_path}",
+            "Loading workbook and building the session state...",
+        ],
+    )
 
     session_state = initialize_session_state(
         workbook_path=workbook_path,
         sheet_name=SHEET_NAME,
     )
+    session_state.startup_session_mode = startup_session_mode
     session_state.timestamp = build_timestamp()
     session_state._dashboard_reporter = dashboard.handle_event
 
@@ -760,11 +819,14 @@ def main() -> None:
                 continue
 
             if allow_phase2_start and choice == "3":
-                if not sync_current_before_transition(
-                    session_state=session_state,
-                    dashboard=dashboard,
-                    transition_label="INITIAL -> PHASE 2",
-                ):
+                try:
+                    _reload_session_from_stage(session_state, "phase2")
+                except Exception as exc:
+                    show_message_and_wait(
+                        dashboard,
+                        "INITIAL -> PHASE 2",
+                        [str(exc)],
+                    )
                     continue
 
                 phase1_results_by_row, phase1_summary = reconstruct_phase1_results_from_workbook(session_state)
@@ -785,11 +847,14 @@ def main() -> None:
                 continue
 
             if (allow_phase2_start and choice == "5") or (not allow_phase2_start and choice == "4"):
-                if not sync_current_before_transition(
-                    session_state=session_state,
-                    dashboard=dashboard,
-                    transition_label="CURRENT -> S.C.O.U.T.",
-                ):
+                try:
+                    _reload_session_from_stage(session_state, "scout")
+                except Exception as exc:
+                    show_message_and_wait(
+                        dashboard,
+                        "PHASE 2 -> S.C.O.U.T.",
+                        [str(exc)],
+                    )
                     continue
                 run_scout_menu_loop(
                     session_state=session_state,

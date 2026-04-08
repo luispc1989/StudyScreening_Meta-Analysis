@@ -466,6 +466,9 @@ def save_review_workbook(cases: list[dict], decisions: dict[str, dict], review_p
         [
             "record_id",
             "title",
+            "authors",
+            "publication_year",
+            "email_address",
             "doi",
             "doi_url",
             "source_url",
@@ -493,6 +496,9 @@ def save_review_workbook(cases: list[dict], decisions: dict[str, dict], review_p
             [
                 record_id,
                 case["title"],
+                case.get("authors", ""),
+                case.get("publication_year", ""),
+                case.get("email_address", ""),
                 case["doi"],
                 case["doi_url"],
                 case["source_url"],
@@ -1885,11 +1891,17 @@ def render_header() -> None:
             display: grid;
             gap: 0.65rem;
             margin-bottom: 0.75rem;
+            min-width: 0;
         }
         .scout-meta-row {
             color: inherit;
             font-size: 0.98rem;
             line-height: 1.45;
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            align-items: start;
+            column-gap: 0.35rem;
+            min-width: 0;
         }
         .scout-meta-label {
             font-weight: 700;
@@ -1899,7 +1911,10 @@ def render_header() -> None:
             color: inherit;
             text-decoration: none;
             font-family: inherit;
+            white-space: normal;
+            overflow-wrap: anywhere;
             word-break: break-word;
+            min-width: 0;
         }
         .scout-meta-value-code {
             font-family: var(--font-monospace, "SFMono-Regular", Consolas, monospace);
@@ -1910,6 +1925,11 @@ def render_header() -> None:
             padding: 0.08rem 0.32rem;
             display: inline-block;
             text-decoration: none;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            max-width: 100%;
+            min-width: 0;
         }
         .scout-stat-list {
             display: grid;
@@ -2191,7 +2211,7 @@ def render_case(case: dict) -> None:
     existing = decisions.get(case["record_id"], {})
     bridge_events = get_bridge_events_for_case(case["record_id"])
     launch_url, _launch_url_kind = get_preferred_case_url(case)
-    has_side_content = bool(bridge_events or existing)
+    has_side_content = bool(bridge_events)
 
     if has_side_content:
         col_main, col_side = st.columns([4.8, 1.2], vertical_alignment="top")

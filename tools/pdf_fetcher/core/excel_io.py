@@ -21,9 +21,12 @@ from tools.pdf_fetcher.core.config import (
     SHEET_NAME,
     TOOL_ROOT_DIR,
     build_current_workbook_path,
+    build_current_workbook_path_for_phase,
     build_final_workbook_path,
     build_history_workbook_path,
     build_temp_workbook_path,
+    latest_phase_current_workbook_path,
+    normalize_phase_name,
 )
 from tools.pdf_fetcher.core.models import DownloadResult, Record, SessionState
 from tools.pdf_fetcher.core.utils import build_pdf_filename
@@ -115,7 +118,7 @@ def load_workbook_and_sheet(workbook_path: Path, sheet_name: str):
     if not workbook_path.exists():
         raise FileNotFoundError(f"Workbook not found: {workbook_path}")
 
-    wb = load_workbook(workbook_path)
+    wb = load_workbook(workbook_path, keep_links=False)
 
     if sheet_name not in wb.sheetnames:
         raise ValueError(f"Sheet not found: {sheet_name}")
@@ -737,10 +740,43 @@ def safe_save_workbook(wb, output_path: Path, max_attempts: int = 2) -> bool:
     return False
 
 
+def fast_save_workbook(wb, output_path: Path, max_attempts: int = 1) -> bool:
+    """
+    Save workbook quickly through a temporary file and replacement.
+    Skip layout and filesystem reconciliation work so interruption checkpoints
+    can be written with minimal delay.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    for attempt in range(1, max_attempts + 1):
+        try:
+            temp_path = output_path.with_name(output_path.stem + ".__tmp__.xlsx")
+            wb.save(temp_path)
+
+            if output_path.exists():
+                try:
+                    output_path.unlink()
+                except PermissionError:
+                    pass
+
+            temp_path.replace(output_path)
+            return True
+
+        except KeyboardInterrupt:
+            raise
+        except Exception:
+            if attempt == max_attempts:
+                return False
+            time.sleep(0.2)
+
+    return False
+
+
 def save_session_checkpoint(
     session_state: SessionState,
     label: str,
     timestamp: Optional[str] = None,
+    fast: bool = False,
 ) -> Optional[Path]:
     """
     Save a temporary checkpoint workbook for recovery/debugging purposes.
@@ -748,8 +784,12 @@ def save_session_checkpoint(
     if not session_state.is_workbook_loaded:
         raise ValueError("SessionState workbook is not loaded.")
 
-    checkpoint_path = build_temp_workbook_path(label=label, timestamp=timestamp)
-    ok = safe_save_workbook(session_state.workbook, checkpoint_path)
+    checkpoint_path = build_temp_workbook_path(
+        label=label,
+        timestamp=timestamp,
+        phase=session_state.current_phase,
+    )
+    ok = fast_save_workbook(session_state.workbook, checkpoint_path) if fast else safe_save_workbook(session_state.workbook, checkpoint_path)
     if not ok:
         return None
 
@@ -769,7 +809,7 @@ def save_final_workbook(
         raise ValueError("SessionState workbook is not loaded.")
 
     effective_timestamp = timestamp or None
-    current_path = build_current_workbook_path()
+    current_path = build_current_workbook_path_for_phase(session_state.current_phase)
     history_path = build_history_workbook_path(timestamp=effective_timestamp)
     final_path = output_path or build_final_workbook_path(timestamp=effective_timestamp)
 
@@ -796,7 +836,8 @@ def save_current_workbook(session_state: SessionState) -> Optional[Path]:
     if not session_state.is_workbook_loaded:
         raise ValueError("SessionState workbook is not loaded.")
 
-    current_path = build_current_workbook_path()
+    target_phase = normalize_phase_name(session_state.current_phase) or "phase0"
+    current_path = build_current_workbook_path_for_phase(target_phase)
     ok = safe_save_workbook(session_state.workbook, current_path)
     if not ok:
         return None
@@ -814,7 +855,14 @@ def reload_session_from_current(
     Reload the session from the Current workbook so the next phase starts from
     the latest persisted workbook state.
     """
-    current_path = build_current_workbook_path()
+    current_path = session_state.current_workbook_path
+    if current_path is None or not Path(current_path).exists():
+        current_path = build_current_workbook_path_for_phase(session_state.current_phase)
+    if not Path(current_path).exists():
+        fallback_current = latest_phase_current_workbook_path()
+        if fallback_current is None:
+            raise FileNotFoundError("No phase current workbook is available to reload the session.")
+        current_path = fallback_current
     reloaded = initialize_session_state(
         workbook_path=current_path,
         sheet_name=session_state.sheet_name or SHEET_NAME,
@@ -830,8 +878,8 @@ def current_workbook_has_phase1_data(sheet_name: str = SHEET_NAME) -> bool:
     Return True when the Current workbook already contains saved phase-1 style
     PDF fields, so the app can safely allow a direct start from phase 2.
     """
-    current_path = build_current_workbook_path()
-    if not current_path.exists():
+    current_path = latest_phase_current_workbook_path(min_phase="phase1")
+    if current_path is None or not current_path.exists():
         return False
 
     try:

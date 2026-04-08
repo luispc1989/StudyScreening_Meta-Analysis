@@ -41,6 +41,11 @@ class Phase0Summary:
     total_existing_doi: int = 0
     total_missing_doi: int = 0
     total_eligible: int = 0
+    original_baseline_available: bool = True
+    original_total_rows_read: int = 0
+    original_total_existing_doi: int = 0
+    original_total_missing_doi: int = 0
+    original_total_eligible: int = 0
     total_skipped_missing_title: int = 0
     total_skipped_already_downloaded: int = 0
     total_enriched: int = 0

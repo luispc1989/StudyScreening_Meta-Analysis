@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import shutil
 import socket
 import subprocess
 import sys
@@ -57,6 +58,22 @@ def finalized_marker_path_for(report_path: Path) -> Path:
     target_dir = report_path.parent / "scout_reviews"
     target_dir.mkdir(parents=True, exist_ok=True)
     return target_dir / f"{report_path.stem}_finalized.flag"
+
+
+def active_report_path_for(mode: ScoutMode, base_dir: Path) -> Path:
+    return base_dir / active_report_name_for(mode)
+
+
+def active_report_name_for(mode: ScoutMode) -> str:
+    return f"scout_{mode}_current.xlsx"
+
+
+def _scout_report_dirs() -> list[Path]:
+    repo_root = Path(__file__).resolve().parents[3]
+    return [
+        REPORTS_OUTPUT_DIR / "SCOUT",
+        repo_root / "tools" / "pdf_fetcher" / "runtime" / "reports" / "SCOUT",
+    ]
 
 
 def _is_local_port_available(port: int) -> bool:
@@ -350,20 +367,14 @@ def ensure_report_metadata_columns(report_path: Path) -> None:
 
 
 def find_resumable_scout_report(session_state: SessionState, mode: ScoutMode) -> Path | None:
-    repo_root = Path(__file__).resolve().parents[3]
-    scout_report_dirs = [
-        REPORTS_OUTPUT_DIR / "SCOUT",
-        repo_root / "tools" / "pdf_fetcher" / "runtime" / "reports" / "SCOUT",
-    ]
+    scout_report_dirs = _scout_report_dirs()
 
-    candidates: list[Path] = []
-    for scout_reports_dir in scout_report_dirs:
-        if not scout_reports_dir.exists():
-            continue
-        candidates.extend(sorted(scout_reports_dir.glob(f"scout_{mode}_*.xlsx")))
-
+    report_name = active_report_name_for(mode)
     resumable: list[tuple[Path, float]] = []
-    for report_path in candidates:
+    for scout_reports_dir in scout_report_dirs:
+        report_path = scout_reports_dir / report_name
+        if not report_path.exists():
+            continue
         review_path = review_output_path_for(report_path)
         marker_path = finalized_marker_path_for(report_path)
         if marker_path.exists() or not review_path.exists():
@@ -382,6 +393,123 @@ def find_resumable_scout_report(session_state: SessionState, mode: ScoutMode) ->
     return max(resumable, key=lambda item: item[1])[0]
 
 
+def _latest_matching_review(session_state: SessionState, mode: ScoutMode) -> tuple[Path, Path] | None:
+    workbook_path = str(session_state.current_workbook_path or session_state.workbook_path or "").strip()
+    if not workbook_path:
+        return None
+
+    candidates: list[tuple[Path, Path, float]] = []
+    for scout_reports_dir in _scout_report_dirs():
+        review_dir = scout_reports_dir / "scout_reviews"
+        if not review_dir.exists():
+            continue
+
+        for review_path in review_dir.glob(f"scout_{mode}_*_scout_review.xlsx"):
+            report_stem = review_path.name[: -len("_scout_review.xlsx")]
+            report_path = scout_reports_dir / f"{report_stem}.xlsx"
+            marker_path = finalized_marker_path_for(report_path)
+            if marker_path.exists():
+                continue
+
+            wb = load_workbook(review_path, read_only=True, data_only=True)
+            try:
+                ws = wb.active
+                headers = [str(cell.value or "").strip() for cell in ws[1]]
+                normalized_headers = [header.strip().lower() for header in headers]
+                header_map = {normalized_headers[idx]: idx for idx in range(len(normalized_headers))}
+                workbook_idx = header_map.get("workbook_path")
+                mode_idx = header_map.get("scout_mode")
+                if workbook_idx is None or mode_idx is None:
+                    continue
+
+                matches = False
+                for row in ws.iter_rows(min_row=2, values_only=True):
+                    if not any(row):
+                        continue
+                    row_workbook = str(row[workbook_idx] or "").strip()
+                    row_mode = str(row[mode_idx] or "").strip().lower()
+                    if row_workbook == workbook_path and row_mode == mode:
+                        matches = True
+                        break
+                if not matches:
+                    continue
+            finally:
+                wb.close()
+
+            try:
+                review_mtime = review_path.stat().st_mtime
+            except OSError:
+                review_mtime = 0.0
+            candidates.append((review_path, report_path, review_mtime))
+
+    if not candidates:
+        return None
+
+    review_path, report_path, _mtime = max(candidates, key=lambda item: item[2])
+    return review_path, report_path
+
+
+def restore_active_report_from_review(session_state: SessionState, mode: ScoutMode) -> Path | None:
+    latest = _latest_matching_review(session_state, mode)
+    if latest is None:
+        return None
+
+    source_review_path, source_report_path = latest
+    active_report_path = active_report_path_for(mode, source_report_path.parent)
+    active_review_path = review_output_path_for(active_report_path)
+    marker_path = finalized_marker_path_for(active_report_path)
+    if marker_path.exists():
+        return None
+
+    wb = load_workbook(source_review_path, read_only=True, data_only=True)
+    try:
+        ws = wb.active
+        headers = [str(cell.value or "").strip() for cell in ws[1]]
+        normalized_headers = [header.strip().lower() for header in headers]
+        header_map = {normalized_headers[idx]: idx for idx in range(len(normalized_headers))}
+
+        workbook_idx = header_map.get("workbook_path")
+        mode_idx = header_map.get("scout_mode")
+        if workbook_idx is None or mode_idx is None:
+            return None
+
+        workbook_path = str(session_state.current_workbook_path or session_state.workbook_path or "").strip()
+        rows_to_restore: list[dict] = []
+        for row in ws.iter_rows(min_row=2, values_only=True):
+            if not any(row):
+                continue
+            row_workbook = str(row[workbook_idx] or "").strip()
+            row_mode = str(row[mode_idx] or "").strip().lower()
+            if row_workbook != workbook_path or row_mode != mode:
+                continue
+            row_data = {headers[idx]: row[idx] for idx in range(min(len(headers), len(row)))}
+            rows_to_restore.append(row_data)
+
+        if not rows_to_restore:
+            return None
+    finally:
+        wb.close()
+
+    active_report_path.parent.mkdir(parents=True, exist_ok=True)
+    out_wb = Workbook()
+    out_ws = out_wb.active
+    out_ws.title = "scout_cases"
+    out_ws.append(SCOUT_REPORT_HEADERS)
+
+    for row_data in rows_to_restore:
+        out_ws.append([row_data.get(header, "") for header in SCOUT_REPORT_HEADERS])
+
+    out_wb.save(active_report_path)
+    ensure_report_metadata_columns(active_report_path)
+
+    if source_review_path.resolve() != active_review_path.resolve():
+        shutil.copy2(source_review_path, active_review_path)
+
+    return active_report_path
+
+    return None
+
+
 def export_scout_cases_report(
     session_state: SessionState,
     mode: ScoutMode = "pending_downloads",
@@ -392,15 +520,13 @@ def export_scout_cases_report(
         ensure_report_metadata_columns(resumable_report)
         return resumable_report
 
+    restored_report = restore_active_report_from_review(session_state, mode)
+    if restored_report is not None:
+        return restored_report
+
     cases = build_scout_cases_from_session(session_state, mode=mode)
     if not cases:
         raise ValueError(f"No SCOUT cases are available for mode '{mode}'.")
-
-    effective_timestamp = (
-        timestamp
-        or getattr(session_state, "timestamp", "")
-        or datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    )
 
     wb = Workbook()
     ws = wb.active
@@ -411,8 +537,7 @@ def export_scout_cases_report(
         ws.append([case.get(header, "") for header in SCOUT_REPORT_HEADERS])
 
     report_candidates: list[Path] = []
-    base_name = f"scout_{mode}_{effective_timestamp}"
-    fallback_stamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    active_name = active_report_name_for(mode)
     repo_root = Path(__file__).resolve().parents[3]
     scout_report_dirs = [
         REPORTS_OUTPUT_DIR / "SCOUT",
@@ -425,10 +550,7 @@ def export_scout_cases_report(
         except OSError:
             continue
 
-        report_candidates.append(scout_reports_dir / f"{base_name}.xlsx")
-        report_candidates.append(scout_reports_dir / f"{base_name}_{fallback_stamp}.xlsx")
-        for idx in range(1, 6):
-            report_candidates.append(scout_reports_dir / f"{base_name}_{fallback_stamp}_{idx}.xlsx")
+        report_candidates.append(scout_reports_dir / active_name)
 
     last_error: Exception | None = None
     for report_path in report_candidates:

@@ -68,6 +68,7 @@ from tools.pdf_fetcher.core.models import Phase0Summary, SessionState
 ReporterType = Optional[callable]
 _thread_local = threading.local()
 _doi_query_cache: dict[tuple[str, str], list[dict]] = {}
+PHASE0_META_SHEET_NAME = "_pdf_fetcher_phase0_meta"
 
 
 # =========================
@@ -357,14 +358,14 @@ def build_query_variants(title: str) -> list[str]:
 
 def build_retry_strategy() -> Retry:
     return Retry(
-        total=2,
-        connect=2,
-        read=2,
-        redirect=2,
-        status=2,
+        total=0,
+        connect=0,
+        read=0,
+        redirect=0,
+        status=0,
         status_forcelist=[429, 500, 502, 503, 504],
         allowed_methods=frozenset(["GET"]),
-        backoff_factor=0.4,
+        backoff_factor=0.0,
         raise_on_status=False,
         respect_retry_after_header=True,
     )
@@ -870,6 +871,80 @@ def analyze_phase0_scope(ws, col_map: Dict[str, int]) -> dict:
     }
 
 
+def _read_phase0_baseline(workbook: Workbook) -> dict[str, int]:
+    if PHASE0_META_SHEET_NAME not in workbook.sheetnames:
+        return {}
+
+    ws = workbook[PHASE0_META_SHEET_NAME]
+    baseline: dict[str, int] = {}
+    for row_idx in range(2, ws.max_row + 1):
+        key = str(ws.cell(row=row_idx, column=1).value or "").strip()
+        if not key:
+            continue
+        value = ws.cell(row=row_idx, column=2).value
+        try:
+            baseline[key] = int(value or 0)
+        except Exception:
+            baseline[key] = 0
+    return baseline
+
+
+def _write_phase0_baseline(
+    workbook: Workbook,
+    scope_info: dict,
+    allow_initialize: bool = True,
+) -> dict[str, int]:
+    baseline = _read_phase0_baseline(workbook)
+    if baseline:
+        return baseline
+
+    if not allow_initialize:
+        return {}
+
+    baseline = {
+        "original_total_rows_read": int(scope_info.get("total_rows_read", 0) or 0),
+        "original_total_existing_doi": int(scope_info.get("total_existing_doi", 0) or 0),
+        "original_total_missing_doi": int(scope_info.get("total_missing_doi", 0) or 0),
+        "original_total_eligible": int(scope_info.get("total_eligible", 0) or 0),
+    }
+
+    if PHASE0_META_SHEET_NAME in workbook.sheetnames:
+        ws = workbook[PHASE0_META_SHEET_NAME]
+        ws.delete_rows(1, ws.max_row)
+    else:
+        ws = workbook.create_sheet(PHASE0_META_SHEET_NAME)
+        ws.sheet_state = "hidden"
+
+    ws["A1"] = "key"
+    ws["B1"] = "value"
+    row_idx = 2
+    for key, value in baseline.items():
+        ws.cell(row=row_idx, column=1, value=key)
+        ws.cell(row=row_idx, column=2, value=value)
+        row_idx += 1
+
+    return baseline
+
+
+def attach_phase0_baseline(
+    workbook: Workbook,
+    scope_info: dict,
+    allow_initialize: bool = True,
+) -> dict:
+    baseline = _write_phase0_baseline(workbook, scope_info, allow_initialize=allow_initialize)
+    merged = dict(scope_info)
+    merged.update(
+        {
+            "original_baseline_available": bool(baseline),
+            "original_total_rows_read": baseline.get("original_total_rows_read", merged.get("total_rows_read", 0)),
+            "original_total_existing_doi": baseline.get("original_total_existing_doi", merged.get("total_existing_doi", 0)),
+            "original_total_missing_doi": baseline.get("original_total_missing_doi", merged.get("total_missing_doi", 0)),
+            "original_total_eligible": baseline.get("original_total_eligible", merged.get("total_eligible", 0)),
+        }
+    )
+    return merged
+
+
 # =========================
 # REPORT FORMATTING
 # =========================
@@ -1354,7 +1429,12 @@ def run_phase0_doi_enrichment_for_session(
         },
     )
 
-    scope_info = analyze_phase0_scope(ws, col_map)
+    allow_initialize_baseline = getattr(session_state, "startup_session_mode", "new") != "continue"
+    scope_info = attach_phase0_baseline(
+        ws.parent,
+        analyze_phase0_scope(ws, col_map),
+        allow_initialize=allow_initialize_baseline,
+    )
     candidate_row_indices: list[int] = scope_info["candidate_row_indices"]
     total_to_process = len(candidate_row_indices)
     processed = 0
@@ -1381,6 +1461,11 @@ def run_phase0_doi_enrichment_for_session(
             "total_existing_doi": scope_info["total_existing_doi"],
             "total_missing_doi": scope_info["total_missing_doi"],
             "total_eligible": scope_info["total_eligible"],
+            "original_baseline_available": scope_info["original_baseline_available"],
+            "original_total_rows_read": scope_info["original_total_rows_read"],
+            "original_total_existing_doi": scope_info["original_total_existing_doi"],
+            "original_total_missing_doi": scope_info["original_total_missing_doi"],
+            "original_total_eligible": scope_info["original_total_eligible"],
             "total_skipped_missing_title": scope_info["total_skipped_missing_title"],
             "total_skipped_already_downloaded": scope_info["total_skipped_already_downloaded"],
             "total_enriched": 0,
@@ -1421,6 +1506,11 @@ def run_phase0_doi_enrichment_for_session(
                 "total_existing_doi": scope_info["total_existing_doi"],
                 "total_missing_doi": scope_info["total_missing_doi"],
                 "total_eligible": scope_info["total_eligible"],
+                "original_baseline_available": scope_info["original_baseline_available"],
+                "original_total_rows_read": scope_info["original_total_rows_read"],
+                "original_total_existing_doi": scope_info["original_total_existing_doi"],
+                "original_total_missing_doi": scope_info["original_total_missing_doi"],
+                "original_total_eligible": scope_info["original_total_eligible"],
                 "total_skipped_missing_title": scope_info["total_skipped_missing_title"],
                 "total_skipped_already_downloaded": scope_info["total_skipped_already_downloaded"],
                 "total_enriched": enriched,
@@ -1564,6 +1654,11 @@ def run_phase0_doi_enrichment_for_session(
                 "total_existing_doi": scope_info["total_existing_doi"],
                 "total_missing_doi": scope_info["total_missing_doi"],
                 "total_eligible": scope_info["total_eligible"],
+                "original_baseline_available": scope_info["original_baseline_available"],
+                "original_total_rows_read": scope_info["original_total_rows_read"],
+                "original_total_existing_doi": scope_info["original_total_existing_doi"],
+                "original_total_missing_doi": scope_info["original_total_missing_doi"],
+                "original_total_eligible": scope_info["original_total_eligible"],
                 "total_skipped_missing_title": scope_info["total_skipped_missing_title"],
                 "total_skipped_already_downloaded": scope_info["total_skipped_already_downloaded"],
                 "total_enriched": enriched,
@@ -1603,6 +1698,11 @@ def run_phase0_doi_enrichment_for_session(
         total_existing_doi=scope_info["total_existing_doi"],
         total_missing_doi=scope_info["total_missing_doi"],
         total_eligible=scope_info["total_eligible"],
+        original_baseline_available=scope_info["original_baseline_available"],
+        original_total_rows_read=scope_info["original_total_rows_read"],
+        original_total_existing_doi=scope_info["original_total_existing_doi"],
+        original_total_missing_doi=scope_info["original_total_missing_doi"],
+        original_total_eligible=scope_info["original_total_eligible"],
         total_skipped_missing_title=scope_info["total_skipped_missing_title"],
         total_skipped_already_downloaded=scope_info["total_skipped_already_downloaded"],
         total_enriched=enriched,
@@ -1623,6 +1723,11 @@ def run_phase0_doi_enrichment_for_session(
             "total_existing_doi": scope_info["total_existing_doi"],
             "total_missing_doi": scope_info["total_missing_doi"],
             "total_eligible": scope_info["total_eligible"],
+            "original_baseline_available": scope_info["original_baseline_available"],
+            "original_total_rows_read": scope_info["original_total_rows_read"],
+            "original_total_existing_doi": scope_info["original_total_existing_doi"],
+            "original_total_missing_doi": scope_info["original_total_missing_doi"],
+            "original_total_eligible": scope_info["original_total_eligible"],
             "total_skipped_missing_title": scope_info["total_skipped_missing_title"],
             "total_skipped_already_downloaded": scope_info["total_skipped_already_downloaded"],
             "total_enriched": enriched,
