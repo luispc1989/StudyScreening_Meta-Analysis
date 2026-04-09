@@ -308,12 +308,11 @@ class TerminalDashboard:
             title="S.C.O.U.T.",
             options=[
                 "[1] Use Scout",
-                "[2] Use Scout - Test Mode",
-                "[3] Go back",
+                "[2] Go back",
             ],
         )
         self.render_static_block(lines)
-        return self.prompt_choice(["1", "2", "3"])
+        return self.prompt_choice(["1", "2"])
 
     def show_phase0_menu(self) -> str:
         lines = self.build_menu_lines(

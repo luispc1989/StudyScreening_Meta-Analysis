@@ -20,6 +20,16 @@ This means that Phase 2 should not be understood as a general first-pass downloa
 
 Its role is to work on the cases that remain relevant for specialized handling after the previous phases have already done their work.
 
+In the current implementation, Phase 2 now uses the explicit handoff workbook:
+
+- `wos_workbook_current_phase_1.xlsx`
+
+and persists its state to:
+
+- `wos_workbook_current_phase_2.xlsx`
+
+This workbook is also the source used later by `S.C.O.U.T.` for manual post-automation review.
+
 ## Main objective
 
 The main objective of Phase 2 is to improve PDF recovery beyond the limits of the generic strategy, while preserving:
@@ -219,6 +229,12 @@ Phase 2 uses controlled refresh logic rather than redrawing the terminal on ever
 
 At the same time, the phase now forces immediate refresh when the active resolver changes. This allows the interface to remain visually stable while still reflecting meaningful state transitions.
 
+This refresh logic was recently tightened further, because a previous implementation was effectively refreshing too often and made the terminal feel as if it was blocking and then jumping forward. The current design now aims for:
+
+- meaningful refreshes rather than refresh-on-every-record;
+- visible resolver changes;
+- less dashboard instability during long resolver runs.
+
 ## Publisher detection and attribution
 
 Phase 2 depends on resolver attribution logic that uses DOI patterns, DOI links, and source URLs left by earlier phases.
@@ -255,6 +271,8 @@ Like the previous phases, Phase 2 writes its operational outcomes back to the wo
 
 This keeps the workflow persistent and ensures that reruns have the information they need.
 
+Like Phase 1, Phase 2 also uses checkpoints during execution. Recent refinements made those checkpoints lighter so that recoverability can be preserved without degrading terminal responsiveness as much as before.
+
 ## Why Phase 2 is not “just another downloader”
 
 Phase 2 is better understood as a resolver orchestration layer rather than a simple download phase.
@@ -281,6 +299,12 @@ From a dissertation perspective, the main strengths of Phase 2 are:
 - explicit status reporting;
 - readiness for incremental expansion.
 
+Recent operational improvements strengthen this further by making the phase:
+
+- easier to resume from a saved `phase_2` workbook;
+- more predictable at terminal level;
+- less visually unstable during long runs.
+
 These characteristics are important because they demonstrate that specialized automation was integrated into a coherent workflow, rather than appended as isolated scripts.
 
 ## Limitations
@@ -292,6 +316,8 @@ Phase 2 also has clear limitations:
 - resolver maintenance is publisher-dependent;
 - publisher attribution can still be imperfect in edge cases;
 - not all unresolved publishers are covered yet.
+
+An additional practical limitation is that browser-heavy specialized retrieval remains harder to present smoothly in a terminal than the earlier phases. Even with controlled refresh logic, resolver execution can still feel less uniform than DOI enrichment or generic HTTP download because publisher-specific interactions differ widely in timing and behavior.
 
 These limitations should be stated clearly in the dissertation because they are part of the realistic boundary conditions of automated full-text retrieval.
 
@@ -524,6 +550,20 @@ The practical strategy agreed during development was:
 3. only extract common utilities after similar patterns have been confirmed resolver-by-resolver.
 
 This point is important for dissertation notes because it captures not only what was implemented, but also the rationale for sequencing future work.
+
+## Relationship with S.C.O.U.T.
+
+In the current workflow, Phase 2 no longer acts as the final human-facing step. Instead, it prepares the workbook state consumed by `S.C.O.U.T.`.
+
+That means Phase 2 should be understood as:
+
+- the last automated retrieval stage;
+- the point where unresolved or manually triage-worthy cases are formalized for later human review.
+
+This is methodologically useful because it makes a clearer distinction between:
+
+- automated recovery;
+- manual validation and case-specific intervention.
 
 ## Dissertation framing suggestion
 

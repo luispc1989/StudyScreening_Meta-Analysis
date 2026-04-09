@@ -39,6 +39,15 @@ The scope analysis produces the key counts shown in the terminal:
 
 This separation is important because the phase should only spend time on cases where enrichment is both necessary and methodologically defensible.
 
+In the current implementation, this distinction became even more important because Phase 0 can now be rerun from a saved `phase_0` workbook. That created a practical reporting issue: after a rerun, the workbook already contains newly enriched DOI values, so the current number of `missing DOI` records no longer reflects the original baseline seen at the first execution.
+
+To address this, the current app stores baseline Phase 0 scope metadata inside the workbook itself through a hidden metadata sheet. This lets the terminal distinguish between:
+
+- original missing DOI / original eligible counts;
+- current missing DOI / current eligible counts.
+
+This was introduced specifically to preserve a correct interpretation of the enrichment stage over iterative reruns.
+
 ## Sources queried
 
 The DOI enrichment engine uses a staged source cascade:
@@ -176,6 +185,8 @@ When a DOI is enriched automatically, the workbook is updated with:
 
 The workbook therefore becomes the bridge between Phase 0 and the following retrieval phases.
 
+The current implementation also stores internal Phase 0 baseline metadata in the workbook. This metadata is not meant as a bibliographic output field; it exists to preserve the original scope of the enrichment problem for later reporting and continuation.
+
 ## Reporting logic
 
 Phase 0 can generate a dedicated report workbook with separate sheets for:
@@ -187,6 +198,11 @@ Phase 0 can generate a dedicated report workbook with separate sheets for:
 - statistics.
 
 This reporting design supports auditability and allows the enrichment stage to be described transparently in the dissertation.
+
+The terminal now supports a more nuanced interpretation of rerun status:
+
+- if original baseline metadata is available, the user sees both original and current DOI-scope values;
+- if an older `phase_0` workbook predates this metadata, the terminal explicitly reports that the original baseline is unavailable instead of silently treating the current state as the original one.
 
 ## What was done in the current implementation
 
@@ -201,6 +217,13 @@ The implemented Phase 0 includes:
 - separate statuses for `enriched`, `needs_review`, and `unresolved`;
 - terminal progress monitoring;
 - optional reporting for audit and review.
+
+Recent implementation refinements also include:
+
+- explicit `new run` versus `continue previous run` terminal startup logic;
+- phase-specific current workbook naming (`wos_workbook_current_phase_0.xlsx`);
+- preservation of original Phase 0 baseline counts for later reruns;
+- improved responsiveness when interrupting the phase from the terminal.
 
 ## Why it was done this way
 
@@ -220,6 +243,8 @@ The current phase still has limitations:
 - some records remain unresolved because titles are too noisy or incomplete;
 - author metadata can be inconsistent across sources;
 - the current matching logic is strong but still rule-based, which means borderline cases may require human interpretation.
+
+An important practical limitation remains: if a `phase_0` workbook was created before baseline metadata began to be stored, the app cannot reconstruct the original missing-DOI counts retroactively with full reliability. In those cases, the original baseline should be treated as unavailable unless the phase is rerun from the original Input workbook.
 
 ## Dissertation framing suggestion
 

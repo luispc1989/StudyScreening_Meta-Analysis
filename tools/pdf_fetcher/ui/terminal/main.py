@@ -12,6 +12,7 @@ if str(REPO_ROOT) not in sys.path:
 
 from tools.pdf_fetcher.core.config import (
     ACTIVE_PROJECT_ROOT,
+    ENABLE_SCI_HUB_RESOLVER,
     PDF_BASE_DIR,
     SHEET_NAME,
     build_timestamp,
@@ -38,6 +39,7 @@ from tools.pdf_fetcher.core.pipeline import (
     run_phase1_for_session,
     run_phase2_for_session,
 )
+from tools.pdf_fetcher.core.resolver_detector import should_retry_in_phase2
 from tools.pdf_fetcher.scout.launcher import export_scout_cases_report, launch_scout_with_report
 from tools.pdf_fetcher.ui.terminal.dashboard import TerminalDashboard
 
@@ -306,14 +308,6 @@ def run_scout_menu_loop(session_state, dashboard: TerminalDashboard) -> None:
             continue
 
         if choice == "2":
-            launch_scout_from_terminal(
-                session_state=session_state,
-                dashboard=dashboard,
-                mode="load_fail_test_cases",
-            )
-            continue
-
-        if choice == "3":
             return
 
 
@@ -403,10 +397,15 @@ def generate_phase0_report_from_cache(session_state) -> str:
 
 
 def save_current_after_phase(session_state, dashboard: TerminalDashboard, phase_label: str) -> None:
+    dashboard.show_message(
+        phase_label,
+        [
+            "Updating current workbook...",
+            "Saving the latest phase state before returning to the menu.",
+        ],
+    )
     current_path = save_current_workbook(session_state)
     if current_path:
-        reloaded_session = reload_session_from_current(session_state)
-        _apply_session_reload(session_state, reloaded_session)
         dashboard.show_message(
             phase_label,
             [
@@ -429,6 +428,13 @@ def sync_current_before_transition(
     dashboard: TerminalDashboard,
     transition_label: str,
 ) -> bool:
+    dashboard.show_message(
+        transition_label,
+        [
+            "Preparing next phase...",
+            "Saving the current workbook before opening the next phase menu.",
+        ],
+    )
     current_path = save_current_workbook(session_state)
     if not current_path:
         show_message_and_wait(
@@ -438,8 +444,6 @@ def sync_current_before_transition(
         )
         return False
 
-    reloaded_session = reload_session_from_current(session_state)
-    _apply_session_reload(session_state, reloaded_session)
     return True
 
 
@@ -631,26 +635,91 @@ def run_phase2_menu_loop(
 
         if phase2_summary is None:
             dashboard.reset_dynamic_blocks()
+            phase2_pass_summaries: list[dict] = []
+            running_phase1_summary = dict(phase1_summary)
 
-            phase2_summary, stop_reason = _run_phase_with_controls(
-                dashboard=dashboard,
-                phase_fn=run_phase2_for_session,
-                session_state=session_state,
-                phase1_results_by_row=phase1_results_by_row,
-                phase1_summary=phase1_summary,
-                reporter=dashboard.handle_event,
-                selected_resolver=selected_resolver,
-            )
+            def _combine_phase2_summaries(summaries: list[dict]) -> dict:
+                if not summaries:
+                    return {}
+                first = summaries[0]
+                last = summaries[-1]
 
-            decision = _handle_phase_stop_reason(session_state, dashboard, stop_reason)
+                def _sum_counter(key: str) -> dict:
+                    combined: dict[str, int] = {}
+                    for summary in summaries:
+                        for name, value in (summary.get(key, {}) or {}).items():
+                            combined[name] = combined.get(name, 0) + int(value)
+                    return combined
 
-            if decision == "continue":
-                phase2_summary = None
+                return {
+                    "phase2_pool_total": sum(int(s.get("phase2_pool_total", 0)) for s in summaries),
+                    "retry_processed": sum(int(s.get("retry_processed", 0)) for s in summaries),
+                    "retry_total": sum(int(s.get("retry_total", 0)) for s in summaries),
+                    "unassigned_total": sum(int(s.get("unassigned_total", 0)) for s in summaries),
+                    "phase2_start_time": first.get("phase2_start_time"),
+                    "resolver_name": last.get("resolver_name", ""),
+                    "last_record_id": last.get("last_record_id", ""),
+                    "last_doi": last.get("last_doi", ""),
+                    "last_status": last.get("last_status", ""),
+                    "last_detail": last.get("last_detail", ""),
+                    "pdfs_available_global": last.get("pdfs_available_global", 0),
+                    "pdfs_in_folder": last.get("pdfs_in_folder", 0),
+                    "downloaded_now_total": last.get("downloaded_now_total", 0),
+                    "recovered_this_phase": sum(int(s.get("recovered_this_phase", 0)) for s in summaries),
+                    "total_records": last.get("total_records", 0),
+                    "stopped_early": any(bool(s.get("stopped_early", False)) for s in summaries),
+                    "resolver_attempts": _sum_counter("resolver_attempts"),
+                    "resolver_recovered": _sum_counter("resolver_recovered"),
+                    "resolver_duplicates": _sum_counter("resolver_duplicates"),
+                    "resolver_failed": _sum_counter("resolver_failed"),
+                    "resolver_totals": _sum_counter("resolver_totals"),
+                    "resolver_processed": _sum_counter("resolver_processed"),
+                }
+
+            if phase2_mode == "automatic":
+                phase2_pass_plan = [
+                    ("specialized", None, 0.0),
+                    ("sci_hub_pass_1", "sci_hub", 0.0),
+                    ("sci_hub_pass_2", "sci_hub_retry", 5.0),
+                ]
+            else:
+                phase2_pass_plan = [("manual", selected_resolver, 0.0)]
+
+            restart_run = False
+            for _pass_name, _selected_resolver, _delay_seconds in phase2_pass_plan:
+                sub_summary, stop_reason = _run_phase_with_controls(
+                    dashboard=dashboard,
+                    phase_fn=run_phase2_for_session,
+                    session_state=session_state,
+                    phase1_results_by_row=phase1_results_by_row,
+                    phase1_summary=running_phase1_summary,
+                    reporter=dashboard.handle_event,
+                    selected_resolver=_selected_resolver,
+                    inter_task_delay_seconds=_delay_seconds,
+                )
+
+                if sub_summary:
+                    phase2_pass_summaries.append(sub_summary)
+                    running_phase1_summary = {
+                        **running_phase1_summary,
+                        "pdfs_available_global": sub_summary.get("pdfs_available_global", running_phase1_summary.get("pdfs_available_global", 0)),
+                        "downloaded_now_total": sub_summary.get("downloaded_now_total", running_phase1_summary.get("downloaded_now_total", 0)),
+                    }
+
+                decision = _handle_phase_stop_reason(session_state, dashboard, stop_reason)
+
+                if decision == "continue":
+                    phase2_summary = None
+                    restart_run = True
+                    break
+
+                if decision == "back":
+                    return previous_menu
+
+            if restart_run:
                 continue
 
-            if decision == "back":
-                return previous_menu
-
+            phase2_summary = _combine_phase2_summaries(phase2_pass_summaries)
             save_current_after_phase(session_state, dashboard, "PHASE 2 - PDF SPECIALIZED DOWNLOAD")
 
         if phase2_mode == "manual" and selected_resolver:
@@ -724,6 +793,14 @@ def _build_phase2_resolver_counts(session_state, phase1_results_by_row) -> dict[
         if task.resolver_names:
             resolver_name = task.resolver_names[0]
             counter[resolver_name] = counter.get(resolver_name, 0) + 1
+
+    if ENABLE_SCI_HUB_RESOLVER:
+        sci_hub_total = 0
+        for result in phase1_results_by_row.values():
+            if should_retry_in_phase2(result):
+                sci_hub_total += 1
+        if sci_hub_total > 0:
+            counter["sci_hub"] = sci_hub_total
 
     return counter
 

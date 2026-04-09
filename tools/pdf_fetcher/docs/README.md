@@ -1,116 +1,130 @@
-# PDF Downloader Tool
+# PDF Fetcher
 
-Ferramenta local em Python para descarregar PDFs a partir de registos bibliográficos presentes num workbook Excel, com suporte para:
+Local Python tool for PDF retrieval in a meta-analysis and study-screening workflow. The system is phase-based, uses Excel workbooks as input and operational persistence, and includes a manual review layer through `S.C.O.U.T.`.
 
-- execução em **modo terminal**;
-- execução em **modo Streamlit**;
-- lógica genérica de download;
-- lógica especializada por publisher/site;
-- atualização automática do workbook com estados de download.
+## What it does
 
-## Estrutura da documentação
+The PDF Fetcher:
 
-Este conjunto de documentação está dividido em ficheiros separados:
+- reads an input Excel workbook;
+- enriches missing DOI data in `Phase 0`;
+- attempts generic PDF download in `Phase 1`;
+- attempts specialized publisher-based download in `Phase 2`;
+- prepares unresolved cases for manual review in `S.C.O.U.T.`;
+- stores workflow state in explicit per-phase workbooks.
 
-- `README.md` — visão geral do projeto e arranque rápido
-- `USER_GUIDE.md` — manual do utilizador
-- `DEVELOPER_GUIDE.md` — manual técnico para programadores
-- `TROUBLESHOOTING.md` — resolução de problemas
-- `CHANGELOG.md` — histórico inicial do projeto
+## Current workflow
 
-## Quick Start
+Recommended order:
 
-Na pasta `pdf_downloader_tool`, executa:
+1. `Input workbook`
+2. `Phase 0 - DOI Enrichment`
+3. `Phase 1 - PDF Basic Download`
+4. `Phase 2 - PDF Specialized Download`
+5. `S.C.O.U.T. - Semi-assisted Case Opening and User Triage`
+
+## Current file structure
+
+Within the active project, the main folders are:
+
+- `PDF Fetcher/Excel/Input`
+- `PDF Fetcher/Excel/Current`
+- `PDF Fetcher/Excel/Final`
+- `PDF Fetcher/PDFs`
+- `PDF Fetcher/Reports/Phase 0`
+- `PDF Fetcher/Reports/Phase 1`
+- `PDF Fetcher/Reports/Phase 2`
+- `PDF Fetcher/Reports/SCOUT`
+- `PDF Fetcher/Checkpoints/Phase 0`
+- `PDF Fetcher/Checkpoints/Phase 1`
+- `PDF Fetcher/Checkpoints/Phase 2`
+- `PDF Fetcher/Checkpoints/SCOUT`
+
+Current phase workbooks:
+
+- `wos_workbook_current_phase_0.xlsx`
+- `wos_workbook_current_phase_1.xlsx`
+- `wos_workbook_current_phase_2.xlsx`
+
+## Quick start
+
+From the repository root:
 
 ```bat
 py -m venv .venv
 .venv\Scripts\python.exe -m pip install --upgrade pip
 .venv\Scripts\python.exe -m pip install -r requirements.txt
 .venv\Scripts\python.exe -m playwright install chromium
-.venv\Scripts\python.exe main.py
 ```
 
-Para abrir em Streamlit:
+Run the terminal app:
 
 ```bat
-.venv\Scripts\python.exe -m streamlit run ui\streamlit_app.py
+.venv\Scripts\python.exe -m tools.pdf_fetcher.ui.terminal.main
 ```
 
-## Estrutura do projeto
-
-```text
-pdf_downloader_tool/
-├── app/
-├── resolvers/
-├── ui/
-├── logs/
-├── old/
-├── main.py
-├── requirements.txt
-├── run_streamlit.bat
-└── run_terminal.bat
-```
-
-## Modos de utilização
-
-### Modo terminal
-Usa:
+Run the SCOUT directly in Streamlit:
 
 ```bat
-.venv\Scripts\python.exe main.py
+.venv\Scripts\python.exe -m streamlit run tools\pdf_fetcher\scout\app.py
 ```
 
-ou:
+## Session start
 
-```text
-run_terminal.bat
-```
+At startup, the terminal can show:
 
-### Modo Streamlit
-Usa:
+- `Start new run from Input workbook`
+- `Continue previous run from saved phase workbooks`
 
-```bat
-.venv\Scripts\python.exe -m streamlit run ui\streamlit_app.py
-```
+The `continue` option only appears when at least one saved phase workbook already exists.
 
-ou:
+## Phase handoff logic
 
-```text
-run_streamlit.bat
-```
+- `Phase 0` reads the input workbook and writes `wos_workbook_current_phase_0.xlsx`
+- `Phase 1` reads `wos_workbook_current_phase_0.xlsx` and writes `wos_workbook_current_phase_1.xlsx`
+- `Phase 2` reads `wos_workbook_current_phase_1.xlsx` and writes `wos_workbook_current_phase_2.xlsx`
+- `S.C.O.U.T.` reads `wos_workbook_current_phase_2.xlsx`
 
-## Ficheiros principais
+## Main modes
 
-### `app/`
-Núcleo da aplicação:
-- configuração
-- Excel I/O
-- pipeline
-- modelos
-- deteção de resolvers
-- sessões HTTP
-- utilitários
+### Terminal
 
-### `resolvers/`
-Resolvers por site:
-- `base_download.py`
-- `frontiers.py`
-- futuros resolvers como `mdpi.py`, `springer.py`, etc.
+The terminal is the main execution interface for the staged pipeline. It supports:
 
-### `ui/`
-Interfaces:
-- terminal
-- Streamlit
+- sequential phase execution;
+- resuming from saved phase workbooks;
+- live metrics and status updates;
+- interruption with checkpoint saving;
+- report generation.
 
-## Ordem recomendada de adoção
+### S.C.O.U.T.
 
-1. Criar `.venv`
-2. Instalar dependências
-3. Testar `main.py`
-4. Testar Streamlit
-5. Validar com poucos registos
-6. Só depois escalar ou adicionar resolvers
+The SCOUT is the manual triage layer used after the automated pipeline. It allows the user to:
 
-## Documentação detalhada
+- open DOI links;
+- use search;
+- send author-request emails;
+- insert or clear DOI/source links;
+- assign manual decisions;
+- preserve review memory until final synchronization.
 
-Consulta os restantes ficheiros desta documentação para instruções completas.
+## Documentation in this folder
+
+- [PDF_FETCHER_APP_NOTES.md](/c:/Users/Luís%20Pinto%20Coelho/Desktop/Dissertação/StudyScreening_Meta-Analysis/tools/pdf_fetcher/docs/PDF_FETCHER_APP_NOTES.md) - architectural and methodological notes
+- [DISSERTATION_NOTES.md](/c:/Users/Luís%20Pinto%20Coelho/Desktop/Dissertação/StudyScreening_Meta-Analysis/tools/pdf_fetcher/docs/DISSERTATION_NOTES.md) - dissertation-oriented global notes
+- [IMPLEMENTATION_LOG.md](/c:/Users/Luís%20Pinto%20Coelho/Desktop/Dissertação/StudyScreening_Meta-Analysis/tools/pdf_fetcher/docs/IMPLEMENTATION_LOG.md) - concise chronological implementation log
+- [KNOWN_ISSUES_AND_LESSONS.md](/c:/Users/Luís%20Pinto%20Coelho/Desktop/Dissertação/StudyScreening_Meta-Analysis/tools/pdf_fetcher/docs/KNOWN_ISSUES_AND_LESSONS.md) - bugs, issues, and lessons learned
+- [PHASE0_DOI_ENRICHMENT_NOTES.md](/c:/Users/Luís%20Pinto%20Coelho/Desktop/Dissertação/StudyScreening_Meta-Analysis/tools/pdf_fetcher/docs/PHASE0_DOI_ENRICHMENT_NOTES.md) - Phase 0 notes
+- [PHASE1_BASIC_DOWNLOAD_NOTES.md](/c:/Users/Luís%20Pinto%20Coelho/Desktop/Dissertação/StudyScreening_Meta-Analysis/tools/pdf_fetcher/docs/PHASE1_BASIC_DOWNLOAD_NOTES.md) - Phase 1 notes
+- [PHASE2_SPECIALIZED_DOWNLOAD_NOTES.md](/c:/Users/Luís%20Pinto%20Coelho/Desktop/Dissertação/StudyScreening_Meta-Analysis/tools/pdf_fetcher/docs/PHASE2_SPECIALIZED_DOWNLOAD_NOTES.md) - Phase 2 notes
+- [USER_GUIDE.md](/c:/Users/Luís%20Pinto%20Coelho/Desktop/Dissertação/StudyScreening_Meta-Analysis/tools/pdf_fetcher/docs/USER_GUIDE.md) - user manual
+- [DEVELOPER_GUIDE.md](/c:/Users/Luís%20Pinto%20Coelho/Desktop/Dissertação/StudyScreening_Meta-Analysis/tools/pdf_fetcher/docs/DEVELOPER_GUIDE.md) - technical developer guide
+- [TROUBLESHOOTING.md](/c:/Users/Luís%20Pinto%20Coelho/Desktop/Dissertação/StudyScreening_Meta-Analysis/tools/pdf_fetcher/docs/TROUBLESHOOTING.md) - troubleshooting
+
+## Forward-looking note
+
+The current system still uses Excel as the main persistence bridge between phases. That is appropriate for the present local workflow, but the project already points toward a future model with:
+
+- a local project database;
+- Excel as import/export layer;
+- a broader hub launcher coordinating multiple tools in the meta-analysis workflow.

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import time
 from typing import Optional
 from urllib.parse import urljoin, urlparse
 
@@ -8,6 +9,7 @@ from playwright.sync_api import TimeoutError as PlaywrightTimeoutError, sync_pla
 
 from tools.pdf_fetcher.core.config import (
     ENABLE_SCI_HUB_RESOLVER,
+    SCI_HUB_ATTEMPT_TIMEOUT_MS,
     SCI_HUB_BROWSER_MODE,
     SCI_HUB_DOMAINS,
     SCI_HUB_DOWNLOAD_TIMEOUT_MS,
@@ -18,6 +20,11 @@ from tools.pdf_fetcher.core.config import (
 )
 from tools.pdf_fetcher.core.models import DownloadResult, Record
 from tools.pdf_fetcher.core.utils import format_checked_at, normalize_doi, save_pdf_bytes
+
+
+def _remaining_timeout_ms(deadline: float, fallback_ms: int) -> int:
+    remaining_ms = max(1000, int((deadline - time.monotonic()) * 1000))
+    return min(fallback_ms, remaining_ms)
 
 
 def make_result(
@@ -171,11 +178,11 @@ def wait_for_pdf_surface(page) -> None:
         page.wait_for_timeout(250)
 
 
-def open_sci_hub_page(page, doi: str) -> str:
+def open_sci_hub_page(page, doi: str, timeout_ms: int = SCI_HUB_NAVIGATION_TIMEOUT_MS) -> str:
     attempt_errors: list[str] = []
     for candidate_url in build_sci_hub_urls(doi):
         try:
-            page.goto(candidate_url, wait_until="domcontentloaded", timeout=SCI_HUB_NAVIGATION_TIMEOUT_MS)
+            page.goto(candidate_url, wait_until="domcontentloaded", timeout=timeout_ms)
             wait_for_page_ready(page)
             wait_for_pdf_surface(page)
             return candidate_url
@@ -187,7 +194,7 @@ def open_sci_hub_page(page, doi: str) -> str:
     raise RuntimeError(f"all_sci_hub_domains_failed: {detail}")
 
 
-def fill_sci_hub_search(page, doi: str) -> bool:
+def fill_sci_hub_search(page, doi: str, timeout_ms: int = SCI_HUB_NAVIGATION_TIMEOUT_MS) -> bool:
     seen: set[str] = set()
     for domain in SCI_HUB_DOMAINS:
         base_url = str(domain or "").strip().rstrip("/") + "/"
@@ -196,7 +203,7 @@ def fill_sci_hub_search(page, doi: str) -> bool:
         seen.add(base_url)
 
         try:
-            page.goto(base_url, wait_until="domcontentloaded", timeout=SCI_HUB_NAVIGATION_TIMEOUT_MS)
+            page.goto(base_url, wait_until="domcontentloaded", timeout=timeout_ms)
             wait_for_page_ready(page)
         except Exception:
             continue
@@ -298,26 +305,46 @@ def is_retryable_sci_hub_status(status: str) -> bool:
 
 def _run_sci_hub_attempt(record: Record, doi: str, headless: bool) -> DownloadResult:
     with sync_playwright() as playwright:
+        deadline = time.monotonic() + (SCI_HUB_ATTEMPT_TIMEOUT_MS / 1000.0)
         browser = playwright.chromium.launch(
             headless=headless,
             args=["--disable-blink-features=AutomationControlled"],
         )
         context = browser.new_context(accept_downloads=True)
         page = context.new_page()
+        page.set_default_timeout(min(SCI_HUB_ATTEMPT_TIMEOUT_MS, SCI_HUB_DOWNLOAD_TIMEOUT_MS))
+        page.set_default_navigation_timeout(min(SCI_HUB_ATTEMPT_TIMEOUT_MS, SCI_HUB_NAVIGATION_TIMEOUT_MS))
 
         try:
             start_url = ""
+            if time.monotonic() >= deadline:
+                return make_result(
+                    record,
+                    0,
+                    "download_failed_sci_hub",
+                    source_url="",
+                    detail="attempt_timeout_before_start",
+                )
 
-            searched = fill_sci_hub_search(page, doi)
+            start_url = open_sci_hub_page(page, doi, timeout_ms=_remaining_timeout_ms(deadline, SCI_HUB_NAVIGATION_TIMEOUT_MS))
+            result = try_extract_and_download_from_current_page(page, context, record)
+            if result:
+                return result
+
+            if time.monotonic() >= deadline:
+                return make_result(
+                    record,
+                    0,
+                    "download_failed_sci_hub",
+                    source_url=page.url or start_url,
+                    detail="attempt_timeout_after_direct_open",
+                )
+
+            searched = fill_sci_hub_search(page, doi, timeout_ms=_remaining_timeout_ms(deadline, SCI_HUB_NAVIGATION_TIMEOUT_MS))
             if searched:
                 result = try_extract_and_download_from_current_page(page, context, record)
                 if result:
                     return result
-
-            start_url = open_sci_hub_page(page, doi)
-            result = try_extract_and_download_from_current_page(page, context, record)
-            if result:
-                return result
 
             return make_result(
                 record,

@@ -29,7 +29,7 @@ from tools.pdf_fetcher.core.models import (
     RetryTask,
     SessionState,
 )
-from tools.pdf_fetcher.core.resolver_detector import get_ordered_resolver_names
+from tools.pdf_fetcher.core.resolver_detector import get_ordered_resolver_names, should_retry_in_phase2
 from tools.pdf_fetcher.core.utils import normalize_doi
 from tools.pdf_fetcher.core.resolvers.base_download import process_record_phase1
 
@@ -114,6 +114,19 @@ def build_retry_tasks(
     for record in records:
         phase1_result = phase1_results_by_row.get(record.row_idx)
         if phase1_result is None:
+            continue
+
+        if selected_resolver == "sci_hub":
+            if not should_retry_in_phase2(phase1_result):
+                continue
+            tasks.append(RetryTask(record=record, resolver_names=["sci_hub"]))
+            continue
+
+        if selected_resolver == "sci_hub_retry":
+            status = str(phase1_result.pdf_download_status or "").strip().lower()
+            if status != "download_failed_sci_hub":
+                continue
+            tasks.append(RetryTask(record=record, resolver_names=["sci_hub"]))
             continue
 
         resolver_names = get_ordered_resolver_names(record, phase1_result)
@@ -235,7 +248,9 @@ def _should_emit_phase2_progress(processed: int, total: int) -> bool:
         return True
     if processed == total:
         return True
-    return True
+    if processed % REFRESH_DASHBOARD_EVERY_N_COMPLETIONS == 0:
+        return True
+    return False
 
 
 def _run_phase1_core(
@@ -395,6 +410,7 @@ def _run_phase2_core(
     save_callback: SaveCallbackType = None,
     stop_event: StopEventType = None,
     selected_resolver: Optional[str] = None,
+    inter_task_delay_seconds: float = 0.0,
 ) -> dict:
     total_to_process = len(records)
     phase2_pool_tasks = build_retry_tasks(
@@ -591,6 +607,11 @@ def _run_phase2_core(
                 },
             )
 
+        if inter_task_delay_seconds > 0 and retry_processed < retry_total:
+            if stop_event is not None and stop_event.is_set():
+                break
+            time.sleep(inter_task_delay_seconds)
+
     stopped_early = stop_event is not None and stop_event.is_set()
 
     phase2_summary = {
@@ -661,6 +682,7 @@ def run_phase2(
     phase1_summary: dict,
     reporter: ReporterType = None,
     selected_resolver: Optional[str] = None,
+    inter_task_delay_seconds: float = 0.0,
 ) -> dict:
     def legacy_save_callback(processed: int) -> Tuple[bool, str]:
         ok = safe_save_workbook(wb, output_workbook_path)
@@ -676,6 +698,7 @@ def run_phase2(
         reporter=reporter,
         save_callback=legacy_save_callback,
         selected_resolver=selected_resolver,
+        inter_task_delay_seconds=inter_task_delay_seconds,
     )
 
     safe_save_workbook(wb, output_workbook_path)
@@ -739,6 +762,7 @@ def run_phase1_for_session(
             session_state,
             label=f"phase1_checkpoint_{processed}",
             timestamp=session_state.timestamp or None,
+            fast=True,
         )
         return checkpoint_path is not None, str(checkpoint_path or "")
 
@@ -770,6 +794,7 @@ def run_phase2_for_session(
     reporter: ReporterType = None,
     stop_event: StopEventType = None,
     selected_resolver: Optional[str] = None,
+    inter_task_delay_seconds: float = 0.0,
 ) -> dict:
     if not session_state.is_workbook_loaded:
         raise ValueError("SessionState workbook is not loaded.")
@@ -786,6 +811,7 @@ def run_phase2_for_session(
             session_state,
             label=f"phase2_checkpoint_{processed}",
             timestamp=session_state.timestamp or None,
+            fast=True,
         )
         return checkpoint_path is not None, str(checkpoint_path or "")
 
@@ -800,6 +826,7 @@ def run_phase2_for_session(
         save_callback=session_save_callback,
         stop_event=stop_event,
         selected_resolver=selected_resolver,
+        inter_task_delay_seconds=inter_task_delay_seconds,
     )
 
     session_state.phase2_summary = Phase2Summary(

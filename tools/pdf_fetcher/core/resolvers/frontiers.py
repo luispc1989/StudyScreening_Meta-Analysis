@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import re
+import time
 from typing import Optional
 from urllib.parse import urljoin
 
@@ -10,6 +11,7 @@ from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeo
 from tools.pdf_fetcher.core.config import (
     ENABLE_FRONTIERS_RESOLVER,
     FRONTIERS_ALLOWED_DOMAIN_PATTERN,
+    FRONTIERS_ATTEMPT_TIMEOUT_MS,
     FRONTIERS_BROWSER_MODE,
     FRONTIERS_DOWNLOAD_TIMEOUT_MS,
     FRONTIERS_HEADLESS,
@@ -19,6 +21,11 @@ from tools.pdf_fetcher.core.config import (
 )
 from tools.pdf_fetcher.core.models import DownloadResult, Record
 from tools.pdf_fetcher.core.utils import format_checked_at, make_doi_url, normalize_doi, save_pdf_bytes, url_matches_domain_pattern
+
+
+def _remaining_timeout_ms(deadline: float, fallback_ms: int) -> int:
+    remaining_ms = max(1000, int((deadline - time.monotonic()) * 1000))
+    return min(fallback_ms, remaining_ms)
 
 
 def looks_like_pdf_url(href: str) -> bool:
@@ -183,6 +190,7 @@ def wait_for_article_page(page) -> None:
 
 def _run_frontiers_attempt(record: Record, start_url: str, doi_url: str, headless: bool) -> DownloadResult:
     with sync_playwright() as p:
+        deadline = time.monotonic() + (FRONTIERS_ATTEMPT_TIMEOUT_MS / 1000.0)
         browser = p.chromium.launch(
             headless=headless,
             args=["--disable-blink-features=AutomationControlled"],
@@ -190,13 +198,15 @@ def _run_frontiers_attempt(record: Record, start_url: str, doi_url: str, headles
 
         context = browser.new_context(accept_downloads=True)
         page = context.new_page()
+        page.set_default_timeout(min(FRONTIERS_ATTEMPT_TIMEOUT_MS, FRONTIERS_DOWNLOAD_TIMEOUT_MS))
+        page.set_default_navigation_timeout(min(FRONTIERS_ATTEMPT_TIMEOUT_MS, FRONTIERS_NAVIGATION_TIMEOUT_MS))
 
         try:
             last_detail = ""
             page.goto(
                 start_url,
                 wait_until="domcontentloaded",
-                timeout=FRONTIERS_NAVIGATION_TIMEOUT_MS,
+                timeout=_remaining_timeout_ms(deadline, FRONTIERS_NAVIGATION_TIMEOUT_MS),
             )
             wait_for_article_page(page)
 
@@ -229,7 +239,7 @@ def _run_frontiers_attempt(record: Record, start_url: str, doi_url: str, headles
                 response = context.request.get(
                     pdf_url,
                     headers={"Referer": final_page_url},
-                    timeout=FRONTIERS_DOWNLOAD_TIMEOUT_MS,
+                    timeout=_remaining_timeout_ms(deadline, FRONTIERS_DOWNLOAD_TIMEOUT_MS),
                 )
 
                 if response.status == 200:
@@ -263,6 +273,9 @@ def _run_frontiers_attempt(record: Record, start_url: str, doi_url: str, headles
             ]
 
             for selector in selectors:
+                if time.monotonic() >= deadline:
+                    last_detail = f"attempt_timeout_before_browser_download: {final_page_url}"
+                    break
                 try:
                     count = page.locator(selector).count()
                     for idx in range(count):
@@ -271,7 +284,7 @@ def _run_frontiers_attempt(record: Record, start_url: str, doi_url: str, headles
                         if not href or not looks_like_pdf_url(href):
                             continue
 
-                        with page.expect_download(timeout=FRONTIERS_DOWNLOAD_TIMEOUT_MS) as download_info:
+                        with page.expect_download(timeout=_remaining_timeout_ms(deadline, FRONTIERS_DOWNLOAD_TIMEOUT_MS)) as download_info:
                             locator.click()
 
                         download = download_info.value

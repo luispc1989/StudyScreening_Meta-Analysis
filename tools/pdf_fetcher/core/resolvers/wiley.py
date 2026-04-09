@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import time
 from typing import Optional
 from urllib.parse import urljoin, urlparse
 
@@ -9,12 +10,15 @@ from playwright.sync_api import TimeoutError as PlaywrightTimeoutError, sync_pla
 from tools.pdf_fetcher.core.config import (
     ENABLE_WILEY_RESOLVER,
     WILEY_ALLOWED_DOMAIN_PATTERN,
+    WILEY_ATTEMPT_TIMEOUT_MS,
     WILEY_BROWSER_MODE,
     WILEY_DOWNLOAD_TIMEOUT_MS,
     WILEY_HEADLESS,
     WILEY_NAVIGATION_TIMEOUT_MS,
     WILEY_NETWORKIDLE_TIMEOUT_MS,
     WILEY_POST_LOAD_WAIT_MS,
+    WILEY_VIEWER_DOWNLOAD_TIMEOUT_MS,
+    WILEY_VIEWER_READY_TIMEOUT_MS,
 )
 from tools.pdf_fetcher.core.models import DownloadResult, Record
 from tools.pdf_fetcher.core.utils import format_checked_at, make_doi_url, normalize_doi, save_pdf_bytes, url_matches_domain_pattern
@@ -277,11 +281,17 @@ def collect_viewer_pdf_candidates(page) -> list[str]:
     return deduped
 
 
-def try_session_request_download(context, pdf_url: str, referer_url: str, output_path) -> tuple[bool, Optional[int], str]:
+def try_session_request_download(
+    context,
+    pdf_url: str,
+    referer_url: str,
+    output_path,
+    timeout_ms: int = WILEY_DOWNLOAD_TIMEOUT_MS,
+) -> tuple[bool, Optional[int], str]:
     response = context.request.get(
         pdf_url,
         headers={"Referer": referer_url},
-        timeout=WILEY_DOWNLOAD_TIMEOUT_MS,
+        timeout=timeout_ms,
     )
 
     if response.status != 200:
@@ -305,7 +315,19 @@ def wait_for_page_ready(page) -> None:
     page.wait_for_timeout(WILEY_POST_LOAD_WAIT_MS)
 
 
+def _remaining_timeout_ms(deadline: float, fallback_ms: int) -> int:
+    remaining_ms = max(1000, int((deadline - time.monotonic()) * 1000))
+    return min(fallback_ms, remaining_ms)
+
+
 def wait_for_wiley_viewer(page) -> bool:
+    try:
+        body_text = page.locator("body").inner_text(timeout=1500).lower()
+        if "0 de 0" in body_text or "0 of 0" in body_text:
+            return False
+    except Exception:
+        pass
+
     selectors = [
         "a[aria-label='Download PDF']",
         "a[href*='/doi/pdfdirect/']",
@@ -317,7 +339,13 @@ def wait_for_wiley_viewer(page) -> bool:
     ]
     for selector in selectors:
         try:
-            page.locator(selector).first.wait_for(state="visible", timeout=8000)
+            page.locator(selector).first.wait_for(state="visible", timeout=WILEY_VIEWER_READY_TIMEOUT_MS)
+            try:
+                body_text = page.locator("body").inner_text(timeout=1000).lower()
+                if "0 de 0" in body_text or "0 of 0" in body_text:
+                    return False
+            except Exception:
+                pass
             return True
         except Exception:
             continue
@@ -332,11 +360,14 @@ def wait_for_wiley_viewer(page) -> bool:
     return False
 
 
-def open_pdf_viewer(page, candidate_hrefs: list[str], base_url: str) -> bool:
+def open_pdf_viewer(page, candidate_hrefs: list[str], base_url: str, deadline: float | None = None) -> bool:
     for href in candidate_hrefs:
         viewer_url = build_wiley_html_viewer_url(href, base_url)
         try:
-            page.goto(viewer_url, wait_until="domcontentloaded", timeout=WILEY_NAVIGATION_TIMEOUT_MS)
+            timeout_ms = WILEY_NAVIGATION_TIMEOUT_MS
+            if deadline is not None:
+                timeout_ms = _remaining_timeout_ms(deadline, WILEY_NAVIGATION_TIMEOUT_MS)
+            page.goto(viewer_url, wait_until="domcontentloaded", timeout=timeout_ms)
             wait_for_page_ready(page)
             body_text = page.locator("body").inner_text(timeout=3000).lower()
             if "request username" in body_text:
@@ -362,7 +393,7 @@ def try_wiley_html_viewer_download(page, output_path) -> bool:
             count = page.locator(selector).count()
             for idx in range(count):
                 locator = page.locator(selector).nth(idx)
-                with page.expect_download(timeout=WILEY_DOWNLOAD_TIMEOUT_MS) as download_info:
+                with page.expect_download(timeout=WILEY_VIEWER_DOWNLOAD_TIMEOUT_MS) as download_info:
                     locator.click(timeout=10000)
                 download = download_info.value
                 download.save_as(str(output_path))
@@ -383,7 +414,7 @@ def try_pdf_viewer_save_download(page, output_path) -> bool:
     ]
 
     try:
-        with page.expect_download(timeout=WILEY_DOWNLOAD_TIMEOUT_MS) as download_info:
+        with page.expect_download(timeout=WILEY_VIEWER_DOWNLOAD_TIMEOUT_MS) as download_info:
             for selector in selectors:
                 try:
                     locator = page.locator(selector).first
@@ -402,18 +433,24 @@ def try_pdf_viewer_save_download(page, output_path) -> bool:
         return False
 
 
-def try_viewer_sources_download(page, context, output_path) -> tuple[bool, Optional[int], str]:
+def try_viewer_sources_download(page, context, output_path, timeout_ms: int = WILEY_DOWNLOAD_TIMEOUT_MS) -> tuple[bool, Optional[int], str]:
     base_url = f"{urlparse(page.url).scheme}://{urlparse(page.url).netloc}"
     viewer_candidates = collect_viewer_pdf_candidates(page)
     for candidate in viewer_candidates:
         for pdf_url in build_pdf_variants(candidate, base_url):
-            ok, http_status, _detail = try_session_request_download(context, pdf_url, page.url, output_path)
+            ok, http_status, _detail = try_session_request_download(
+                context,
+                pdf_url,
+                page.url,
+                output_path,
+                timeout_ms=timeout_ms,
+            )
             if ok:
                 return True, http_status, pdf_url
     return False, None, f"viewer_source_request_failed: {page.url}"
 
 
-def try_browser_download(page, output_path) -> bool:
+def try_browser_download(page, output_path, timeout_ms: int = WILEY_VIEWER_DOWNLOAD_TIMEOUT_MS) -> bool:
     selectors = [
         "a[aria-label='Download PDF']",
         "a[href*='/doi/pdf']",
@@ -430,7 +467,7 @@ def try_browser_download(page, output_path) -> bool:
             count = page.locator(selector).count()
             for idx in range(count):
                 locator = page.locator(selector).nth(idx)
-                with page.expect_download(timeout=WILEY_DOWNLOAD_TIMEOUT_MS) as download_info:
+                with page.expect_download(timeout=timeout_ms) as download_info:
                     locator.click()
                 download = download_info.value
                 download.save_as(str(output_path))
@@ -463,16 +500,23 @@ def is_retryable_wiley_status(status: str) -> bool:
 
 def _run_wiley_attempt(record: Record, start_url: str, headless: bool) -> DownloadResult:
     with sync_playwright() as playwright:
+        deadline = time.monotonic() + (WILEY_ATTEMPT_TIMEOUT_MS / 1000.0)
         browser = playwright.chromium.launch(
             headless=headless,
             args=["--disable-blink-features=AutomationControlled"],
         )
         context = browser.new_context(accept_downloads=True)
         page = context.new_page()
+        page.set_default_timeout(min(WILEY_ATTEMPT_TIMEOUT_MS, WILEY_DOWNLOAD_TIMEOUT_MS))
+        page.set_default_navigation_timeout(min(WILEY_ATTEMPT_TIMEOUT_MS, WILEY_NAVIGATION_TIMEOUT_MS))
 
         try:
             last_detail = ""
-            page.goto(start_url, wait_until="domcontentloaded", timeout=WILEY_NAVIGATION_TIMEOUT_MS)
+            page.goto(
+                start_url,
+                wait_until="domcontentloaded",
+                timeout=_remaining_timeout_ms(deadline, WILEY_NAVIGATION_TIMEOUT_MS),
+            )
             wait_for_page_ready(page)
             dismiss_cookie_banner(page)
 
@@ -499,8 +543,20 @@ def _run_wiley_attempt(record: Record, start_url: str, headless: bool) -> Downlo
                 )
 
             for href in pdf_candidates:
+                if time.monotonic() >= deadline:
+                    last_detail = f"attempt_timeout_before_candidate_requests: {final_page_url}"
+                    break
                 for pdf_url in build_pdf_variants(href, base_url):
-                    ok, http_status, detail = try_session_request_download(context, pdf_url, final_page_url, record.pdf_path)
+                    if time.monotonic() >= deadline:
+                        last_detail = f"attempt_timeout_during_candidate_requests: {final_page_url}"
+                        break
+                    ok, http_status, detail = try_session_request_download(
+                        context,
+                        pdf_url,
+                        final_page_url,
+                        record.pdf_path,
+                        timeout_ms=_remaining_timeout_ms(deadline, WILEY_DOWNLOAD_TIMEOUT_MS),
+                    )
                     if ok:
                         return make_result(
                             record=record,
@@ -512,10 +568,10 @@ def _run_wiley_attempt(record: Record, start_url: str, headless: bool) -> Downlo
                         )
                     last_detail = detail
 
-            if open_pdf_viewer(page, pdf_candidates, base_url):
+            if time.monotonic() < deadline and open_pdf_viewer(page, pdf_candidates, base_url, deadline=deadline):
                 dismiss_cookie_banner(page)
 
-                if try_wiley_html_viewer_download(page, record.pdf_path):
+                if time.monotonic() < deadline and try_wiley_html_viewer_download(page, record.pdf_path):
                     return make_result(
                         record=record,
                         downloaded=1,
@@ -523,7 +579,7 @@ def _run_wiley_attempt(record: Record, start_url: str, headless: bool) -> Downlo
                         source_url=page.url,
                         local_path=record.relative_path,
                     )
-                if try_pdf_viewer_save_download(page, record.pdf_path):
+                if time.monotonic() < deadline and try_pdf_viewer_save_download(page, record.pdf_path):
                     return make_result(
                         record=record,
                         downloaded=1,
@@ -533,7 +589,14 @@ def _run_wiley_attempt(record: Record, start_url: str, headless: bool) -> Downlo
                     )
                 last_detail = f"viewer_browser_download_failed: {page.url}"
 
-                ok, http_status, source_or_detail = try_viewer_sources_download(page, context, record.pdf_path)
+                ok, http_status, source_or_detail = (False, None, last_detail)
+                if time.monotonic() < deadline:
+                    ok, http_status, source_or_detail = try_viewer_sources_download(
+                        page,
+                        context,
+                        record.pdf_path,
+                        timeout_ms=_remaining_timeout_ms(deadline, WILEY_DOWNLOAD_TIMEOUT_MS),
+                    )
                 if ok:
                     return make_result(
                         record=record,
@@ -546,9 +609,15 @@ def _run_wiley_attempt(record: Record, start_url: str, headless: bool) -> Downlo
                 last_detail = source_or_detail
 
                 current_url = page.url
-                if "/doi/pdf/" in current_url:
+                if time.monotonic() < deadline and "/doi/pdf/" in current_url:
                     direct_url = current_url.replace("/doi/pdf/", "/doi/pdfdirect/", 1)
-                    ok, http_status, detail = try_session_request_download(context, direct_url, current_url, record.pdf_path)
+                    ok, http_status, detail = try_session_request_download(
+                        context,
+                        direct_url,
+                        current_url,
+                        record.pdf_path,
+                        timeout_ms=_remaining_timeout_ms(deadline, WILEY_DOWNLOAD_TIMEOUT_MS),
+                    )
                     if ok:
                         return make_result(
                             record=record,
@@ -560,9 +629,16 @@ def _run_wiley_attempt(record: Record, start_url: str, headless: bool) -> Downlo
                         )
                     last_detail = detail
             else:
-                last_detail = f"viewer_open_failed_or_empty: {page.url}"
+                if time.monotonic() >= deadline:
+                    last_detail = f"attempt_timeout_before_viewer_download: {page.url}"
+                else:
+                    last_detail = f"viewer_open_failed_or_empty: {page.url}"
 
-            if try_browser_download(page, record.pdf_path):
+            if time.monotonic() < deadline and try_browser_download(
+                page,
+                record.pdf_path,
+                timeout_ms=_remaining_timeout_ms(deadline, WILEY_VIEWER_DOWNLOAD_TIMEOUT_MS),
+            ):
                 return make_result(
                     record=record,
                     downloaded=1,
@@ -570,7 +646,7 @@ def _run_wiley_attempt(record: Record, start_url: str, headless: bool) -> Downlo
                     source_url=page.url,
                     local_path=record.relative_path,
                 )
-            if try_pdf_viewer_save_download(page, record.pdf_path):
+            if time.monotonic() < deadline and try_pdf_viewer_save_download(page, record.pdf_path):
                 return make_result(
                     record=record,
                     downloaded=1,
@@ -578,9 +654,19 @@ def _run_wiley_attempt(record: Record, start_url: str, headless: bool) -> Downlo
                     source_url=page.url,
                     local_path=record.relative_path,
                 )
-            last_detail = f"browser_download_failed: {page.url}"
+            if time.monotonic() >= deadline:
+                last_detail = f"attempt_timeout_before_browser_fallbacks: {page.url}"
+            else:
+                last_detail = f"browser_download_failed: {page.url}"
 
-            ok, http_status, source_or_detail = try_viewer_sources_download(page, context, record.pdf_path)
+            ok, http_status, source_or_detail = (False, None, last_detail)
+            if time.monotonic() < deadline:
+                ok, http_status, source_or_detail = try_viewer_sources_download(
+                    page,
+                    context,
+                    record.pdf_path,
+                    timeout_ms=_remaining_timeout_ms(deadline, WILEY_DOWNLOAD_TIMEOUT_MS),
+                )
             if ok:
                 return make_result(
                     record=record,

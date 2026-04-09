@@ -63,9 +63,9 @@ The app therefore does not depend purely on volatile session memory. It uses wor
 
 Within the active project, the main folders used by the app are:
 
-- `Excel/Input`
-- `Excel/Current`
-- `Excel/Final`
+- `PDF Fetcher/Excel/Input`
+- `PDF Fetcher/Excel/Current`
+- `PDF Fetcher/Excel/Final`
 - `PDF Fetcher/PDFs`
 - `PDF Fetcher/Reports`
 - `PDF Fetcher/Checkpoints`
@@ -78,6 +78,14 @@ This separation serves different purposes:
 - `PDFs` stores downloaded full-text files;
 - `Reports` stores diagnostics and analysis files;
 - `Checkpoints` provide safety and recoverability during execution.
+
+In the current implementation, the `Current` folder is phase-explicit rather than generic. The active workbook state is now stored through:
+
+- `wos_workbook_current_phase_0.xlsx`
+- `wos_workbook_current_phase_1.xlsx`
+- `wos_workbook_current_phase_2.xlsx`
+
+This means each stage now leaves a clearly named handoff workbook for the next stage, which makes the workflow easier to explain, safer to resume, and easier to audit.
 
 ## 6. Core data model
 
@@ -183,6 +191,20 @@ Each phase solves a different class of problem:
 - specialized retrieval.
 
 This prevents complex publisher-specific logic from contaminating the baseline workflow.
+
+## 7.4 S.C.O.U.T. as post-Phase-2 review layer
+
+After `Phase 2`, the app can launch `S.C.O.U.T.` (Semi-assisted Case Opening and User Triage). This is not part of the automated retrieval pipeline itself, but a manual review layer built on top of the `Phase 2` workbook.
+
+The current intended logic is:
+
+1. `Phase 2` saves `wos_workbook_current_phase_2.xlsx`;
+2. `S.C.O.U.T.` uses that workbook as its source;
+3. `S.C.O.U.T.` creates a lightweight case report for unresolved or still-relevant cases;
+4. the user performs manual triage, search, or author-contact actions there;
+5. final workbook synchronization happens only after review completion.
+
+This design keeps the automated pipeline and the manual decision layer conceptually separate.
 
 ### 8.2 Explainability
 
@@ -412,6 +434,15 @@ Phase 2, in particular, now supports:
 
 This is important for the dissertation context because it demonstrates that the tool was not only implemented, but also made operable and inspectable for iterative research work.
 
+Recent terminal changes also improved workflow continuity:
+
+- startup now distinguishes between:
+  - starting a new run from the Input workbook;
+  - continuing from saved phase workbooks;
+- the `continue previous run` option is only shown when saved phase workbooks actually exist;
+- phase transitions now display explicit loading/saving messages rather than appearing idle;
+- quitting during execution now uses lighter checkpoint logic and more responsive interruption behavior.
+
 ## 13. Reporting and diagnostics
 
 The app can generate diagnostic Excel reports to support:
@@ -436,6 +467,20 @@ This was achieved through:
 - separation between working and final workbooks.
 
 This means the workflow can be rerun iteratively without redownloading everything from scratch and without losing the audit trail of what happened.
+
+One important refinement is that rerun safety is now phase-aware. Instead of relying on a single generic `Current` workbook, the app can resume from explicit phase outputs. This helps preserve a clearer operational history:
+
+- `Phase 0` resumes from `phase_0`;
+- `Phase 1` resumes from `phase_1`;
+- `Phase 2` resumes from `phase_2`;
+- `S.C.O.U.T.` starts from `phase_2` and then maintains its own review memory.
+
+For Phase 0 specifically, the app now also stores baseline DOI-scope metadata in the workbook itself so that later reruns can distinguish:
+
+- original missing DOI counts;
+- current missing DOI counts after enrichment.
+
+This is particularly useful for dissertation reporting because it preserves the distinction between the original problem size and the remaining unresolved subset.
 
 ## 15. Methodological strengths
 
@@ -462,6 +507,14 @@ The app also has clear limitations, which are important to acknowledge in academ
 - browser-based resolvers can be slower and less predictable than the generic phase.
 
 These limitations are not accidental. In several places, the system was intentionally designed to remain conservative rather than over-automate risky cases.
+
+Another current limitation is architectural: the persistent workflow still uses Excel workbooks as the primary state bridge between phases. This has worked well for the current local tool, but it also creates friction in session recovery, project portability, and long-term incremental reuse.
+
+For that reason, a future direction already identified is:
+
+- Excel as import/export layer;
+- a local project database as the internal source of truth;
+- a portable project file that can later be reopened, extended, and re-exported.
 
 ## 17. Evolution logic
 

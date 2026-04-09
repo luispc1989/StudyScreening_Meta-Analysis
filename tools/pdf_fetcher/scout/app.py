@@ -41,6 +41,8 @@ DOWNLOAD_BRIDGE_STATE: dict[str, Any] = {
     "lock": threading.Lock(),
 }
 
+SCOUT_AUTO_SAVE_DELAY_SECONDS = 3.0
+
 
 DECISION_OPTIONS = [
     "pending_review",
@@ -718,6 +720,49 @@ def set_pdf_detected_feedback(case: dict, saved_path: Path, *, automatic: bool) 
     st.session_state["scout_download_message_record_id"] = record_id
     st.session_state["scout_pdf_status_flash_record_id"] = record_id
     st.session_state["scout_pdf_status_flash_until"] = time() + 4.0
+
+
+def revert_saved_pdf_for_case(case: dict) -> None:
+    record_id = str(case.get("record_id", "") or "").strip()
+    output_file = str(case.get("output_file", "") or "").strip()
+    output_path = Path(output_file) if output_file else None
+
+    if output_path and output_path.exists() and output_path.is_file():
+        output_path.unlink()
+
+    st.session_state["scout_pending_auto_saves"].pop(record_id, None)
+    st.session_state["scout_download_markers"].pop(record_id, None)
+    st.session_state["scout_download_baselines"].pop(record_id, None)
+    st.session_state["scout_download_message"] = ""
+    st.session_state["scout_download_message_record_id"] = ""
+    if str(st.session_state.get("scout_pdf_status_flash_record_id", "") or "").strip() == record_id:
+        st.session_state["scout_pdf_status_flash_record_id"] = ""
+        st.session_state["scout_pdf_status_flash_until"] = 0.0
+
+    with DOWNLOAD_BRIDGE_STATE["lock"]:
+        DOWNLOAD_BRIDGE_STATE["active_cases"].pop(record_id, None)
+
+    existing = st.session_state["scout_decisions"].get(record_id, {})
+    existing_notes = str(existing.get("notes", "") or "").strip()
+    save_case_review(case, "pending_review", existing_notes, False)
+    st.session_state["scout_pending_widget_reset"] = {
+        "record_id": record_id,
+        "decision": "pending_review",
+        "notes": existing_notes,
+    }
+
+
+def apply_pending_widget_reset_for_case(case: dict) -> None:
+    pending_widget_reset = st.session_state.get("scout_pending_widget_reset", {})
+    record_id = str(case.get("record_id", "") or "").strip()
+    if str(pending_widget_reset.get("record_id", "") or "").strip() != record_id:
+        return
+
+    st.session_state[f"decision_{record_id}"] = str(
+        pending_widget_reset.get("decision", "pending_review") or "pending_review"
+    )
+    st.session_state[f"notes_{record_id}"] = str(pending_widget_reset.get("notes", "") or "")
+    st.session_state.pop("scout_pending_widget_reset", None)
 
 
 def stage_pending_auto_save(case: dict, source_path: Path) -> None:
@@ -1701,7 +1746,7 @@ def process_pending_auto_saves(cases: list[dict]) -> tuple[dict | None, Path | N
         if not source_path.exists():
             pending_auto_saves.pop(record_id, None)
             continue
-        if (time() - detected_at) < 5.0:
+        if (time() - detected_at) < SCOUT_AUTO_SAVE_DELAY_SECONDS:
             continue
 
         saved_path = move_download_to_case(case, source_path)
@@ -1782,7 +1827,7 @@ def render_header() -> None:
             display: none;
         }
         .block-container {
-            padding-top: 3.25rem;
+            padding-top: 1.75rem;
         }
         .scout-card {
             padding: 0.9rem 1.1rem 0.95rem 1.1rem;
@@ -1838,6 +1883,12 @@ def render_header() -> None:
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 1rem;
         }
+        .scout-stat-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
         .scout-stat-label {
             color: inherit;
             opacity: 0.78;
@@ -1850,6 +1901,13 @@ def render_header() -> None:
             font-size: 2rem;
             font-weight: 700;
             line-height: 1;
+            background: rgba(120, 130, 150, 0.08);
+            border-radius: 0.65rem;
+            padding: 0.28rem 0.7rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 3.2rem;
         }
         .scout-section-heading {
             color: #67b8ff;
@@ -1859,6 +1917,39 @@ def render_header() -> None:
             padding-bottom: 0.6rem;
             border-bottom: 1px solid rgba(120, 130, 150, 0.28);
             letter-spacing: 0.01em;
+        }
+        .scout-heading-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.8rem;
+            margin: 0 0 1rem 0;
+            padding-bottom: 0.6rem;
+            border-bottom: 1px solid rgba(120, 130, 150, 0.28);
+        }
+        .scout-heading-row .scout-section-heading {
+            margin: 0;
+            padding: 0;
+            border-bottom: 0;
+        }
+        .scout-review-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            padding: 0.3rem 0.7rem;
+            font-size: 0.84rem;
+            font-weight: 800;
+            line-height: 1;
+            white-space: nowrap;
+        }
+        .scout-review-badge.pending {
+            background: rgba(239, 68, 68, 0.14);
+            color: #c53a3a;
+        }
+        .scout-review-badge.reviewed {
+            background: rgba(34, 197, 94, 0.14);
+            color: #18803a;
         }
         .scout-status-pulse {
             display: inline-flex;
@@ -2155,19 +2246,24 @@ def render_sidebar(case: dict, total_cases: int) -> None:
 
         st.header(":material/rule: Decision")
         default_decision = existing.get("decision", "pending_review")
-        decision_index = DECISION_OPTIONS.index(default_decision) if default_decision in DECISION_OPTIONS else 0
+        decision_key = f"decision_{case['record_id']}"
+        notes_key = f"notes_{case['record_id']}"
+        if decision_key not in st.session_state:
+            st.session_state[decision_key] = (
+                default_decision if default_decision in DECISION_OPTIONS else "pending_review"
+            )
+        if notes_key not in st.session_state:
+            st.session_state[notes_key] = existing.get("notes", "")
         decision = st.radio(
             "Decision",
             DECISION_OPTIONS,
-            index=decision_index,
-            key=f"decision_{case['record_id']}",
+            key=decision_key,
             label_visibility="collapsed",
         )
         notes = st.text_area(
             ":material/stylus_note: Notes",
-            value=existing.get("notes", ""),
             height=140,
-            key=f"notes_{case['record_id']}",
+            key=notes_key,
         )
         sync_case_review_from_widgets(case, existing)
         progress_stats = build_progress_stats(st.session_state["scout_cases"], decisions)
@@ -2209,6 +2305,12 @@ def render_sidebar(case: dict, total_cases: int) -> None:
 def render_case(case: dict) -> None:
     decisions = st.session_state["scout_decisions"]
     existing = decisions.get(case["record_id"], {})
+    current_decision = str(
+        st.session_state.get(f"decision_{case['record_id']}", existing.get("decision", "pending_review")) or "pending_review"
+    ).strip()
+    is_reviewed = bool(current_decision) and current_decision != "pending_review"
+    status_label = "Status: Reviewed" if is_reviewed else "Status: Pending Review"
+    status_class = "reviewed" if is_reviewed else "pending"
     bridge_events = get_bridge_events_for_case(case["record_id"])
     launch_url, _launch_url_kind = get_preferred_case_url(case)
     has_side_content = bool(bridge_events)
@@ -2221,7 +2323,13 @@ def render_case(case: dict) -> None:
 
     with col_main:
         with st.container(border=True):
-            st.markdown('<div class="scout-section-heading">Article Information</div>', unsafe_allow_html=True)
+            st.markdown(
+                '<div class="scout-heading-row">'
+                '<div class="scout-section-heading">Article Information</div>'
+                f'<div class="scout-review-badge {status_class}">{escape(status_label)}</div>'
+                '</div>',
+                unsafe_allow_html=True,
+            )
             display_title = normalize_display_title(case["title"])
             st.markdown(
                 f'<div class="scout-article-title">{escape(display_title)}</div>',
@@ -2274,13 +2382,32 @@ def render_case(case: dict) -> None:
                 st.info(error_text)
 
             with st.container(border=True):
-                st.markdown('<div class="scout-section-heading">PDF Status</div>', unsafe_allow_html=True)
+                pdf_heading_col, pdf_action_col = st.columns([6.2, 1.8], vertical_alignment="center")
+                with pdf_heading_col:
+                    st.markdown('<div class="scout-section-heading">PDF Status</div>', unsafe_allow_html=True)
+                with pdf_action_col:
+                    if st.button(
+                        "Erase PDF",
+                        key=f"revert_pdf_{case['record_id']}",
+                        use_container_width=True,
+                        icon=":material/delete:",
+                        disabled=not (output_path and output_path.exists()),
+                        help="Delete the saved PDF for this case and set the review back to Pending Review.",
+                    ):
+                        try:
+                            revert_saved_pdf_for_case(case)
+                            st.rerun()
+                        except Exception as exc:
+                            st.error(f"Could not revert saved PDF: {exc}")
                 if flash_active:
                     st.markdown('<div class="scout-status-pulse">PDF detected</div>', unsafe_allow_html=True)
                 if output_path and output_path.exists():
                     st.success(f"Saved PDF detected at `{output_path}`")
                 elif detected_pending:
-                    remaining_save = max(0, int(5 - (time() - float(pending_auto_save.get("detected_at", 0.0) or 0.0))))
+                    remaining_save = max(
+                        0,
+                        int(SCOUT_AUTO_SAVE_DELAY_SECONDS - (time() - float(pending_auto_save.get("detected_at", 0.0) or 0.0))),
+                    )
                     st.success(f"PDF detected. Saving automatically in {remaining_save}s.")
                 elif candidates:
                     candidate_names = ", ".join(path.name for path in candidates[:3])
@@ -2329,15 +2456,15 @@ def render_summary() -> None:
         f"""
         <div class="scout-stats">
             <div class="scout-stats-grid">
-                <div>
+                <div class="scout-stat-card">
                     <div class="scout-stat-label">Cases</div>
                     <div class="scout-stat-value">{total}</div>
                 </div>
-                <div>
+                <div class="scout-stat-card">
                     <div class="scout-stat-label">Reviewed</div>
                     <div class="scout-stat-value">{reviewed}</div>
                 </div>
-                <div>
+                <div class="scout-stat-card">
                     <div class="scout-stat-label">Manual downloads</div>
                     <div class="scout-stat-value">{downloaded}</div>
                 </div>
@@ -2448,6 +2575,7 @@ def main() -> None:
         st.warning("No cases available in the loaded report.")
         return
 
+    apply_pending_widget_reset_for_case(case)
     ensure_case_review_matches_existing_pdf(case)
     render_keyboard_navigation()
     render_sidebar(case, len(cases))

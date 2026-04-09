@@ -20,6 +20,7 @@ except Exception:
 
 from tools.pdf_fetcher.core.config import (
     ELSEVIER_ALLOWED_DOMAIN_PATTERN,
+    ELSEVIER_ATTEMPT_TIMEOUT_MS,
     ELSEVIER_BROWSER_MODE,
     ELSEVIER_DOWNLOAD_TIMEOUT_MS,
     ELSEVIER_HEADLESS,
@@ -102,11 +103,16 @@ def wait_for_page_ready(page, timeout_ms: int) -> None:
     page.wait_for_timeout(ELSEVIER_POST_LOAD_WAIT_MS)
 
 
-def auto_wait_for_article_ready(page, article_url: str) -> None:
-    page.wait_for_load_state("networkidle", timeout=ELSEVIER_NETWORKIDLE_TIMEOUT_MS)
+def _remaining_timeout_ms(deadline: float, fallback_ms: int) -> int:
+    remaining_ms = max(1000, int((deadline - time.monotonic()) * 1000))
+    return min(fallback_ms, remaining_ms)
+
+
+def auto_wait_for_article_ready(page, article_url: str, timeout_ms: int) -> None:
+    page.wait_for_load_state("networkidle", timeout=timeout_ms)
 
     try:
-        page.wait_for_selector('text="View PDF"', timeout=ELSEVIER_NAVIGATION_TIMEOUT_MS)
+        page.wait_for_selector('text="View PDF"', timeout=timeout_ms)
         return
     except PlaywrightTimeoutError:
         pass
@@ -306,6 +312,7 @@ def is_retryable_elsevier_status(status: str) -> bool:
 
 def _run_elsevier_attempt(record: Record, start_url: str, headless: bool) -> DownloadResult:
     with sync_playwright() as playwright:
+        deadline = time.monotonic() + (ELSEVIER_ATTEMPT_TIMEOUT_MS / 1000.0)
         browser = playwright.chromium.launch(
             headless=headless,
             args=["--disable-blink-features=AutomationControlled"],
@@ -315,12 +322,14 @@ def _run_elsevier_attempt(record: Record, start_url: str, headless: bool) -> Dow
             user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         )
         page = context.new_page()
+        page.set_default_timeout(min(ELSEVIER_ATTEMPT_TIMEOUT_MS, ELSEVIER_DOWNLOAD_TIMEOUT_MS))
+        page.set_default_navigation_timeout(min(ELSEVIER_ATTEMPT_TIMEOUT_MS, ELSEVIER_NAVIGATION_TIMEOUT_MS))
 
         try:
             last_detail = ""
-            page.goto(start_url, wait_until="domcontentloaded", timeout=ELSEVIER_NAVIGATION_TIMEOUT_MS)
-            auto_wait_for_article_ready(page, start_url)
-            wait_for_page_ready(page, ELSEVIER_NETWORKIDLE_TIMEOUT_MS)
+            page.goto(start_url, wait_until="domcontentloaded", timeout=_remaining_timeout_ms(deadline, ELSEVIER_NAVIGATION_TIMEOUT_MS))
+            auto_wait_for_article_ready(page, start_url, _remaining_timeout_ms(deadline, ELSEVIER_NAVIGATION_TIMEOUT_MS))
+            wait_for_page_ready(page, _remaining_timeout_ms(deadline, ELSEVIER_NETWORKIDLE_TIMEOUT_MS))
 
             final_page_url = page.url
             if not url_matches_domain_pattern(final_page_url, ELSEVIER_ALLOWED_DOMAIN_PATTERN):

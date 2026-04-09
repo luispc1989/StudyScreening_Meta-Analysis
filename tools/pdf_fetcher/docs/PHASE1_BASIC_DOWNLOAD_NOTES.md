@@ -20,6 +20,16 @@ Phase 1 starts from the workbook already prepared by the previous stage. In the 
 
 This makes Phase 1 a bridge between metadata preparation and specialized retrieval.
 
+In the current implementation, Phase 1 now starts from the explicit handoff workbook:
+
+- `wos_workbook_current_phase_0.xlsx`
+
+and saves its own continuation state to:
+
+- `wos_workbook_current_phase_1.xlsx`
+
+This phase-specific naming makes the transition to Phase 2 much clearer than a single generic `Current` workbook.
+
 ## Main objective
 
 The goal of Phase 1 is to maximize straightforward PDF acquisition while keeping the logic:
@@ -140,6 +150,8 @@ Phase 1 writes operational retrieval metadata into the workbook, including:
 
 These fields are important because they form the state passed forward to the next phase.
 
+At the end of the phase, the updated workbook state is persisted as the dedicated Phase 1 current workbook. This explicit save step is what the next phase reads as input.
+
 ## Relationship with Phase 2
 
 Phase 1 is not intended to solve every publisher case. Instead, it provides:
@@ -182,6 +194,12 @@ When it fails:
 - the workbook stores the relevant source URL and status;
 - the record remains available for later analysis or specialized handling.
 
+Recent terminal changes improved the end-of-phase behavior:
+
+- the user now sees an explicit `Updating current workbook...` message instead of a silent pause;
+- the app no longer performs an unnecessary workbook reload before returning to the menu;
+- this reduces the perceived delay after Phase 1 finishes.
+
 ## What was done in the current implementation
 
 The implemented Phase 1 includes:
@@ -193,6 +211,12 @@ The implemented Phase 1 includes:
 - structured failure classification;
 - workbook persistence of retrieval metadata;
 - terminal monitoring of progress and outcomes.
+
+Recent implementation updates also include:
+
+- phase-specific current workbook persistence (`phase_1`);
+- lighter save/transition behavior in the terminal;
+- fast checkpoints for interruption safety with lower UI overhead.
 
 ## Why it was done this way
 
@@ -217,6 +241,8 @@ Phase 1 has known limitations:
 - it cannot bypass access restrictions;
 - some pages expose metadata but not a directly retrievable PDF link;
 - some cases require browser automation or manual review.
+
+Although the current behavior is more responsive than before, workbook persistence still depends on Excel file writes. This is robust for a local research workflow, but still heavier than a database-backed internal state model would be.
 
 These limitations are intentional boundaries rather than implementation mistakes. They justify the existence of Phase 2.
 

@@ -306,12 +306,7 @@ def get_ordered_resolver_names(
 ) -> list[str]:
     primary = detect_specialized_resolver_name(record, phase1_result)
     if primary:
-        if ENABLE_SCI_HUB_RESOLVER:
-            return [primary, "sci_hub"]
         return [primary]
-
-    if ENABLE_SCI_HUB_RESOLVER:
-        return ["sci_hub"]
 
     return []
 

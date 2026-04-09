@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import time
 from typing import Optional
 from urllib.parse import urljoin
 
@@ -9,6 +10,7 @@ from playwright.sync_api import TimeoutError as PlaywrightTimeoutError, sync_pla
 from tools.pdf_fetcher.core.config import (
     ENABLE_SPRINGER_RESOLVER,
     SPRINGER_ALLOWED_DOMAIN_PATTERN,
+    SPRINGER_ATTEMPT_TIMEOUT_MS,
     SPRINGER_BROWSER_MODE,
     SPRINGER_DOWNLOAD_TIMEOUT_MS,
     SPRINGER_HEADLESS,
@@ -18,6 +20,11 @@ from tools.pdf_fetcher.core.config import (
 )
 from tools.pdf_fetcher.core.models import DownloadResult, Record
 from tools.pdf_fetcher.core.utils import format_checked_at, make_doi_url, normalize_doi, save_pdf_bytes, url_matches_domain_pattern
+
+
+def _remaining_timeout_ms(deadline: float, fallback_ms: int) -> int:
+    remaining_ms = max(1000, int((deadline - time.monotonic()) * 1000))
+    return min(fallback_ms, remaining_ms)
 
 
 def make_result(
@@ -157,19 +164,22 @@ def wait_for_article_page(page) -> None:
 
 def _run_springer_attempt(record: Record, start_url: str, headless: bool) -> DownloadResult:
     with sync_playwright() as playwright:
+        deadline = time.monotonic() + (SPRINGER_ATTEMPT_TIMEOUT_MS / 1000.0)
         browser = playwright.chromium.launch(
             headless=headless,
             args=["--disable-blink-features=AutomationControlled"],
         )
         context = browser.new_context(accept_downloads=True)
         page = context.new_page()
+        page.set_default_timeout(min(SPRINGER_ATTEMPT_TIMEOUT_MS, SPRINGER_DOWNLOAD_TIMEOUT_MS))
+        page.set_default_navigation_timeout(min(SPRINGER_ATTEMPT_TIMEOUT_MS, SPRINGER_NAVIGATION_TIMEOUT_MS))
 
         try:
             last_detail = ""
             page.goto(
                 start_url,
                 wait_until="domcontentloaded",
-                timeout=SPRINGER_NAVIGATION_TIMEOUT_MS,
+                timeout=_remaining_timeout_ms(deadline, SPRINGER_NAVIGATION_TIMEOUT_MS),
             )
             wait_for_article_page(page)
 
@@ -200,7 +210,7 @@ def _run_springer_attempt(record: Record, start_url: str, headless: bool) -> Dow
                 response = context.request.get(
                     pdf_url,
                     headers={"Referer": final_page_url},
-                    timeout=SPRINGER_DOWNLOAD_TIMEOUT_MS,
+                    timeout=_remaining_timeout_ms(deadline, SPRINGER_DOWNLOAD_TIMEOUT_MS),
                 )
                 if response.status == 200:
                     data = response.body()
@@ -227,11 +237,14 @@ def _run_springer_attempt(record: Record, start_url: str, headless: bool) -> Dow
                 "a:has-text('Download PDF')",
             ]
             for selector in selectors:
+                if time.monotonic() >= deadline:
+                    last_detail = f"attempt_timeout_before_browser_download: {final_page_url}"
+                    break
                 try:
                     locator = page.locator(selector).first
                     if locator.count() == 0:
                         continue
-                    with page.expect_download(timeout=SPRINGER_DOWNLOAD_TIMEOUT_MS) as download_info:
+                    with page.expect_download(timeout=_remaining_timeout_ms(deadline, SPRINGER_DOWNLOAD_TIMEOUT_MS)) as download_info:
                         locator.click()
                     download = download_info.value
                     download.save_as(str(record.pdf_path))

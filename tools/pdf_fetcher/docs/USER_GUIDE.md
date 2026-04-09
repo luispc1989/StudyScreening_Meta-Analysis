@@ -1,18 +1,19 @@
-# USER_GUIDE.md — Manual do Utilizador
+# User Guide
 
 ## 1. Objetivo
 
-Este guia explica como usar a aplicação **PDF Downloader Tool** passo a passo, assumindo que o utilizador não tem experiência técnica.
+Este guia explica como usar o PDF Fetcher no estado atual do projeto, com foco no modo terminal e no `S.C.O.U.T.`.
 
-## 2. O que a aplicação faz
+## 2. O que a ferramenta faz
 
-A aplicação:
+O PDF Fetcher:
 
 - lê um workbook Excel;
+- enriquece DOIs em falta;
 - tenta descarregar PDFs automaticamente;
-- escreve o estado de cada tentativa no Excel;
-- guarda PDFs numa pasta local;
-- pode ser usada em terminal ou em Streamlit.
+- usa resolvers especializados para publishers específicos;
+- guarda o estado do workflow em workbooks por fase;
+- permite revisão manual posterior no `S.C.O.U.T.`.
 
 ## 3. Requisitos
 
@@ -20,187 +21,199 @@ Antes de começar, deves ter:
 
 - Windows
 - Python instalado
-- internet para instalar dependências
-- a pasta do projeto completa
+- o repositório completo
+- dependências instaladas no `.venv`
+- Chromium instalado via Playwright
 
 ## 4. Instalação inicial
 
-### Passo 1 — abrir a pasta do projeto
-Abre `pdf_downloader_tool` no Explorador do Windows.
-
-### Passo 2 — abrir uma consola nessa pasta
-Na barra do caminho, escreve:
-
-```bat
-cmd
-```
-
-e carrega Enter.
-
-### Passo 3 — criar o ambiente virtual
+Na raiz do repositório:
 
 ```bat
 py -m venv .venv
-```
-
-Se falhar:
-
-```bat
-python -m venv .venv
-```
-
-### Passo 4 — instalar dependências
-
-```bat
 .venv\Scripts\python.exe -m pip install --upgrade pip
 .venv\Scripts\python.exe -m pip install -r requirements.txt
 .venv\Scripts\python.exe -m playwright install chromium
 ```
 
-### Passo 5 — confirmar instalação
+## 5. Como abrir o terminal
+
+Na raiz do repositório:
 
 ```bat
-.venv\Scripts\python.exe -m streamlit --version
+.venv\Scripts\python.exe -m tools.pdf_fetcher.ui.terminal.main
 ```
 
-## 5. Como usar em modo terminal
+## 6. Session start
 
-### Método A — duplo clique
-Clica em:
+Ao abrir o terminal, o sistema pode mostrar:
 
-```text
-run_terminal.bat
-```
+- `Start new run from Input workbook`
+- `Continue previous run from saved phase workbooks`
 
-### Método B — consola
+### Quando escolher `Start new run`
 
-```bat
-.venv\Scripts\python.exe main.py
-```
+Escolhe esta opção quando queres:
 
-### O que vais ver
-No terminal aparecem métricas como:
-- artigos diagnosticados
-- PDFs disponíveis
-- falhas
-- tempo estimado
-- último registo
-- último estado
+- começar o workflow desde o workbook de input;
+- recriar a `Phase 0` desde o início;
+- testar uma corrida nova.
 
-## 6. Como usar em modo Streamlit
+### Quando escolher `Continue previous run`
 
-### Método A — duplo clique
-Clica em:
+Escolhe esta opção quando já tens workbooks de fase guardados e queres:
 
-```text
-run_streamlit.bat
-```
+- continuar o workflow de onde paraste;
+- voltar a correr uma fase sobre o workbook já gerado dessa fase;
+- manter continuidade operacional entre sessões.
 
-### Método B — consola
+## 7. Estrutura de ficheiros usada pela app
 
-```bat
-.venv\Scripts\python.exe -m streamlit run ui\streamlit_app.py
-```
+Dentro do projeto ativo, o PDF Fetcher usa principalmente:
 
-### O que a interface permite
-Na barra lateral podes:
-- usar workbook automático
-- carregar workbook manualmente
-- correr a pipeline
-- limpar o estado da interface
+- `PDF Fetcher/Excel/Input`
+- `PDF Fetcher/Excel/Current`
+- `PDF Fetcher/Excel/Final`
+- `PDF Fetcher/PDFs`
+- `PDF Fetcher/Reports/Phase 0`
+- `PDF Fetcher/Reports/Phase 1`
+- `PDF Fetcher/Reports/Phase 2`
+- `PDF Fetcher/Reports/SCOUT`
+- `PDF Fetcher/Checkpoints/Phase 0`
+- `PDF Fetcher/Checkpoints/Phase 1`
+- `PDF Fetcher/Checkpoints/Phase 2`
+- `PDF Fetcher/Checkpoints/SCOUT`
 
-## 7. Workbook por defeito
+Os ficheiros principais de trabalho por fase são:
 
-O workbook é definido em:
+- `wos_workbook_current_phase_0.xlsx`
+- `wos_workbook_current_phase_1.xlsx`
+- `wos_workbook_current_phase_2.xlsx`
 
-```text
-app/config.py
-```
+## 8. Fluxo recomendado
 
-A aplicação:
-1. usa `PREFERRED_WORKBOOK_PATH` se existir;
-2. se não existir, usa o `.xlsx` mais recente em `EXCEL_INPUT_DIR`.
+### Phase 0
 
-## 8. Colunas obrigatórias
+Entrada:
 
-### Entrada
-- `record_id`
-- `Title`
-- `DOI`
-- `DOI Link`
+- `PDF Fetcher/Excel/Input/wos_workbook_input.xlsx`
 
-### Saída
-- `pdf_downloaded`
-- `pdf_download_status`
-- `pdf_file_name`
-- `pdf_source_url`
-- `pdf_local_path`
-- `pdf_http_status`
-- `pdf_checked_at`
+Saída:
 
-## 9. Estados principais
+- `PDF Fetcher/Excel/Current/wos_workbook_current_phase_0.xlsx`
 
-| Estado | Significado |
-|---|---|
-| `downloaded` | PDF descarregado com sucesso |
-| `duplicate_pdf` | PDF já existia |
-| `invalid_doi` | DOI ausente/inválido |
-| `paywalled` | barreira de acesso |
-| `not_found` | recurso não encontrado |
-| `broken_link` | falha técnica |
-| `metadata_only` | só página descritiva |
-| `manual_check` | rever manualmente |
-| `downloaded_frontiers` | descarregado por resolver Frontiers |
+### Phase 1
 
-## 10. Onde ficam os resultados
+Entrada:
 
-### Workbook final
-O ficheiro final recebe o sufixo:
+- `wos_workbook_current_phase_0.xlsx`
 
-```text
-_pdf_downloaded.xlsx
-```
+Saída:
 
-### PDFs
-Os PDFs ficam em `PDF_BASE_DIR`.
+- `wos_workbook_current_phase_1.xlsx`
 
-## 11. Primeira validação recomendada
+### Phase 2
 
-Antes de correr muitos registos, altera em `app/config.py`:
+Entrada:
 
-```python
-MAX_ROWS_TO_PROCESS = 20
-```
+- `wos_workbook_current_phase_1.xlsx`
 
-Depois testa primeiro em terminal.
+Saída:
 
-## 12. Erros frequentes
+- `wos_workbook_current_phase_2.xlsx`
 
-### Ambiente virtual não encontrado
-Cria `.venv`:
+### S.C.O.U.T.
 
-```bat
-py -m venv .venv
-```
+Entrada:
 
-### `No module named streamlit`
-Instala dependências no `.venv`:
+- `wos_workbook_current_phase_2.xlsx`
 
-```bat
-.venv\Scripts\python.exe -m pip install -r requirements.txt
-```
+O SCOUT gera uma sessão própria com os casos ainda por rever manualmente.
 
-### Sheet não encontrada
-Confirma `SHEET_NAME` em `app/config.py`.
+## 9. Menus principais do terminal
 
-### Colunas em falta
-Confirma que o Excel tem as colunas obrigatórias.
+No menu inicial podes tipicamente:
 
-## 13. Ordem recomendada de utilização
+- correr `Phase 0`
+- correr `Phase 1`
+- correr `Phase 2`
+- correr diagnósticos
+- abrir o `S.C.O.U.T.`
+- sair da aplicação
 
-1. Criar `.venv`
-2. Instalar dependências
-3. Testar `main.py`
-4. Testar Streamlit
-5. Correr com poucos registos
-6. Validar resultados
+As opções concretas dependem do estado atual do projeto.
+
+## 10. Interromper uma fase
+
+Durante as fases, o terminal aceita:
+
+- `P` — pause
+- `V` — back to menu
+- `S` — exit app
+
+Se saíres com `S`, a app tenta gravar um checkpoint para recuperação.
+
+## 11. Reports e checkpoints
+
+Os reports ficam organizados por fase:
+
+- `Reports/Phase 0`
+- `Reports/Phase 1`
+- `Reports/Phase 2`
+- `Reports/SCOUT`
+
+Os checkpoints também:
+
+- `Checkpoints/Phase 0`
+- `Checkpoints/Phase 1`
+- `Checkpoints/Phase 2`
+- `Checkpoints/SCOUT`
+
+## 12. Como usar o S.C.O.U.T.
+
+O `S.C.O.U.T.` é a camada manual de revisão depois da `Phase 2`.
+
+No SCOUT podes:
+
+- abrir `DOI Link`
+- usar `Search Engine`
+- enviar pedido por email ao autor
+- inserir ou limpar `DOI Link` / `Source Link`
+- atribuir decisão manual
+- escrever notas
+
+O SCOUT também:
+
+- deteta downloads feitos a partir do browser;
+- mostra o estado em `PDF Status`;
+- preserva a memória da revisão até ao `Finalize To Workbook`.
+
+## 13. Continuidade de sessão no SCOUT
+
+O SCOUT mantém memória própria da revisão. Isso significa que:
+
+- se fechares a app a meio;
+- se o browser cair;
+- ou se reabrir a sessão depois;
+
+deves retomar o estado da revisão sem perder o trabalho já registado.
+
+## 14. O que fazer se quiseres recomeçar do zero
+
+Se quiseres recomeçar o pipeline:
+
+1. escolhe `Start new run from Input workbook`
+2. corre novamente a `Phase 0`
+3. continua o fluxo até `Phase 2`
+
+Isto recria os workbooks por fase a partir do input.
+
+## 15. Notas importantes
+
+- A `Phase 0` agora distingue entre valores originais e atuais de `missing DOI` quando o baseline está disponível.
+- A `Phase 1` e a `Phase 2` guardam workbooks próprios por fase.
+- O SCOUT já não deve ser visto como substituto do pipeline; é uma camada de triagem manual depois da `Phase 2`.
+
+## 16. Limitação atual
+
+O sistema ainda usa Excel como mecanismo principal de persistência entre fases. Isso funciona bem para um workflow local, mas continua a ser mais pesado do que uma futura arquitetura com base de dados local e export/import Excel.
