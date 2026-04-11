@@ -1,0 +1,226 @@
+/**
+ * Ray — Design Tokens
+ * v1.0 · PrismaLab
+ *
+ * Import this file once at the root of your project.
+ * All values are scoped to :root for global availability.
+ * Supplements PrismaLab Brand Guidelines v2.0.
+ */
+
+:root {
+
+  /* ─────────────────────────────────────────
+     SURFACES
+  ───────────────────────────────────────── */
+
+  --ray-surface-hero-dark:          #0D1017;
+  --ray-surface-hero-dark-border:   #1C2230;
+
+  --ray-surface-hero-light:         #F4F3EF;
+  --ray-surface-hero-light-border:  #CBCAC3;
+
+  --ray-surface-chat:               #111111;
+  --ray-surface-chat-border:        rgba(255, 255, 255, 0.06);
+
+  --ray-surface-bubble:             #1E2129;
+
+  /* ─────────────────────────────────────────
+     ICON — DARK MODE
+  ───────────────────────────────────────── */
+
+  /* Hero (80px) */
+  --ray-icon-fill-hero:             #181D26;
+  --ray-icon-stroke-hero:           #252E3F;
+  --ray-icon-input-ray-hero:        #2E3848;
+  --ray-icon-node-hero:             #424E60;
+
+  /* Header (38px) + Message row (28px) */
+  --ray-icon-fill-sm:               #1D2028;
+  --ray-icon-stroke-sm:             #2C3040;
+  --ray-icon-input-ray-sm:          #3A4250;
+  --ray-icon-node-sm:               #50586A;
+
+  /* ─────────────────────────────────────────
+     ICON — LIGHT MODE
+  ───────────────────────────────────────── */
+
+  --ray-icon-fill-hero-light:       #C8C6BE;
+  --ray-icon-stroke-hero-light:     #B5B3AB;
+  --ray-icon-input-ray-light:       #9A9890;
+  --ray-icon-node-light:            #909088;
+
+  /* ─────────────────────────────────────────
+     SPECTRUM RAYS (shared across all scales & modes)
+  ───────────────────────────────────────── */
+
+  --ray-spectrum-violet:            #7F77DD;
+  --ray-spectrum-blue:              #378ADD;
+  --ray-spectrum-green:             #1D9E75;
+  --ray-spectrum-amber:             #EF9F27;
+  --ray-spectrum-coral:             #D85A30;
+
+  /* ─────────────────────────────────────────
+     STATUS INDICATOR
+  ───────────────────────────────────────── */
+
+  --ray-status-active-dark:         #5DCAA5;   /* dot on dark surfaces  */
+  --ray-status-active-light:        #1D9E75;   /* dot on light surfaces */
+  --ray-status-offline:             #3A3E47;   /* no animation          */
+  --ray-status-error:               #D85A30;   /* same as coral ray     */
+
+  /* ─────────────────────────────────────────
+     TYPOGRAPHY — SIZES & WEIGHTS
+  ───────────────────────────────────────── */
+
+  /* Name */
+  --ray-name-size-hero:             52px;
+  --ray-name-weight-hero:           500;
+  --ray-name-tracking-hero:         -0.8px;
+
+  --ray-name-size-header:           15px;
+  --ray-name-weight-header:         500;
+  --ray-name-tracking-header:       -0.1px;
+
+  --ray-name-size-message:          12px;
+  --ray-name-weight-message:        500;
+  --ray-name-tracking-message:      0px;
+
+  /* Descriptor */
+  --ray-descriptor-size-hero:       12px;
+  --ray-descriptor-size-header:     11px;
+  --ray-descriptor-weight:          400;
+  --ray-descriptor-tracking-hero:   0px;
+  --ray-descriptor-tracking-header: 0.1px;
+
+  /* Message body */
+  --ray-message-size:               13.5px;
+  --ray-message-line-height:        1.7;
+
+  /* ─────────────────────────────────────────
+     TYPOGRAPHY — COLOURS
+  ───────────────────────────────────────── */
+
+  --ray-name-color-dark:            #FFFFFF;
+  --ray-name-color-light:           #1C1C1A;
+  --ray-name-color-message:         rgba(255, 255, 255, 0.65);
+
+  --ray-descriptor-color-dark:      rgba(255, 255, 255, 0.52);
+  --ray-descriptor-color-light:     rgba(28,  28,  26,  0.52);
+
+  --ray-message-color:              rgba(255, 255, 255, 0.80);
+
+  /* ─────────────────────────────────────────
+     ERROR & OFFLINE TEXT
+  ───────────────────────────────────────── */
+
+  --ray-error-bubble:               #1E1618;
+  --ray-error-border:               rgba(216, 90, 48, 0.30);
+  --ray-error-text:                 rgba(255, 255, 255, 0.70);
+  --ray-error-label:                #D85A30;
+
+  --ray-offline-name-opacity:       0.40;
+  --ray-offline-descriptor:         rgba(255, 255, 255, 0.28);
+  --ray-offline-icon-opacity:       0.45;
+
+  /* ─────────────────────────────────────────
+     SEPARATORS
+  ───────────────────────────────────────── */
+
+  --ray-separator-dark:             rgba(255, 255, 255, 0.08);
+  --ray-separator-light:            rgba(0,   0,   0,   0.12);
+  --ray-separator-chat:             rgba(255, 255, 255, 0.06);
+
+  /* ─────────────────────────────────────────
+     LAYOUT
+  ───────────────────────────────────────── */
+
+  --ray-card-radius:                16px;
+  --ray-bubble-radius:              4px 12px 12px 12px;  /* sharp top-left = speaker anchor */
+  --ray-header-padding:             15px 20px;
+  --ray-hero-padding:               28px 36px;
+  --ray-bubble-padding:             14px 16px;
+
+  --ray-icon-size-hero:             80px;
+  --ray-icon-size-header:           38px;
+  --ray-icon-size-message:          28px;
+
+  --ray-gap-hero:                   26px;   /* icon → separator → text  */
+  --ray-gap-header:                 13px;   /* icon → text block        */
+  --ray-gap-message:                12px;   /* icon → content           */
+  --ray-gap-name-descriptor:        2px;
+  --ray-gap-name-bubble:            6px;
+  --ray-gap-rows:                   14px;   /* between message rows     */
+
+  --ray-separator-height-hero:      52px;
+
+  /* ─────────────────────────────────────────
+     MOTION
+  ───────────────────────────────────────── */
+
+  --ray-dot-duration:               3s;
+  --ray-dot-easing:                 ease-in-out;
+
+  --ray-typing-duration:            1.5s;
+  --ray-typing-delay:               0.25s;
+  --ray-typing-easing:              ease-in-out;
+
+}
+
+/* ─────────────────────────────────────────
+   KEYFRAMES
+───────────────────────────────────────── */
+
+@keyframes ray-dot-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.3; transform: scale(0.65); }
+}
+
+@keyframes ray-typing-blink {
+  0%, 80%, 100% { opacity: 0.2; }
+  40%           { opacity: 0.9; }
+}
+
+/* ─────────────────────────────────────────
+   UTILITY CLASSES
+───────────────────────────────────────── */
+
+.ray-status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ray-status-dot--active-dark {
+  background: var(--ray-status-active-dark);
+  animation: ray-dot-pulse var(--ray-dot-duration) var(--ray-dot-easing) infinite;
+}
+
+.ray-status-dot--active-light {
+  background: var(--ray-status-active-light);
+  animation: ray-dot-pulse var(--ray-dot-duration) var(--ray-dot-easing) infinite;
+}
+
+.ray-status-dot--offline {
+  background: var(--ray-status-offline);
+  /* no animation */
+}
+
+.ray-status-dot--error {
+  background: var(--ray-status-error);
+  /* no animation */
+}
+
+.ray-typing-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ray-status-active-dark);
+  animation: ray-typing-blink var(--ray-typing-duration) var(--ray-typing-easing) infinite;
+  vertical-align: middle;
+}
+
+.ray-typing-dot:nth-child(2) { animation-delay: var(--ray-typing-delay); }
+.ray-typing-dot:nth-child(3) { animation-delay: calc(var(--ray-typing-delay) * 2); }

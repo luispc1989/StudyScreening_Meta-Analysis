@@ -1,0 +1,35 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "PrismaLab",
+  "version": "0.1.0",
+  "identifier": "com.prismalab.desktop",
+  "build": {
+    "beforeDevCommand": "",
+    "beforeBuildCommand": "",
+    "devUrl": "http://localhost:8080",
+    "frontendDist": "../prismalab-frontend/dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "PrismaLab",
+        "width": 1440,
+        "height": 960,
+        "minWidth": 1180,
+        "minHeight": 760,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/icon.ico"
+    ]
+  }
+}

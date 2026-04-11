@@ -1,0 +1,9 @@
+<!-- Ray icon mark — 3 rays (violet/teal/coral). Transparent background. -->
+<svg width="48" height="48" viewBox="-23 -23 46 46" xmlns="http://www.w3.org/2000/svg">
+  <circle r="23" fill="#C8C6BE" stroke="#B5B3AB" stroke-width=".6"/>
+  <line x1="-20.5" y1="0" x2="-5.98" y2="0" stroke="#9A9890" stroke-width="1.6" stroke-linecap="round"/>
+  <line x1="-6.0" y1="0" x2="12.9" y2="-14.7" stroke="#7F77DD" stroke-width="2.8" stroke-linecap="round"/>
+  <line x1="-6.0" y1="0" x2="17.0" y2="0" stroke="#1D9E75" stroke-width="2.8" stroke-linecap="round"/>
+  <line x1="-6.0" y1="0" x2="12.9" y2="14.7" stroke="#D85A30" stroke-width="2.8" stroke-linecap="round"/>
+  <circle cx="-5.98" cy="0" r="3.2" fill="#909088"/>
+</svg>

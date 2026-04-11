@@ -272,3 +272,61 @@ databases while preserving deduplication and long-term project memory.
 The repository now has a concrete starting point for the gradual transition
 from workbook-driven persistence to a local-first project database coordinated
 by `PrismaLab`.
+
+---
+
+## 2026-04-11
+
+### Change
+
+A more substantial `PrismaLab` frontend prototype was integrated in:
+
+- `apps/prismalab-frontend`
+
+This prototype now includes:
+
+- a dedicated access page;
+- local profile creation;
+- remembered local sessions;
+- a local `Recovery Key` recovery flow;
+- a phase-oriented authenticated shell;
+- a first project-oriented dashboard;
+- a clearer separation between `PrismaLab` as platform and `Ray` as assistant.
+
+### Why
+
+The initial `apps/prismalab` prototype was useful for high-level visual direction, but it was still too lightweight to validate actual product behavior. A more concrete frontend layer was needed to test how the future master app should feel and behave as a local-first research workspace.
+
+### Impact
+
+The repository now contains a stronger frontend reference for dissertation writing and future implementation. The project is no longer only documenting a future app master concept; it is already testing the concrete access flow, workspace shell, and dashboard logic of the expected `PrismaLab` platform.
+
+---
+
+## 2026-04-11
+
+### Change
+
+Desktop-shell groundwork was added in:
+
+- `apps/prismalab-desktop`
+
+This shell is scaffolded as a thin `Tauri` wrapper around:
+
+- `apps/prismalab-frontend`
+
+### Why
+
+The project needs to keep prototyping UI quickly in web technology while still
+moving toward a serious desktop-local-first product. A separate frontend and
+desktop codebase would introduce unnecessary divergence.
+
+### Impact
+
+The repository now has an explicit packaging direction for PrismaLab:
+
+- one shared frontend;
+- one future desktop runtime;
+- one future local database;
+- desktop-specific behaviors to be implemented in the native shell rather than
+  simulated in the browser prototype.

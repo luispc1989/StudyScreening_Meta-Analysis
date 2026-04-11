@@ -1,0 +1,24 @@
+<svg width="340" height="88" viewBox="0 0 340 88" xmlns="http://www.w3.org/2000/svg">
+  <!-- Ray Logo — Dark variant. Use on white/light/off-white backgrounds. Transparent background. -->
+  <defs>
+    <clipPath id="circle-clip-dark">
+      <circle cx="44" cy="44" r="38"/>
+    </clipPath>
+  </defs>
+  <!-- Circle mark -->
+  <circle cx="44" cy="44" r="38" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/>
+  <!-- Input beam -->
+  <line x1="6" y1="44" x2="30" y2="44" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Emission point -->
+  <circle cx="32" cy="44" r="2.5" fill="#CBCAC3"/>
+  <!-- Spectrum rays — clipped inside circle -->
+  <g clip-path="url(#circle-clip-dark)">
+    <line x1="32" y1="44" x2="78" y2="16" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="32" y1="44" x2="86" y2="44" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="32" y1="44" x2="78" y2="72" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+  <!-- Eyebrow -->
+  <text x="108" y="30" font-family="'DM Sans',-apple-system,sans-serif" font-size="10" font-weight="500" fill="#CBCAC3" letter-spacing="2.5">RESEARCH ASSISTANT</text>
+  <!-- Wordmark -->
+  <text x="106" y="72" font-family="'DM Sans',-apple-system,sans-serif" font-size="52" font-weight="500" fill="#1C1C1A" letter-spacing="-0.5">Ray</text>
+</svg>

@@ -2,7 +2,9 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { PrismaLabLogo } from "@/components/PrismaLabLogo";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
-import { registerUser, setStoredUser } from "@/lib/auth";
+import { PasswordField } from "@/components/PasswordField";
+import { RecoveryKeyPanel } from "@/components/RecoveryKeyPanel";
+import { registerUser, setStoredUser, type User } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,39 +21,54 @@ export const Route = createFileRoute("/register")({
 
 function RegisterPage() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ fullName: "", email: "", username: "", password: "", confirm: "" });
+  const [form, setForm] = useState({ fullName: "", email: "", password: "", confirm: "" });
   const [error, setError] = useState("");
   const [remember, setRemember] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [recoveryState, setRecoveryState] = useState<{
+    user: User;
+    recoveryKey: string;
+    remember: boolean;
+  } | null>(null);
 
   const update = (field: string, value: string) => setForm((p) => ({ ...p, [field]: value }));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
     setError("");
+    if (!form.fullName.trim() || !form.email.trim() || !form.password.trim() || !form.confirm.trim()) {
+      setError("Complete all required fields before creating your account");
+      return;
+    }
     if (form.password !== form.confirm) {
       setError("Passwords do not match");
       return;
     }
-    if (form.password.length < 6) {
-      setError("Password must be at least 6 characters");
+    if (form.password.length < 8) {
+      setError("Password must be at least 8 characters");
       return;
     }
+
+    setIsSubmitting(true);
     try {
-      registerUser({ fullName: form.fullName, email: form.email, username: form.username, password: form.password });
+      const result = await registerUser({
+        fullName: form.fullName,
+        email: form.email,
+        password: form.password,
+      });
+      setRecoveryState({ ...result, remember });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not create account");
-      return;
+    } finally {
+      setIsSubmitting(false);
     }
-    setStoredUser({ fullName: form.fullName, email: form.email, username: form.username }, remember);
-    navigate({ to: "/app/dashboard" });
   };
 
   const fields = [
     { id: "fullName", label: "Full name", type: "text", placeholder: "Enter your full name" },
     { id: "email", label: "Email", type: "email", placeholder: "researcher@institution.edu" },
-    { id: "username", label: "Username", type: "text", placeholder: "Choose a username" },
-    { id: "password", label: "Password", type: "password", placeholder: "At least 6 characters" },
-    { id: "confirm", label: "Confirm password", type: "password", placeholder: "Repeat your password" },
   ];
 
   return (
@@ -73,67 +90,109 @@ function RegisterPage() {
             </div>
 
             <div className="relative mx-auto mt-7 w-full max-w-[36rem] rounded-[1.75rem] border border-[#ece6da] bg-white/80 px-8 py-8 shadow-[0_10px_30px_rgba(40,34,24,0.05)] backdrop-blur-[10px] dark:border-[#242424] dark:bg-[#151515]/84 dark:shadow-[0_14px_34px_rgba(0,0,0,0.22)]">
-              <div className="space-y-7">
-              <div className="space-y-2 text-left">
-                <h1 className="text-4xl font-medium tracking-tight text-foreground">Create your account</h1>
-                <p className="max-w-2xl text-base text-muted-foreground">
-                  Set up your local PrismaLab workspace. Your email will support future in-app actions, including direct author contact during screening workflows.
-                </p>
-              </div>
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {error && (
-                  <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-                    {error}
+              {recoveryState ? (
+                <RecoveryKeyPanel
+                  title="Store your Recovery Key"
+                  subtitle="Record this key before continuing. PrismaLab cannot retrieve it for you later."
+                  recoveryKey={recoveryState.recoveryKey}
+                  continueLabel="Continue to PrismaLab"
+                  confirmationLabel="I understand that this recovery key is the only way to recover access if I forget my password."
+                  onContinue={() => {
+                    setStoredUser(recoveryState.user, recoveryState.remember);
+                    navigate({ to: "/app/dashboard" });
+                  }}
+                />
+              ) : (
+                <div className="space-y-7">
+                  <div className="space-y-2 text-left">
+                    <h1 className="text-4xl font-medium tracking-tight text-foreground">Create your account</h1>
+                    <p className="max-w-2xl text-base text-muted-foreground">
+                      Set up your local PrismaLab workspace. Your email will support future in-app actions, including direct author contact during screening workflows. A stable internal account identifier will be generated automatically.
+                    </p>
                   </div>
-                )}
 
-                <div className="grid gap-4 md:grid-cols-2">
-                  {fields.map(({ id, label, type, placeholder }) => (
-                    <div key={id} className={`space-y-2.5 ${id === "email" || id === "confirm" ? "md:col-span-2" : ""}`}>
-                      <Label htmlFor={id} className="text-xs font-medium uppercase tracking-[0.28em] text-muted-foreground">
-                        {label}
-                      </Label>
-                      <Input
-                        id={id}
-                        type={type}
-                        value={form[id as keyof typeof form]}
-                        onChange={(e) => update(id, e.target.value)}
-                        placeholder={placeholder}
-                        className="h-13 rounded-xl border-border/80 bg-card/70 px-4 shadow-none"
-                        required
-                      />
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    {error && (
+                      <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                        {error}
+                      </div>
+                    )}
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {fields.map(({ id, label, type, placeholder }) => (
+                        <div key={id} className={`space-y-2.5 ${id === "email" ? "md:col-span-2" : ""}`}>
+                          <Label htmlFor={id} className="text-xs font-medium uppercase tracking-[0.28em] text-muted-foreground">
+                            {label}
+                          </Label>
+                          <Input
+                            id={id}
+                            type={type}
+                            value={form[id as keyof typeof form]}
+                            onChange={(e) => update(id, e.target.value)}
+                            placeholder={placeholder}
+                            className="h-13 rounded-xl border-border/80 bg-card/70 px-4 shadow-none"
+                            required
+                          />
+                        </div>
+                      ))}
+
+                      <div className="space-y-2.5">
+                        <PasswordField
+                          id="register-password"
+                          label="Password"
+                          value={form.password}
+                          onChange={(value) => update("password", value)}
+                          placeholder="At least 8 characters"
+                          autoComplete="new-password"
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2.5">
+                        <PasswordField
+                          id="register-confirm"
+                          label="Confirm password"
+                          value={form.confirm}
+                          onChange={(value) => update("confirm", value)}
+                          placeholder="Repeat your password"
+                          autoComplete="new-password"
+                          required
+                        />
+                      </div>
                     </div>
-                  ))}
+
+                    <div className="flex items-center gap-3 pt-1">
+                      <input
+                        type="checkbox"
+                        id="remember-register"
+                        checked={remember}
+                        onChange={(e) => setRemember(e.target.checked)}
+                        className="h-4 w-4 rounded border-border bg-background accent-[var(--color-brand-deep)]"
+                      />
+                      <Label htmlFor="remember-register" className="cursor-pointer text-base text-muted-foreground">
+                        Keep me signed in on this PC
+                      </Label>
+                    </div>
+
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="mt-2 h-14 w-full rounded-xl border border-border bg-transparent text-lg font-medium text-foreground hover:bg-card/80 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {isSubmitting ? "Creating account..." : "Create account"}
+                    </Button>
+                  </form>
+
+                  <div className="pt-1 text-center">
+                    <p className="text-base text-muted-foreground">
+                      Already have an account?{" "}
+                      <Link to="/login" className="font-medium text-brand hover:text-brand-deep transition-colors">
+                        Sign in
+                      </Link>
+                    </p>
+                  </div>
                 </div>
-
-                <div className="flex items-center gap-3 pt-1">
-                  <input
-                    type="checkbox"
-                    id="remember-register"
-                    checked={remember}
-                    onChange={(e) => setRemember(e.target.checked)}
-                    className="h-4 w-4 rounded border-border bg-background accent-[var(--color-brand-deep)]"
-                  />
-                  <Label htmlFor="remember-register" className="cursor-pointer text-base text-muted-foreground">
-                    Keep me signed in on this PC
-                  </Label>
-                </div>
-
-                <Button type="submit" className="mt-2 h-14 w-full rounded-xl border border-border bg-transparent text-lg font-medium text-foreground hover:bg-card/80">
-                  Create profile
-                </Button>
-              </form>
-
-              <div className="pt-1 text-center">
-                <p className="text-base text-muted-foreground">
-                  Already have an account?{" "}
-                  <Link to="/login" className="font-medium text-brand hover:text-brand-deep transition-colors">
-                    Sign in
-                  </Link>
-                </p>
-              </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

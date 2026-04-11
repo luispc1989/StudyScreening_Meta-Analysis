@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-40 -40 80 80" width="80" height="80" role="img" aria-label="Ray">
+  <title>Ray</title>
+  <circle r="38" fill="#C8C6BE" stroke="#B5B3AB" stroke-width=".6"/>
+  <line x1="-34" y1="0" x2="-10" y2="0" stroke="#9A9890" stroke-width="1.6" stroke-linecap="round"/>
+  <circle cx="-10" cy="0" r="2.6" fill="#909088"/>
+  <line x1="-10" y1="0" x2="22" y2="-25" stroke="#7F77DD" stroke-width="2.8" stroke-linecap="round"/>
+  <line x1="-10" y1="0" x2="30" y2="0"   stroke="#1D9E75" stroke-width="2.8" stroke-linecap="round"/>
+  <line x1="-10" y1="0" x2="22" y2="25"  stroke="#D85A30" stroke-width="2.8" stroke-linecap="round"/>
+</svg>

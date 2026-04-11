@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ray — Banner Lockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:#F8F7F4;padding:48px;display:flex;flex-direction:column;gap:40px;min-height:100vh}
+@keyframes sdot-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.65)}}
+.sdot{animation:sdot-pulse 3s ease-in-out infinite}
+h6{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:#888780;font-weight:500;margin-bottom:12px;font-family:'DM Sans',sans-serif}
+</style>
+</head>
+<body>
+
+<h6>Hero card — dark</h6>
+<div style="background:#0D1017;border-radius:16px;padding:28px 36px;display:inline-flex;align-items:center;gap:26px;border:0.5px solid #1C2230">
+  <svg width="80" height="80" viewBox="-40 -40 80 80">
+    <circle r="38" fill="#181D26" stroke="#252E3F" stroke-width=".6"/>
+    <line x1="-34" y1="0" x2="-10" y2="0" stroke="#2E3848" stroke-width="1.6" stroke-linecap="round"/>
+    <circle cx="-10" cy="0" r="2.6" fill="#424E60"/>
+    <line x1="-10" y1="0" x2="22" y2="-25" stroke="#7F77DD" stroke-width="2.8" stroke-linecap="round"/>
+    <line x1="-10" y1="0" x2="28" y2="-12" stroke="#378ADD" stroke-width="2.8" stroke-linecap="round"/>
+    <line x1="-10" y1="0" x2="30" y2="0"   stroke="#1D9E75" stroke-width="2.8" stroke-linecap="round"/>
+    <line x1="-10" y1="0" x2="28" y2="12"  stroke="#EF9F27" stroke-width="2.8" stroke-linecap="round"/>
+    <line x1="-10" y1="0" x2="22" y2="25"  stroke="#D85A30" stroke-width="2.8" stroke-linecap="round"/>
+  </svg>
+  <div style="width:.5px;height:52px;background:rgba(255,255,255,.08);flex-shrink:0"></div>
+  <div>
+    <p style="font-size:52px;font-weight:500;color:#fff;line-height:1;letter-spacing:-.8px">Ray</p>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:5px">
+      <span class="sdot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#5DCAA5;flex-shrink:0"></span>
+      <span style="font-size:12px;font-weight:400;color:rgba(255,255,255,.52)">Research Assistant</span>
+    </div>
+  </div>
+</div>
+
+<h6>Hero card — light</h6>
+<div style="background:#F4F3EF;border-radius:16px;padding:28px 36px;display:inline-flex;align-items:center;gap:26px;border:0.5px solid #CBCAC3">
+  <svg width="80" height="80" viewBox="-40 -40 80 80">
+    <circle r="38" fill="#C8C6BE" stroke="#B5B3AB" stroke-width=".6"/>
+    <line x1="-34" y1="0" x2="-10" y2="0" stroke="#9A9890" stroke-width="1.6" stroke-linecap="round"/>
+    <circle cx="-10" cy="0" r="2.6" fill="#909088"/>
+    <line x1="-10" y1="0" x2="22" y2="-25" stroke="#7F77DD" stroke-width="2.8" stroke-linecap="round"/>
+    <line x1="-10" y1="0" x2="28" y2="-12" stroke="#378ADD" stroke-width="2.8" stroke-linecap="round"/>
+    <line x1="-10" y1="0" x2="30" y2="0"   stroke="#1D9E75" stroke-width="2.8" stroke-linecap="round"/>
+    <line x1="-10" y1="0" x2="28" y2="12"  stroke="#EF9F27" stroke-width="2.8" stroke-linecap="round"/>
+    <line x1="-10" y1="0" x2="22" y2="25"  stroke="#D85A30" stroke-width="2.8" stroke-linecap="round"/>
+  </svg>
+  <div style="width:.5px;height:52px;background:rgba(0,0,0,.12);flex-shrink:0"></div>
+  <div>
+    <p style="font-size:52px;font-weight:500;color:#1C1C1A;line-height:1;letter-spacing:-.8px">Ray</p>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:5px">
+      <span class="sdot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#1D9E75;flex-shrink:0"></span>
+      <span style="font-size:12px;font-weight:400;color:rgba(28,28,26,.52)">Research Assistant</span>
+    </div>
+  </div>
+</div>
+
+<h6>Chat panel</h6>
+<div style="background:#111111;border-radius:16px;max-width:520px;border:0.5px solid #1E1E1E;overflow:hidden">
+  <div style="padding:15px 20px;display:flex;align-items:center;gap:13px;border-bottom:0.5px solid rgba(255,255,255,.06)">
+    <svg width="38" height="38" viewBox="-19 -19 38 38" style="flex-shrink:0">
+      <circle r="18" fill="#1D2028" stroke="#2C3040" stroke-width=".6"/>
+      <line x1="-15" y1="0" x2="-5" y2="0" stroke="#3A4250" stroke-width="1.3" stroke-linecap="round"/>
+      <circle cx="-5" cy="0" r="1.6" fill="#50586A"/>
+      <line x1="-5" y1="0" x2="10"  y2="-12" stroke="#7F77DD" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="-5" y1="0" x2="13"  y2="-5"  stroke="#378ADD" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="-5" y1="0" x2="14"  y2="0"   stroke="#1D9E75" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="-5" y1="0" x2="13"  y2="5"   stroke="#EF9F27" stroke-width="2.2" stroke-linecap="round"/>
+      <line x1="-5" y1="0" x2="10"  y2="12"  stroke="#D85A30" stroke-width="2.2" stroke-linecap="round"/>
+    </svg>
+    <div style="display:flex;flex-direction:column;gap:2px">
+      <div style="display:flex;align-items:center;gap:7px">
+        <span style="font-size:15px;font-weight:500;color:#fff;letter-spacing:-.1px">Ray</span>
+        <span class="sdot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#5DCAA5;flex-shrink:0"></span>
+      </div>
+      <span style="font-size:11px;font-weight:400;color:rgba(255,255,255,.52);letter-spacing:.1px">Research Assistant</span>
+    </div>
+  </div>
+  <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;align-items:flex-start;gap:12px">
+      <svg width="28" height="28" viewBox="-14 -14 28 28" style="flex-shrink:0;margin-top:1px">
+        <circle r="13" fill="#1D2028" stroke="#2C3040" stroke-width=".5"/>
+        <circle cx="-3.5" cy="0" r="1.3" fill="#50586A"/>
+        <line x1="-3.5" y1="0" x2="7"   y2="-9"  stroke="#7F77DD" stroke-width="2" stroke-linecap="round"/>
+        <line x1="-3.5" y1="0" x2="9.5" y2="-4"  stroke="#378ADD" stroke-width="2" stroke-linecap="round"/>
+        <line x1="-3.5" y1="0" x2="10.5" y2="0"  stroke="#1D9E75" stroke-width="2" stroke-linecap="round"/>
+        <line x1="-3.5" y1="0" x2="9.5" y2="4"   stroke="#EF9F27" stroke-width="2" stroke-linecap="round"/>
+        <line x1="-3.5" y1="0" x2="7"   y2="9"   stroke="#D85A30" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <span style="font-size:12px;font-weight:500;color:rgba(255,255,255,.65)">Ray</span>
+        <div style="background:#1E2129;border-radius:4px 12px 12px 12px;padding:14px 16px;max-width:360px">
+          <p style="font-size:13.5px;color:rgba(255,255,255,.80);line-height:1.7">Hello. I'm Ray — I can help you screen studies, extract data, and synthesise evidence. What are you working on?</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

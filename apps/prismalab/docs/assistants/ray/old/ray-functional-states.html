@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ray — Functional States</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:#F8F7F4;color:#1C1C1A;font-size:14px;line-height:1.6}
+
+.nav{position:fixed;top:0;left:0;width:210px;height:100vh;background:#fff;border-right:0.5px solid #E0DFDA;padding:32px 24px;overflow-y:auto;z-index:100}
+.main{margin-left:210px}
+.wrap{max-width:840px;margin:0 auto;padding:0 56px}
+.section{padding:72px 0;border-bottom:0.5px solid #E0DFDA}
+.section:last-child{border-bottom:none}
+
+.nav-wordmark{font-size:13px;font-weight:500;color:#1C1C1A;margin-bottom:4px}
+.nav-sub{font-size:11px;color:#888780;margin-bottom:36px}
+.nav-group{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:#CBCAC3;font-weight:500;margin:20px 0 6px}
+.nav-link{display:block;font-size:12px;color:#888780;padding:5px 0;text-decoration:none}
+.nav-link:hover{color:#1C1C1A}
+
+.eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#888780;font-weight:500;margin-bottom:28px;display:block}
+h2{font-size:24px;font-weight:500;margin-bottom:8px}
+h3{font-size:14px;font-weight:500;margin-bottom:12px;margin-top:32px}
+h3:first-child{margin-top:0}
+p.lead{font-size:15px;color:#555552;line-height:1.75;max-width:580px}
+p.body{font-size:13px;color:#555552;line-height:1.7;max-width:580px}
+p.note{font-size:11px;color:#888780;margin-top:6px;line-height:1.5;max-width:580px}
+code{font-family:'DM Mono',monospace;font-size:11px;background:#F0EFE9;padding:2px 6px;border-radius:4px;color:#444441}
+
+.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt24{margin-top:24px}.mt32{margin-top:32px}.mt40{margin-top:40px}
+.mb16{margin-bottom:16px}.mb24{margin-bottom:24px}
+
+.spec-table{width:100%;border-collapse:collapse;margin-top:12px}
+.spec-table th{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#888780;font-weight:500;text-align:left;padding:8px 12px;border-bottom:0.5px solid #E0DFDA}
+.spec-table td{font-size:12px;color:#555552;padding:10px 12px;border-bottom:0.5px solid #F0EFEA;vertical-align:top}
+.spec-table td:first-child{font-weight:500;color:#1C1C1A;white-space:nowrap}
+.spec-table tr:last-child td{border-bottom:none}
+
+.state-label{display:inline-block;font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:500;padding:3px 8px;border-radius:4px;margin-bottom:14px}
+.label-offline{background:#F0EFE9;color:#888780}
+.label-error{background:#FCEEE9;color:#993C1D}
+.label-active{background:#E1F5EE;color:#0F6E56}
+
+.rule{background:#fff;border:0.5px solid #E0DFDA;border-radius:10px;overflow:hidden;margin-top:12px}
+.rule-head{padding:14px 16px}
+.rule-tag{font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:500;padding:3px 8px;border-radius:4px;display:inline-block;margin-bottom:10px}
+.tag-do{background:#EAF3DE;color:#3B6D11}
+.tag-dont{background:#F7C1C1;color:#A32D2D}
+.rule-desc{font-size:12px;color:#555552;line-height:1.55}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* Animation — active only */
+@keyframes sdot-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.65)}}
+@keyframes td-blink{0%,80%,100%{opacity:.2}40%{opacity:.9}}
+.sdot-active{animation:sdot-pulse 3s ease-in-out infinite}
+.td{animation:td-blink 1.5s ease-in-out infinite;display:inline-block;width:5px;height:5px;border-radius:50%;background:#5DCAA5;vertical-align:middle}
+.td:nth-child(2){animation-delay:.25s}.td:nth-child(3){animation-delay:.5s}
+
+.cover{background:#0D1017;padding:80px 0 72px;border-bottom:0.5px solid #1C2230}
+
+/* Comparison grid */
+.compare{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:20px}
+.compare-col{display:flex;flex-direction:column;gap:8px}
+.compare-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#888780;font-weight:500}
+
+@media(max-width:800px){.nav{display:none}.main{margin-left:0}.wrap{padding:0 24px}.grid2,.compare{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <p class="nav-wordmark">Ray</p>
+  <p class="nav-sub">Functional States v1.0</p>
+  <span class="nav-group">States</span>
+  <a class="nav-link" href="#offline">Offline</a>
+  <a class="nav-link" href="#error">Error</a>
+  <span class="nav-group">Reference</span>
+  <a class="nav-link" href="#comparison">State comparison</a>
+  <a class="nav-link" href="#specs">Specifications</a>
+  <a class="nav-link" href="#rules">Rules</a>
+</nav>
+
+<main class="main">
+
+<!-- COVER -->
+<div class="cover">
+  <div class="wrap">
+    <div style="display:flex;align-items:center;gap:20px;margin-bottom:32px">
+      <svg width="48" height="48" viewBox="-24 -24 48 48">
+        <circle r="22" fill="#181D26" stroke="#252E3F" stroke-width=".6"/>
+        <line x1="-20" y1="0" x2="-6" y2="0" stroke="#2E3848" stroke-width="1.4" stroke-linecap="round"/>
+        <circle cx="-6" cy="0" r="1.8" fill="#424E60"/>
+        <line x1="-6" y1="0" x2="14" y2="-16" stroke="#7F77DD" stroke-width="2" stroke-linecap="round"/>
+        <line x1="-6" y1="0" x2="18" y2="-7"  stroke="#378ADD" stroke-width="2" stroke-linecap="round"/>
+        <line x1="-6" y1="0" x2="19" y2="0"   stroke="#1D9E75" stroke-width="2" stroke-linecap="round"/>
+        <line x1="-6" y1="0" x2="18" y2="7"   stroke="#EF9F27" stroke-width="2" stroke-linecap="round"/>
+        <line x1="-6" y1="0" x2="14" y2="16"  stroke="#D85A30" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <p style="font-size:28px;font-weight:500;color:#fff;line-height:1;letter-spacing:-.5px">Ray</p>
+        <p style="font-size:12px;color:rgba(255,255,255,.4);margin-top:4px">Functional States · v1.0</p>
+      </div>
+    </div>
+    <p style="font-size:15px;color:rgba(255,255,255,.55);max-width:520px;line-height:1.7">Defines the visual treatment for offline and error states across hero cards, chat headers, and message rows. Supplements the Ray Component Spec v1.0.</p>
+  </div>
+</div>
+
+<!-- 01 OFFLINE -->
+<div class="section" id="offline">
+<div class="wrap">
+  <span class="eyebrow">01 — Offline state</span>
+  <h2>Ray unavailable</h2>
+  <p class="lead mt8">Used when Ray cannot be reached — service down, no connection, or session expired. The UI signals absence without alarming the user. The interface remains visible but clearly inactive.</p>
+
+  <h3 class="mt32">Hero card — offline</h3>
+  <div style="max-width:560px;margin-top:12px">
+    <div style="background:#0D1017;border-radius:16px;padding:28px 36px;display:flex;align-items:center;gap:26px;border:0.5px solid #1C2230">
+      <svg width="80" height="80" viewBox="-40 -40 80 80" style="flex-shrink:0;opacity:.45">
+        <circle r="38" fill="#181D26" stroke="#252E3F" stroke-width=".6"/>
+        <line x1="-34" y1="0" x2="-10" y2="0" stroke="#2E3848" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="-10" cy="0" r="2.6" fill="#424E60"/>
+        <line x1="-10" y1="0" x2="22" y2="-25" stroke="#7F77DD" stroke-width="2.8" stroke-linecap="round"/>
+        <line x1="-10" y1="0" x2="28" y2="-12" stroke="#378ADD" stroke-width="2.8" stroke-linecap="round"/>
+        <line x1="-10" y1="0" x2="30" y2="0"   stroke="#1D9E75" stroke-width="2.8" stroke-linecap="round"/>
+        <line x1="-10" y1="0" x2="28" y2="12"  stroke="#EF9F27" stroke-width="2.8" stroke-linecap="round"/>
+        <line x1="-10" y1="0" x2="22" y2="25"  stroke="#D85A30" stroke-width="2.8" stroke-linecap="round"/>
+      </svg>
+      <div style="width:.5px;height:52px;background:rgba(255,255,255,.06);flex-shrink:0"></div>
+      <div>
+        <p style="font-size:52px;font-weight:500;color:rgba(255,255,255,.40);line-height:1;letter-spacing:-.8px">Ray</p>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:5px">
+          <!-- Static dot, no animation, muted color -->
+          <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3A3E47;flex-shrink:0"></span>
+          <span style="font-size:12px;font-weight:400;color:rgba(255,255,255,.28)">Unavailable</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="mt32">Chat header — offline</h3>
+  <div style="max-width:560px;margin-top:12px">
+    <div style="background:#111111;border-radius:16px;border:0.5px solid #1E1E1E;overflow:hidden">
+      <div style="padding:15px 20px;display:flex;align-items:center;gap:13px;border-bottom:0.5px solid rgba(255,255,255,.04)">
+        <svg width="38" height="38" viewBox="-19 -19 38 38" style="flex-shrink:0;opacity:.45">
+          <circle r="18" fill="#1D2028" stroke="#2C3040" stroke-width=".6"/>
+          <line x1="-15" y1="0" x2="-5" y2="0" stroke="#3A4250" stroke-width="1.3" stroke-linecap="round"/>
+          <circle cx="-5" cy="0" r="1.6" fill="#50586A"/>
+          <line x1="-5" y1="0" x2="10"  y2="-12" stroke="#7F77DD" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="-5" y1="0" x2="13"  y2="-5"  stroke="#378ADD" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="-5" y1="0" x2="14"  y2="0"   stroke="#1D9E75" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="-5" y1="0" x2="13"  y2="5"   stroke="#EF9F27" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="-5" y1="0" x2="10"  y2="12"  stroke="#D85A30" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <div style="display:flex;align-items:center;gap:7px">
+            <span style="font-size:15px;font-weight:500;color:rgba(255,255,255,.40);letter-spacing:-.1px">Ray</span>
+            <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#3A3E47;flex-shrink:0"></span>
+          </div>
+          <span style="font-size:11px;font-weight:400;color:rgba(255,255,255,.28);letter-spacing:.1px">Unavailable</span>
+        </div>
+      </div>
+      <!-- Offline message -->
+      <div style="padding:20px">
+        <div style="display:flex;align-items:flex-start;gap:12px">
+          <svg width="28" height="28" viewBox="-14 -14 28 28" style="flex-shrink:0;margin-top:1px;opacity:.4">
+            <circle r="13" fill="#1D2028" stroke="#2C3040" stroke-width=".5"/>
+            <circle cx="-3.5" cy="0" r="1.3" fill="#50586A"/>
+            <line x1="-3.5" y1="0" x2="7"   y2="-9"  stroke="#7F77DD" stroke-width="2" stroke-linecap="round"/>
+            <line x1="-3.5" y1="0" x2="9.5" y2="-4"  stroke="#378ADD" stroke-width="2" stroke-linecap="round"/>
+            <line x1="-3.5" y1="0" x2="10.5" y2="0"  stroke="#1D9E75" stroke-width="2" stroke-linecap="round"/>
+            <line x1="-3.5" y1="0" x2="9.5" y2="4"   stroke="#EF9F27" stroke-width="2" stroke-linecap="round"/>
+            <line x1="-3.5" y1="0" x2="7"   y2="9"   stroke="#D85A30" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:12px;font-weight:500;color:rgba(255,255,255,.35)">Ray</span>
+            <div style="background:#161819;border-radius:4px 12px 12px 12px;padding:14px 16px;max-width:360px;border:0.5px solid rgba(255,255,255,.06)">
+              <p style="font-size:13.5px;color:rgba(255,255,255,.38);line-height:1.7">Ray is currently unavailable. Please try again in a moment.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 02 ERROR -->
+<div class="section" id="error">
+<div class="wrap">
+  <span class="eyebrow">02 — Error state</span>
+  <h2>Query failed</h2>
+  <p class="lead mt8">Used when Ray is reachable but a specific response failed — search returned nothing, extraction timed out, or a processing error occurred. The header remains active. Only the affected message is flagged.</p>
+
+  <h3 class="mt32">Chat — error message</h3>
+  <div style="max-width:560px;margin-top:12px">
+    <div style="background:#111111;border-radius:16px;border:0.5px solid #1E1E1E;overflow:hidden">
+
+      <!-- Header remains fully active -->
+      <div style="padding:15px 20px;display:flex;align-items:center;gap:13px;border-bottom:0.5px solid rgba(255,255,255,.06)">
+        <svg width="38" height="38" viewBox="-19 -19 38 38" style="flex-shrink:0">
+          <circle r="18" fill="#1D2028" stroke="#2C3040" stroke-width=".6"/>
+          <line x1="-15" y1="0" x2="-5" y2="0" stroke="#3A4250" stroke-width="1.3" stroke-linecap="round"/>
+          <circle cx="-5" cy="0" r="1.6" fill="#50586A"/>
+          <line x1="-5" y1="0" x2="10"  y2="-12" stroke="#7F77DD" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="-5" y1="0" x2="13"  y2="-5"  stroke="#378ADD" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="-5" y1="0" x2="14"  y2="0"   stroke="#1D9E75" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="-5" y1="0" x2="13"  y2="5"   stroke="#EF9F27" stroke-width="2.2" stroke-linecap="round"/>
+          <line x1="-5" y1="0" x2="10"  y2="12"  stroke="#D85A30" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <div style="display:flex;align-items:center;gap:7px">
+            <span style="font-size:15px;font-weight:500;color:#fff;letter-spacing:-.1px">Ray</span>
+            <span class="sdot-active" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#5DCAA5;flex-shrink:0"></span>
+          </div>
+          <span style="font-size:11px;font-weight:400;color:rgba(255,255,255,.52);letter-spacing:.1px">Research Assistant</span>
+        </div>
+      </div>
+
+      <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+
+        <!-- Previous message — normal -->
+        <div style="display:flex;align-items:flex-start;gap:12px">
+          <svg width="28" height="28" viewBox="-14 -14 28 28" style="flex-shrink:0;margin-top:1px">
+            <circle r="13" fill="#1D2028" stroke="#2C3040" stroke-width=".5"/>
+            <circle cx="-3.5" cy="0" r="1.3" fill="#50586A"/>
+            <line x1="-3.5" y1="0" x2="7"   y2="-9"  stroke="#7F77DD" stroke-width="2" stroke-linecap="round"/>
+            <line x1="-3.5" y1="0" x2="9.5" y2="-4"  stroke="#378ADD" stroke-width="2" stroke-linecap="round"/>
+            <line x1="-3.5" y1="0" x2="10.5" y2="0"  stroke="#1D9E75" stroke-width="2" stroke-linecap="round"/>
+            <line x1="-3.5" y1="0" x2="9.5" y2="4"   stroke="#EF9F27" stroke-width="2" stroke-linecap="round"/>
+            <line x1="-3.5" y1="0" x2="7"   y2="9"   stroke="#D85A30" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:12px;font-weight:500;color:rgba(255,255,255,.65)">Ray</span>
+            <div style="background:#1E2129;border-radius:4px 12px 12px 12px;padding:14px 16px;max-width:360px">
+              <p style="font-size:13.5px;color:rgba(255,255,255,.80);line-height:1.7">Searching PubMed for systematic reviews on your query…</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error message -->
+        <div style="display:flex;align-items:flex-start;gap:12px">
+          <svg width="28" height="28" viewBox="-14 -14 28 28" style="flex-shrink:0;margin-top:1px">
+            <circle r="13" fill="#1D2028" stroke="#2C3040" stroke-width=".5"/>
+            <circle cx="-3.5" cy="0" r="1.3" fill="#50586A"/>
+            <line x1="-3.5" y1="0" x2="7"   y2="-9"  stroke="#7F77DD" stroke-width="2" stroke-linecap="round"/>
+            <line x1="-3.5" y1="0" x2="9.5" y2="-4"  stroke="#378ADD" stroke-width="2" stroke-linecap="round"/>
+            <line x1="-3.5" y1="0" x2="10.5" y2="0"  stroke="#1D9E75" stroke-width="2" stroke-linecap="round"/>
+            <line x1="-3.5" y1="0" x2="9.5" y2="4"   stroke="#EF9F27" stroke-width="2" stroke-linecap="round"/>
+            <line x1="-3.5" y1="0" x2="7"   y2="9"   stroke="#D85A30" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:12px;font-weight:500;color:rgba(255,255,255,.65)">Ray</span>
+            <!-- Error bubble: dark warm tint + coral left border -->
+            <div style="background:#1E1618;border-radius:4px 12px 12px 12px;padding:14px 16px;max-width:360px;border:0.5px solid rgba(216,90,48,.30);border-left:2px solid #D85A30">
+              <p style="font-size:11px;font-weight:500;color:#D85A30;margin-bottom:6px;letter-spacing:.1px">Search returned no results</p>
+              <p style="font-size:13px;color:rgba(255,255,255,.60);line-height:1.65">No studies matched your criteria. Try broadening the search terms or adjusting the date range.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <p class="note mt16">The error bubble uses the coral spectrum colour (<code>#D85A30</code>) as its signal — the same hue already present in the icon. No new colour is introduced. The header and icon remain fully active because Ray is operational — only the query failed.</p>
+</div>
+</div>
+
+<!-- 03 COMPARISON -->
+<div class="section" id="comparison">
+<div class="wrap">
+  <span class="eyebrow">03 — State comparison</span>
+  <h2>Three states, same header</h2>
+  <p class="lead mt8">How the chat header changes across states. Icon and name stay structurally identical — only opacity, dot colour, and descriptor text change.</p>
+
+  <div class="compare mt32">
+
+    <!-- Active -->
+    <div class="compare-col">
+      <p class="compare-label">Active</p>
+      <div style="background:#111111;border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:11px;border:0.5px solid #1E1E1E">
+        <svg width="34" height="34" viewBox="-17 -17 34 34" style="flex-shrink:0">
+          <circle r="16" fill="#1D2028" stroke="#2C3040" stroke-width=".5"/>
+          <circle cx="-4" cy="0" r="1.4" fill="#50586A"/>
+          <line x1="-4" y1="0" x2="8"  y2="-9"  stroke="#7F77DD" stroke-width="2" stroke-linecap="round"/>
+          <line x1="-4" y1="0" x2="10" y2="-4"  stroke="#378ADD" stroke-width="2" stroke-linecap="round"/>
+          <line x1="-4" y1="0" x2="11" y2="0"   stroke="#1D9E75" stroke-width="2" stroke-linecap="round"/>
+          <line x1="-4" y1="0" x2="10" y2="4"   stroke="#EF9F27" stroke-width="2" stroke-linecap="round"/>
+          <line x1="-4" y1="0" x2="8"  y2="9"   stroke="#D85A30" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:14px;font-weight:500;color:#fff">Ray</span>
+            <span class="sdot-active" style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#5DCAA5"></span>
+          </div>
+          <span style="font-size:10px;color:rgba(255,255,255,.52)">Research Assistant</span>
+        </div>
+      </div>
+      <p style="font-size:11px;color:#888780;margin-top:8px;line-height:1.5">Dot: <code>#5DCAA5</code> pulsing<br>Name: <code>#FFFFFF</code><br>Descriptor: 52% opacity</p>
+    </div>
+
+    <!-- Offline -->
+    <div class="compare-col">
+      <p class="compare-label">Offline</p>
+      <div style="background:#111111;border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:11px;border:0.5px solid #1E1E1E">
+        <svg width="34" height="34" viewBox="-17 -17 34 34" style="flex-shrink:0;opacity:.45">
+          <circle r="16" fill="#1D2028" stroke="#2C3040" stroke-width=".5"/>
+          <circle cx="-4" cy="0" r="1.4" fill="#50586A"/>
+          <line x1="-4" y1="0" x2="8"  y2="-9"  stroke="#7F77DD" stroke-width="2" stroke-linecap="round"/>
+          <line x1="-4" y1="0" x2="10" y2="-4"  stroke="#378ADD" stroke-width="2" stroke-linecap="round"/>
+          <line x1="-4" y1="0" x2="11" y2="0"   stroke="#1D9E75" stroke-width="2" stroke-linecap="round"/>
+          <line x1="-4" y1="0" x2="10" y2="4"   stroke="#EF9F27" stroke-width="2" stroke-linecap="round"/>
+          <line x1="-4" y1="0" x2="8"  y2="9"   stroke="#D85A30" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:14px;font-weight:500;color:rgba(255,255,255,.40)">Ray</span>
+            <span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#3A3E47"></span>
+          </div>
+          <span style="font-size:10px;color:rgba(255,255,255,.28)">Unavailable</span>
+        </div>
+      </div>
+      <p style="font-size:11px;color:#888780;margin-top:8px;line-height:1.5">Dot: <code>#3A3E47</code> static<br>Name: 40% opacity<br>Descriptor: "Unavailable" 28%</p>
+    </div>
+
+    <!-- Error -->
+    <div class="compare-col">
+      <p class="compare-label">Error</p>
+      <div style="background:#111111;border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:11px;border:0.5px solid #1E1E1E">
+        <svg width="34" height="34" viewBox="-17 -17 34 34" style="flex-shrink:0">
+          <circle r="16" fill="#1D2028" stroke="#2C3040" stroke-width=".5"/>
+          <circle cx="-4" cy="0" r="1.4" fill="#50586A"/>
+          <line x1="-4" y1="0" x2="8"  y2="-9"  stroke="#7F77DD" stroke-width="2" stroke-linecap="round"/>
+          <line x1="-4" y1="0" x2="10" y2="-4"  stroke="#378ADD" stroke-width="2" stroke-linecap="round"/>
+          <line x1="-4" y1="0" x2="11" y2="0"   stroke="#1D9E75" stroke-width="2" stroke-linecap="round"/>
+          <line x1="-4" y1="0" x2="10" y2="4"   stroke="#EF9F27" stroke-width="2" stroke-linecap="round"/>
+          <line x1="-4" y1="0" x2="8"  y2="9"   stroke="#D85A30" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:14px;font-weight:500;color:#fff">Ray</span>
+            <span class="sdot-active" style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#5DCAA5"></span>
+          </div>
+          <span style="font-size:10px;color:rgba(255,255,255,.52)">Research Assistant</span>
+        </div>
+      </div>
+      <p style="font-size:11px;color:#888780;margin-top:8px;line-height:1.5">Dot: <code>#5DCAA5</code> pulsing<br>Name: <code>#FFFFFF</code> (unchanged)<br>Error lives in the bubble only</p>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- 04 SPECS -->
+<div class="section" id="specs">
+<div class="wrap">
+  <span class="eyebrow">04 — Specifications</span>
+  <h2>State token values</h2>
+
+  <h3>Offline</h3>
+  <table class="spec-table mt12">
+    <thead><tr><th>Element</th><th>Property</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Icon</td><td>opacity</td><td><code>0.45</code></td></tr>
+      <tr><td>Status dot</td><td>background / animation</td><td><code>#3A3E47</code> / none</td></tr>
+      <tr><td>Name "Ray"</td><td>color</td><td><code>rgba(255,255,255,.40)</code></td></tr>
+      <tr><td>Descriptor</td><td>text / color</td><td>"Unavailable" / <code>rgba(255,255,255,.28)</code></td></tr>
+      <tr><td>Message bubble bg</td><td>background / border</td><td><code>#161819</code> / <code>0.5px solid rgba(255,255,255,.06)</code></td></tr>
+      <tr><td>Message text</td><td>color</td><td><code>rgba(255,255,255,.38)</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="mt32">Error</h3>
+  <table class="spec-table mt12">
+    <thead><tr><th>Element</th><th>Property</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Header</td><td>state</td><td>Unchanged — Ray is active, only the query failed</td></tr>
+      <tr><td>Error bubble bg</td><td>background</td><td><code>#1E1618</code></td></tr>
+      <tr><td>Error bubble border</td><td>border / border-left</td><td><code>0.5px solid rgba(216,90,48,.30)</code> / <code>2px solid #D85A30</code></td></tr>
+      <tr><td>Error label</td><td>font-size / weight / color</td><td><code>11px</code> / <code>500</code> / <code>#D85A30</code></td></tr>
+      <tr><td>Error label</td><td>margin-bottom / letter-spacing</td><td><code>6px</code> / <code>0.1px</code></td></tr>
+      <tr><td>Error body text</td><td>font-size / color / line-height</td><td><code>13px</code> / <code>rgba(255,255,255,.60)</code> / <code>1.65</code></td></tr>
+      <tr><td>Error colour source</td><td>note</td><td>Coral ray (<code>#D85A30</code>) — no new colour introduced</td></tr>
+    </tbody>
+  </table>
+</div>
+</div>
+
+<!-- 05 RULES -->
+<div class="section" id="rules">
+<div class="wrap">
+  <span class="eyebrow">05 — Rules</span>
+  <h2>State rules</h2>
+
+  <div class="grid2 mt24">
+    <div class="rule">
+      <div class="rule-head">
+        <span class="rule-tag tag-do">Do</span>
+        <p class="rule-desc">In the error state, keep the header fully active. The error belongs to the response, not to Ray. Dimming the header implies Ray has failed — it hasn't.</p>
+      </div>
+    </div>
+    <div class="rule" style="border-color:#F7C1C1">
+      <div class="rule-head">
+        <span class="rule-tag tag-dont">Don't</span>
+        <p class="rule-desc" style="color:#A32D2D">Use red (<code>#E24B4A</code>) for errors. Ray's coral (<code>#D85A30</code>) is already in the icon spectrum — it signals caution without introducing a foreign colour.</p>
+      </div>
+    </div>
+    <div class="rule">
+      <div class="rule-head">
+        <span class="rule-tag tag-do">Do</span>
+        <p class="rule-desc">In the offline state, change the descriptor to "Unavailable". It is the only place where the descriptor text changes from "Research Assistant".</p>
+      </div>
+    </div>
+    <div class="rule" style="border-color:#F7C1C1">
+      <div class="rule-head">
+        <span class="rule-tag tag-dont">Don't</span>
+        <p class="rule-desc" style="color:#A32D2D">Animate the status dot in offline or error states. The pulse means active. A static dot means something has changed — the contrast is the signal.</p>
+      </div>
+    </div>
+    <div class="rule">
+      <div class="rule-head">
+        <span class="rule-tag tag-do">Do</span>
+        <p class="rule-desc">Keep error messages brief and actionable. One short label naming the failure + one sentence suggesting next action. Nothing more.</p>
+      </div>
+    </div>
+    <div class="rule" style="border-color:#F7C1C1">
+      <div class="rule-head">
+        <span class="rule-tag tag-dont">Don't</span>
+        <p class="rule-desc" style="color:#A32D2D">Show error codes, technical descriptions, or stack traces in the message bubble. This is a research platform, not a developer console.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- FOOTER -->
+<div style="background:#1C1C1A;padding:40px 0">
+  <div class="wrap" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
+    <div>
+      <p style="font-size:13px;font-weight:500;color:#fff">Ray — Functional States</p>
+      <p style="font-size:11px;color:rgba(255,255,255,.3);margin-top:3px">v1.0 · PrismaLab</p>
+    </div>
+    <p style="font-size:11px;color:rgba(255,255,255,.2)">Read alongside Ray Component Spec v1.0</p>
+  </div>
+</div>
+
+</main>
+</body>
+</html>

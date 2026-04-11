@@ -203,6 +203,111 @@ This prototype is intentionally lightweight. It is not yet the operational appli
 
 This is relevant for the dissertation because it demonstrates that architectural planning is already being translated into tangible interface prototypes rather than remaining only a conceptual future plan.
 
+That prototyping stage has since been extended with a more substantial frontend shell in:
+
+- `apps/prismalab-frontend`
+
+This second prototype is important because it moves beyond static visual exploration and begins to test:
+
+- the authenticated entry flow of the future platform;
+- a phase-oriented workspace shell;
+- the relationship between platform branding (`PrismaLab`) and assistant branding (`Ray`);
+- local-first authentication assumptions;
+- future project-oriented dashboard behavior.
+
+In other words, the frontend work is no longer only aesthetic exploration. It is now beginning to encode product assumptions that are directly relevant to the future research workspace architecture.
+
+## Current frontend direction inside PrismaLab
+
+The current frontend prototyping work is already converging on a few concrete interaction principles.
+
+### Access page as institutional entry point
+
+The access page is being treated as a dedicated entry screen rather than as a marketing-style landing page.
+
+This means the interface emphasizes:
+
+- `PrismaLab` as the main platform identity;
+- restrained branding rather than promotional language;
+- local sign-in and local profile creation;
+- continuity of use across sessions on the same machine.
+
+This is relevant for the dissertation because it reflects a deliberate design choice: the system is being framed as a serious research workspace rather than a generic consumer dashboard.
+
+### Local-first authentication model
+
+The current frontend prototype now includes a local authentication layer designed for a desktop-style research environment.
+
+Implemented assumptions include:
+
+- local profile creation;
+- local sign-in;
+- remembered-session behavior;
+- a temporary developer access path for testing;
+- explicit future separation between profile identity and later external integrations.
+
+At the current stage, these profile records are stored locally in browser storage rather than in the future project database. This is not the final architecture, but it is a useful intermediate step for validating the access flow and profile semantics before moving them into the local database layer.
+
+### Recovery Key as the only recovery method
+
+One important architectural decision in the current frontend prototype is that account recovery is not email-based.
+
+Instead, the current direction uses a locally generated `Recovery Key` that is:
+
+- shown only once after account creation or recovery;
+- explicitly framed as the only way to recover access;
+- regenerated after a password reset;
+- intended to be stored securely by the user.
+
+This is methodologically relevant because it aligns the authentication model with the local-first architecture. A remote email-reset workflow would imply backend infrastructure that does not match the current project direction.
+
+### Platform versus assistant separation
+
+The frontend prototype also clarifies an important branding and product distinction:
+
+- `PrismaLab` is the platform;
+- `Ray` is an assistant inside the platform.
+
+This matters because the system is no longer being conceptualized as a loose mixture of tools and AI components. The frontend is starting to formalize a clearer architecture in which the assistant supports the workspace without replacing the platform identity itself.
+
+### Dashboard as project-first workspace
+
+The current authenticated dashboard is now evolving toward a project-first structure rather than a decorative landing screen.
+
+The current UI direction emphasizes:
+
+- active-project awareness;
+- phase-based navigation;
+- workflow entry points;
+- local project continuity;
+- the future role of preserved project memory.
+
+This is still prototype work, but it is already relevant for the dissertation because it demonstrates the move from a tool launcher to a structured research environment that can later support reopening, continuation, and gradual project accumulation.
+
+### Desktop shell groundwork
+
+The repository now also contains a first dedicated desktop shell scaffold in:
+
+- `apps/prismalab-desktop`
+
+This matters because the intended PrismaLab direction is no longer a pure
+browser-style application. The frontend can continue to be prototyped quickly in
+web technologies, but the target runtime is now being formalized as a desktop
+wrapper around the shared PrismaLab frontend.
+
+The current architectural interpretation is:
+
+- `apps/prismalab-frontend` = shared UI codebase;
+- `apps/prismalab-desktop` = thin desktop shell;
+- future local SQLite database = same source of truth for both;
+- desktop-specific session behavior should be implemented in the native shell,
+  not faked in the browser prototype.
+
+This is relevant for the dissertation because it clarifies that the project is
+not oscillating between two unrelated app models. Instead, it is converging on a
+single local-first product with one interface and one persistence model, later
+distributed through a desktop runtime.
+
 ## Future database rationale
 
 The database direction is motivated by practical and methodological concerns.

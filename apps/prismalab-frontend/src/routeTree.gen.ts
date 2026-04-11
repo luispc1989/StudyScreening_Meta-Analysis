@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as RecoverRouteImport } from './routes/recover'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
@@ -20,6 +21,11 @@ import { Route as AppPhaseIdRouteImport } from './routes/app.$phaseId'
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecoverRoute = RecoverRouteImport.update({
+  id: '/recover',
+  path: '/recover',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/recover': typeof RecoverRoute
   '/register': typeof RegisterRoute
   '/app/$phaseId': typeof AppPhaseIdRoute
   '/app/dashboard': typeof AppDashboardRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/recover': typeof RecoverRoute
   '/register': typeof RegisterRoute
   '/app/$phaseId': typeof AppPhaseIdRoute
   '/app/dashboard': typeof AppDashboardRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
+  '/recover': typeof RecoverRoute
   '/register': typeof RegisterRoute
   '/app/$phaseId': typeof AppPhaseIdRoute
   '/app/dashboard': typeof AppDashboardRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/login'
+    | '/recover'
     | '/register'
     | '/app/$phaseId'
     | '/app/dashboard'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/login'
+    | '/recover'
     | '/register'
     | '/app/$phaseId'
     | '/app/dashboard'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/app'
     | '/login'
+    | '/recover'
     | '/register'
     | '/app/$phaseId'
     | '/app/dashboard'
@@ -115,6 +127,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
+  RecoverRoute: typeof RecoverRoute
   RegisterRoute: typeof RegisterRoute
 }
 
@@ -125,6 +138,13 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recover': {
+      id: '/recover'
+      path: '/recover'
+      fullPath: '/recover'
+      preLoaderRoute: typeof RecoverRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -190,6 +210,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
+  RecoverRoute: RecoverRoute,
   RegisterRoute: RegisterRoute,
 }
 export const routeTree = rootRouteImport
