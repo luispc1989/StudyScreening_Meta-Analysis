@@ -1,0 +1,18 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- PrismaLab App Icon — Dark (#111111) — 1024x1024 -->
+  <rect width="1024" height="1024" rx="225" fill="#111111"/>
+  <!-- Icon centred: original mark spans ~200 units wide, 100 tall (viewBox 48 8 198 98) -->
+  <!-- Scale to ~480px wide centred at 512,512 -->
+  <!-- Scale factor: 480/198 ≈ 2.424. Translate so centre (48+198/2=147, 8+98/2=57) maps to (512,512) -->
+  <!-- tx = 512 - 147*2.424 = 512 - 356.3 = 155.7, ty = 512 - 57*2.424 = 512 - 138.2 = 373.8 -->
+  <g transform="translate(155.7, 373.8) scale(2.424)">
+    <polygon points="106,15 58,98 154,98" fill="#1E1E1E" stroke="#585858" stroke-width="0.6"/>
+    <line x1="18" y1="62" x2="79" y2="62" stroke="#585858" stroke-width="0.9" stroke-linecap="round"/>
+    <circle cx="133" cy="62" r="2.5" fill="#585858"/>
+    <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="1.8" stroke-linecap="round"/>
+  </g>
+</svg>

@@ -1,0 +1,14 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- PrismaLab App Icon — Light (#FFFFFF) — 1024x1024 -->
+  <rect width="1024" height="1024" rx="225" fill="#FFFFFF"/>
+  <g transform="translate(155.7, 373.8) scale(2.424)">
+    <polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="0.6"/>
+    <line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="0.9" stroke-linecap="round"/>
+    <circle cx="133" cy="62" r="2.5" fill="#CBCAC3"/>
+    <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="1.8" stroke-linecap="round"/>
+    <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="1.8" stroke-linecap="round"/>
+  </g>
+</svg>

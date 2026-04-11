@@ -48,7 +48,8 @@ The intended workflow is:
 4. run Phase 1 using the updated `Current`;
 5. save the updated workbook again to `Current`;
 6. run Phase 2 using the latest `Current`;
-7. save the final workbook to `Final`.
+7. use `S.C.O.U.T.` for residual manual triage when needed;
+8. save the final workbook to `Final`.
 
 This design means that:
 
@@ -58,6 +59,8 @@ This design means that:
 - checkpoints and reports provide additional traceability.
 
 The app therefore does not depend purely on volatile session memory. It uses workbook persistence as the core bridge between phases.
+
+The current implementation should also be understood as one tool inside a broader evolving toolkit. The `PDF Fetcher` is no longer being designed as an isolated utility only. It is increasingly being treated as one phase-aware module that will later sit inside a wider project-oriented application for meta-analysis work.
 
 ## 5. Directory and persistence model
 
@@ -178,6 +181,15 @@ The app also supports two Phase 2 execution modes:
 
 This is especially useful for debugging and targeted validation of new resolvers.
 
+After the publisher-specific resolvers, the current logic treats `Sci-Hub` as a final automated fallback layer rather than as an immediate per-resolver escape hatch. This separation was adopted because it is easier to interpret, easier to report in a dissertation, and operationally less noisy than invoking `Sci-Hub` directly inside every resolver path.
+
+The current intended automatic logic is:
+
+1. run specialized resolvers;
+2. run `Sci-Hub` pass 1 on still-unresolved eligible cases;
+3. run `Sci-Hub` pass 2 only on retryable `Sci-Hub` failures;
+4. send the remaining unresolved cases to `S.C.O.U.T.`.
+
 ## 8. Why the phases were separated
 
 The three-phase model was chosen for methodological and practical reasons.
@@ -205,6 +217,39 @@ The current intended logic is:
 5. final workbook synchronization happens only after review completion.
 
 This design keeps the automated pipeline and the manual decision layer conceptually separate.
+
+As the SCOUT matured, it also gained more explicit operational safeguards. The interface now preserves review memory, exposes review-status cues, and allows reversal of wrongly saved PDFs through an `Erase PDF` action that returns the case to `Pending Review`. These details are not just UI polish; they are part of making manual triage reversible and auditable.
+
+## 7.5 Forward link to PrismaLab
+
+Although the current operational interfaces are still the terminal and the Streamlit-based `S.C.O.U.T.`, the longer-term direction of the project has shifted toward a broader top-level application called `PrismaLab`.
+
+That future layer is expected to:
+
+- organize the workflow by meta-analysis phase rather than by a flat list of tools;
+- coordinate project opening, continuation, and export;
+- centralize settings and future integrations;
+- treat the `PDF Fetcher` as one tool among several.
+
+The current repository already includes an early prototype for that direction in:
+
+- `apps/prismalab`
+
+This prototype is exploratory, but it is important because it documents the architectural transition from a tool-first prototype into a project-first application ecosystem.
+
+That future direction now also includes an initial database foundation under:
+
+- `tools/prismalab/core`
+- `tools/prismalab/docs/DATABASE_ARCHITECTURE.md`
+
+The role of this first database layer is not to replace the current workbook
+workflow immediately. Its role is to define the minimum internal project memory
+needed for:
+
+- project reopening;
+- multi-source bibliographic import;
+- duplicate analysis;
+- preservation of canonical article metadata and provenance.
 
 ### 8.2 Explainability
 

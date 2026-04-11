@@ -27,3 +27,9 @@ tmp/
 
 # Local browser/runtime artifacts
 tools/pdf_fetcher/browser_profiles/
+
+# Frontend dependencies/build artifacts
+node_modules/
+.next/
+dist/
+build/

@@ -13,6 +13,8 @@ The PDF Fetcher:
 - prepares unresolved cases for manual review in `S.C.O.U.T.`;
 - stores workflow state in explicit per-phase workbooks.
 
+The tool is also now being treated as one module inside a larger future `Study Screening Toolkit`, rather than as a permanently standalone app.
+
 ## Current workflow
 
 Recommended order:
@@ -22,6 +24,8 @@ Recommended order:
 3. `Phase 1 - PDF Basic Download`
 4. `Phase 2 - PDF Specialized Download`
 5. `S.C.O.U.T. - Semi-assisted Case Opening and User Triage`
+
+The current Phase 2 logic now treats `Sci-Hub` as a final fallback layer after specialized resolvers, rather than embedding it directly inside each resolver path.
 
 ## Current file structure
 
@@ -108,6 +112,13 @@ The SCOUT is the manual triage layer used after the automated pipeline. It allow
 - assign manual decisions;
 - preserve review memory until final synchronization.
 
+Recent SCOUT refinements include:
+
+- review-status badges per case;
+- faster auto-save after PDF detection;
+- safer widget-state handling;
+- `Erase PDF` support to undo a wrongly saved PDF and return the case to `Pending Review`.
+
 ## Documentation in this folder
 
 - [PDF_FETCHER_APP_NOTES.md](/c:/Users/Luís%20Pinto%20Coelho/Desktop/Dissertação/StudyScreening_Meta-Analysis/tools/pdf_fetcher/docs/PDF_FETCHER_APP_NOTES.md) - architectural and methodological notes
@@ -127,4 +138,19 @@ The current system still uses Excel as the main persistence bridge between phase
 
 - a local project database;
 - Excel as import/export layer;
-- a broader hub launcher coordinating multiple tools in the meta-analysis workflow.
+- `PrismaLab`, a broader application coordinating multiple tools in the meta-analysis workflow.
+
+An early visual prototype for that direction already exists in:
+
+- `apps/prismalab`
+
+An initial database foundation for that direction now exists in:
+
+- `tools/prismalab/core`
+- `tools/prismalab/docs/DATABASE_ARCHITECTURE.md`
+
+The current architectural expectation is:
+
+- `React / Next.js` for the future app master frontend;
+- Python retained for workflow logic and tool backends;
+- a local project database as the long-term internal source of truth.

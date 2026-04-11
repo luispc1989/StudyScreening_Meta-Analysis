@@ -149,9 +149,18 @@ The future architecture should likely treat:
 - a local database as the internal source of truth;
 - the project itself as a portable local file.
 
+The first practical implication of this is that the database should preserve
+both:
+
+- a canonical article entity;
+- the raw imported source rows and their provenance.
+
+Without both layers, importing from multiple bibliographic databases would risk
+either losing auditability or overfitting the system to one source format.
+
 ## 9. Future launcher/hub implications
 
-The expected future `hub launcher` changes the scale of the problem.
+The expected future `PrismaLab` application changes the scale of the problem.
 
 Once multiple tools exist in the same ecosystem, the application will need:
 
@@ -165,6 +174,10 @@ Once multiple tools exist in the same ecosystem, the application will need:
 
 The more the system evolves into a multi-tool workflow environment, the less viable it becomes to depend only on Excel files as the living operational layer.
 
+This also means the first database version must accept incomplete metadata and
+must not assume that fields such as DOI, abstract, or author email are always
+available in every import source.
+
 ## 10. Remaining limitations worth acknowledging
 
 Some current limitations remain important for dissertation discussion:
@@ -174,3 +187,63 @@ Some current limitations remain important for dissertation discussion:
 - some states are still hard to reconstruct retroactively if they were not explicitly preserved;
 - anti-bot and publisher controls remain a real operational constraint;
 - local tooling is strong for reproducibility, but collaboration portability will improve significantly only when the future project-file/database model is introduced.
+
+## 11. Streamlit widget state can become a design constraint
+
+The `S.C.O.U.T.` exposed a more subtle frontend issue: Streamlit widgets are convenient, but they impose rules on when widget state can be mutated.
+
+One concrete example occurred when a saved PDF was erased and the app tried to reset the decision widget immediately. Streamlit raised an error because the widget value was being changed after instantiation in the same run.
+
+### Lesson
+
+In interactive research interfaces, frontend state rules are not trivial implementation details. They can affect:
+
+- reversibility of user actions;
+- apparent correctness of statuses;
+- confidence in whether the UI truly reflects the underlying state.
+
+This also reinforces why the future master app is likely better suited to a dedicated frontend framework.
+
+## 12. Copy-to-clipboard UX is harder than it looks in lightweight app frameworks
+
+An apparently simple requirement emerged in the SCOUT: copying DOI or DOI link values quickly.
+
+Several variants were explored:
+
+- direct clickable values;
+- separate copy buttons;
+- inline icons;
+- HTML/JavaScript-based clipboard actions.
+
+The result was that visually attractive solutions were not always stable, and stable solutions did not always preserve layout quality.
+
+### Lesson
+
+Small user-experience details can reveal framework limits. This was a useful reminder that:
+
+- clean UI is not only about whether a feature works;
+- stable interaction patterns should not damage visual coherence;
+- not every seemingly simple interaction is equally well supported in all frontend stacks.
+
+## 13. A master app needs different UX goals from a tool prototype
+
+The project originally evolved through tool-specific interfaces, especially:
+
+- terminal workflows;
+- Streamlit prototypes;
+- SCOUT-specific interactive pages.
+
+As planning shifted toward a broader `Study Screening Toolkit`, it became clear that the top-level application should not look like an internal launcher or a developer control panel.
+
+### Lesson
+
+There is an important distinction between:
+
+- a prototyping interface for building one tool quickly;
+- a project-oriented application that should remain understandable across multiple phases and tools.
+
+This is a key reason why the future app master is now expected to be:
+
+- phase-oriented;
+- project-oriented;
+- likely implemented in `React / Next.js` rather than pure Streamlit.

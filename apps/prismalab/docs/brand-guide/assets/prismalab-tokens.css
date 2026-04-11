@@ -1,0 +1,84 @@
+/* ============================================================
+   PrismaLab Design Tokens — v2.0
+   Usage: import this file in your project root stylesheet
+   ============================================================ */
+
+:root {
+  /* ── Brand colour ─────────────────────────────────────── */
+  --color-brand:          #5DCAA5;   /* PrismaLab Teal — primary, "Lab" wordmark */
+  --color-brand-deep:     #1D9E75;   /* CTA buttons, active states */
+  --color-brand-light:    #9FE1CB;   /* Hover states, tints */
+  --color-brand-subtle:   #E1F5EE;   /* Backgrounds, badges */
+
+  /* ── Spectrum (decorative in logo / phase colours in UI) ─ */
+  --color-spectrum-1:     #7F77DD;   /* Purple */
+  --color-spectrum-2:     #378ADD;   /* Blue */
+  --color-spectrum-3:     #1D9E75;   /* Teal (= brand-deep) */
+  --color-spectrum-4:     #EF9F27;   /* Amber */
+  --color-spectrum-5:     #D85A30;   /* Coral */
+
+  /* ── Backgrounds ──────────────────────────────────────── */
+  --color-bg-white:       #FFFFFF;
+  --color-bg-off-white:   #F8F7F4;
+  --color-bg-navy:        #1C3558;
+  --color-bg-near-black:  #1C1C1A;
+  --color-bg-dark:        #111111;
+
+  /* ── Text ─────────────────────────────────────────────── */
+  --color-text-primary:   #1C1C1A;
+  --color-text-secondary: #555552;
+  --color-text-muted:     #888780;
+  --color-text-disabled:  #CBCAC3;
+
+  /* ── Borders ──────────────────────────────────────────── */
+  --color-border:         #E0DFDA;
+  --color-border-light:   #E8E7E2;
+  --color-border-dark:    #2E2E2C;
+
+  /* ── Dark mode surfaces (apply under .dark or @media prefers-color-scheme: dark) */
+  --color-dm-bg:          #111111;
+  --color-dm-card:        #1C1C1A;
+  --color-dm-border:      #2E2E2C;
+  --color-dm-text:        #FFFFFF;
+
+  /* ── Spacing (8px base) ───────────────────────────────── */
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-12: 48px;
+  --space-20: 80px;
+
+  /* ── Border radius ────────────────────────────────────── */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:  12px;
+  --radius-xl:  16px;
+  --radius-full: 9999px;
+
+  /* ── Motion ───────────────────────────────────────────── */
+  --duration-instant:    0ms;
+  --duration-fast:     120ms;
+  --duration-default:  200ms;
+  --duration-deliberate: 320ms;
+  --duration-emphasis: 480ms;
+  --ease-default:      ease-out;
+
+  /* ── Typography ───────────────────────────────────────── */
+  --font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-weight-light:   300;
+  --font-weight-regular: 400;
+  --font-weight-medium:  500;
+}
+
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg-white:      var(--color-dm-card);
+    --color-bg-off-white:  var(--color-dm-bg);
+    --color-border:        var(--color-dm-border);
+    --color-text-primary:  var(--color-dm-text);
+  }
+}

@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PrismaLab — Brand Guidelines v2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:#F8F7F4;color:#1C1C1A;line-height:1.6;font-size:15px}
+.wrap{max-width:960px;margin:0 auto;padding:0 56px}
+.section-white{padding:80px 0;background:#FFFFFF}
+hr.divider{border:none;border-top:0.5px solid #E0DFDA;margin:0}
+.nav{position:fixed;top:0;left:0;width:220px;height:100vh;background:#FFFFFF;border-right:0.5px solid #E0DFDA;padding:32px 24px;overflow-y:auto;z-index:100}
+.nav-logo{margin-bottom:40px}
+.nav-item{display:block;font-size:12px;color:#888780;padding:6px 0;letter-spacing:0.3px}
+.nav-item:hover{color:#1C1C1A}
+.nav-section{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:#CBCAC3;font-weight:500;margin:20px 0 6px;display:block}
+.main{margin-left:220px}
+.eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#888780;font-weight:500;margin-bottom:32px;display:block}
+h2{font-size:26px;font-weight:500;line-height:1.3;margin-bottom:10px}
+h3{font-size:15px;font-weight:500;margin-bottom:10px;margin-top:32px}
+h3:first-child{margin-top:0}
+p.lead{font-size:16px;color:#555552;line-height:1.75;max-width:640px}
+p.body{font-size:14px;color:#555552;line-height:1.75;max-width:640px}
+p.note{font-size:12px;color:#888780;margin-top:8px;line-height:1.5}
+.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt24{margin-top:24px}.mt32{margin-top:32px}.mt40{margin-top:40px}
+.mb8{margin-bottom:8px}.mb16{margin-bottom:16px}.mb24{margin-bottom:24px}.mb32{margin-bottom:32px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.logo-panel{border-radius:12px;padding:36px 44px;margin-bottom:12px}
+.panel-tag{font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:500;margin-bottom:20px;display:block}
+.swatch{border-radius:10px;overflow:hidden;box-shadow:0 0 0 0.5px rgba(0,0,0,0.07)}
+.sw-block{height:68px}
+.sw-info{padding:10px 14px;background:#fff}
+.sw-name{font-size:12px;font-weight:500;color:#1C1C1A}
+.sw-hex{font-size:11px;color:#888780;font-family:monospace;margin-top:2px}
+.sw-note{font-size:10px;color:#CBCAC3;margin-top:2px}
+.type-row{display:flex;align-items:baseline;gap:24px;padding:16px 0;border-bottom:0.5px solid #E8E7E2}
+.type-meta{font-size:11px;color:#888780;min-width:140px;flex-shrink:0;line-height:1.6}
+.rule{border-radius:10px;overflow:hidden;border:0.5px solid #E0DFDA;background:#fff}
+.rule.dont{border-color:#F7C1C1}
+.rule-body{padding:20px}
+.rule-preview{padding:16px;background:#F8F7F4}
+.rule-tag{font-size:9px;letter-spacing:2px;font-weight:500;padding:3px 9px;border-radius:4px;display:inline-block;margin-bottom:14px;text-transform:uppercase}
+.tag-do{background:#EAF3DE;color:#3B6D11}
+.tag-dont{background:#F7C1C1;color:#A32D2D}
+.rule-desc{font-size:12px;color:#555552;margin-top:10px;line-height:1.5}
+.rule-desc.err{color:#A32D2D}
+.checklist{list-style:none}
+.checklist li{padding:10px 0;border-bottom:0.5px solid #E8E7E2;font-size:13px;color:#1C1C1A;display:flex;align-items:center;gap:12px}
+.checklist li::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:#5DCAA5;flex-shrink:0}
+.voice-card{background:#fff;border:0.5px solid #E0DFDA;border-radius:10px;padding:20px}
+.voice-tag{font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:500;margin-bottom:12px;display:block}
+.voice-ex{font-size:13px;padding:10px 14px;border-radius:6px;margin-top:8px;line-height:1.5}
+.sp-block{display:flex;align-items:center;gap:16px;padding:10px 0;border-bottom:0.5px solid #E8E7E2}
+.sp-rect{background:#D3EFE4;border-radius:3px;flex-shrink:0}
+.sp-label{font-size:12px;font-weight:500;color:#1C1C1A;min-width:40px}
+.sp-use{font-size:12px;color:#888780}
+.motion-card{background:#fff;border:0.5px solid #E0DFDA;border-radius:10px;padding:20px;display:flex;flex-direction:column;gap:8px}
+.motion-val{font-size:22px;font-weight:500;color:#1C1C1A;font-family:monospace}
+.motion-name{font-size:12px;font-weight:500;color:#1C1C1A}
+.motion-use{font-size:12px;color:#888780;line-height:1.5}
+.app-card{border-radius:12px;overflow:hidden;border:0.5px solid #E0DFDA;background:#fff;margin-bottom:24px}
+.app-tag{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#888780;padding:10px 16px;background:#F8F7F4;border-top:0.5px solid #E0DFDA;font-weight:500;display:block}
+.app-tag-dark{background:#1A1A1A;color:rgba(255,255,255,0.3)}
+.cover{background:#111111;padding:100px 0 80px}
+.footer{background:#1C1C1A;padding:48px 0}
+.cs-wrap{display:inline-block;border:1.5px dashed #CBCAC3;border-radius:4px;padding:28px;background:#FAFAF8}
+@media(max-width:860px){.nav{display:none}.main{margin-left:0}.wrap{padding:0 24px}.grid2,.grid3{grid-template-columns:1fr}.logo-panel{padding:24px 20px}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">
+    <svg width="130" viewBox="0 0 520 128">
+      <polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/>
+      <line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/>
+      <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+      <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44"><tspan font-weight="500" fill="#1C1C1A">Prisma</tspan><tspan font-weight="300" fill="#5DCAA5" dx="4">Lab</tspan></text>
+    </svg>
+  </div>
+  <span class="nav-section">Identity</span>
+  <a class="nav-item" href="#brand">01 Brand concept</a>
+  <a class="nav-item" href="#logo">02 The logo</a>
+  <a class="nav-item" href="#mark">03 The mark</a>
+  <a class="nav-item" href="#colour">04 Colour system</a>
+  <a class="nav-item" href="#type">05 Typography</a>
+  <span class="nav-section">Guidelines</span>
+  <a class="nav-item" href="#rules">06 Usage rules</a>
+  <a class="nav-item" href="#tagline">07 Tagline usage</a>
+  <a class="nav-item" href="#voice">08 Voice &amp; tone</a>
+  <a class="nav-item" href="#motion">09 Motion</a>
+  <a class="nav-item" href="#darkmode">10 Dark mode</a>
+  <a class="nav-item" href="#grid">11 Grid &amp; spacing</a>
+  <a class="nav-item" href="#icons">12 Iconography</a>
+  <a class="nav-item" href="#cobranding">13 Co-branding</a>
+  <span class="nav-section">Accessibility &amp; System</span>
+  <a class="nav-item" href="#mono">14 Monochromatic</a>
+  <a class="nav-item" href="#accessibility">15 Accessibility</a>
+  <a class="nav-item" href="#tokens">16 Design tokens</a>
+  <a class="nav-item" href="#components">17 UI Components</a>
+  <a class="nav-item" href="#dataviz">18 Data visualisation</a>
+  <span class="nav-section">Applications</span>
+  <a class="nav-item" href="#applications">19 In use</a>
+  <a class="nav-item" href="#assets">20 Asset checklist</a>
+</nav>
+
+<main class="main">
+
+<!-- COVER -->
+<div class="cover" id="top">
+<div class="wrap">
+  <p style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:64px">PrismaLab · Brand Guidelines · v2.0</p>
+  <svg width="100%" viewBox="0 0 520 128" style="max-width:480px;display:block">
+    <polygon points="106,15 58,98 154,98" fill="#1E1E1E" stroke="#585858" stroke-width="1"/>
+    <line x1="18" y1="62" x2="79" y2="62" stroke="#585858" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="133" cy="62" r="3.5" fill="#585858"/>
+    <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+    <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44"><tspan font-weight="500" fill="#FFFFFF">Prisma</tspan><tspan font-weight="300" fill="#5DCAA5" dx="4">Lab</tspan></text>
+    <text x="259" y="106" font-family="'DM Sans',sans-serif" font-size="12.5" font-weight="400" fill="rgba(255,255,255,0.35)" letter-spacing="2">research synthesis platform</text>
+  </svg>
+  <p style="font-size:13px;color:rgba(255,255,255,0.3);margin-top:56px;max-width:480px;line-height:1.7">Identity, colour, typography, voice, motion, spacing, iconography and application guidelines for all PrismaLab touchpoints.</p>
+  <div style="display:flex;gap:32px;margin-top:48px;flex-wrap:wrap">
+    <div><p style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:4px">Version</p><p style="font-size:13px;color:rgba(255,255,255,0.6)">2.0</p></div>
+    <div><p style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:4px">Typeface</p><p style="font-size:13px;color:rgba(255,255,255,0.6)">DM Sans</p></div>
+    <div><p style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:4px">Primary colour</p><p style="font-size:13px;color:#5DCAA5">#5DCAA5</p></div>
+    <div><p style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:4px">Sections</p><p style="font-size:13px;color:rgba(255,255,255,0.6)">15</p></div>
+  </div>
+</div>
+</div>
+
+<!-- 01 BRAND CONCEPT -->
+<div class="section-white" id="brand">
+<div class="wrap">
+  <span class="eyebrow">01 — Brand concept</span>
+  <h2>From evidence to conclusion</h2>
+  <p class="lead mt16">PrismaLab is a platform for the full cycle of evidence synthesis — from protocol and literature search to systematic screening, data extraction, quality assessment and statistical meta-analysis.</p>
+  <p class="body mt16">The name brings together <strong>PRISMA</strong>, the gold-standard reporting guideline for systematic reviews, and <strong>Lab</strong>, a space where rigorous, reproducible work happens.</p>
+  <div style="background:#F8F7F4;border-radius:12px;padding:28px;margin-top:32px;border:0.5px solid #E8E7E2">
+    <p style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#888780;font-weight:500;margin-bottom:20px">The mark — what it means</p>
+    <div style="display:flex;gap:24px;flex-wrap:wrap">
+      <div style="display:flex;gap:12px;align-items:flex-start;max-width:200px">
+        <div style="width:12px;height:12px;background:#D3D1C7;border-radius:2px;margin-top:3px;flex-shrink:0"></div>
+        <div><p style="font-size:13px;font-weight:500;color:#1C1C1A">The prism</p><p style="font-size:12px;color:#888780;line-height:1.5">Raw evidence enters as a single beam. The platform provides the structure to decompose it.</p></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;max-width:180px">
+        <div style="width:20px;height:2px;background:#D3D1C7;margin-top:7px;flex-shrink:0"></div>
+        <div><p style="font-size:13px;font-weight:500;color:#1C1C1A">The input beam</p><p style="font-size:12px;color:#888780;line-height:1.5">The literature — unfiltered, unstructured, raw.</p></div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:flex-start;max-width:240px">
+        <div style="width:28px;height:3px;background:linear-gradient(90deg,#7F77DD,#5DCAA5,#D85A30);margin-top:7px;flex-shrink:0;border-radius:2px"></div>
+        <div><p style="font-size:13px;font-weight:500;color:#1C1C1A">The spectrum</p><p style="font-size:12px;color:#888780;line-height:1.5">A continuous spectrum — not a fixed number of phases. The platform grows without the mark becoming outdated. Colours are decorative.</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="mt24" style="background:#EAF3DE;border-radius:12px;padding:24px 28px;border:0.5px solid #C0DD97">
+    <p style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#3B6D11;font-weight:500;margin-bottom:8px">Important — spectrum colours vs. phase colours</p>
+    <p style="font-size:13px;color:#3B6D11;line-height:1.6">The five colours in the logo mark are <strong>decorative</strong>. They represent the richness of the synthesis process as a continuous spectrum — not a 1-to-1 mapping to workflow phases. As PrismaLab grows and phases are added or reorganised, the mark does not change. Phase colours in the UI are drawn from the brand palette independently.</p>
+  </div>
+</div>
+</div>
+
+<hr class="divider">
+
+<!-- 02 THE LOGO -->
+<div class="section-white" id="logo">
+<div class="wrap">
+  <span class="eyebrow">02 — The logo</span>
+  <h2>Horizontal lockup</h2>
+  <p class="lead mt16 mb32">The primary logo is always used in its horizontal form. Three approved variants — one per background tier. Never mix elements from different variants.</p>
+
+  <div class="logo-panel" style="background:#FFFFFF;border:0.5px solid #D3D1C7">
+    <span class="panel-tag" style="color:#B4B2A9">Light — white / light surfaces</span>
+    <svg width="100%" viewBox="0 0 520 128" style="max-width:460px;display:block">
+      <polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/>
+      <line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/>
+      <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+      <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44"><tspan font-weight="500" fill="#1C1C1A">Prisma</tspan><tspan font-weight="300" fill="#5DCAA5" dx="4">Lab</tspan></text>
+      <text x="259" y="106" font-family="'DM Sans',sans-serif" font-size="12.5" font-weight="400" fill="#888780" letter-spacing="2">research synthesis platform</text>
+    </svg>
+  </div>
+
+  <div class="logo-panel" style="background:#1C3558">
+    <span class="panel-tag" style="color:rgba(255,255,255,0.3)">Mid-tone — #1C3558 / medium surfaces</span>
+    <svg width="100%" viewBox="0 0 520 128" style="max-width:460px;display:block">
+      <polygon points="106,15 58,98 154,98" fill="#243F6A" stroke="#4A74A8" stroke-width="1"/>
+      <line x1="18" y1="62" x2="79" y2="62" stroke="#4A74A8" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="133" cy="62" r="3.5" fill="#4A74A8"/>
+      <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+      <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44"><tspan font-weight="500" fill="#FFFFFF">Prisma</tspan><tspan font-weight="300" fill="#5DCAA5" dx="4">Lab</tspan></text>
+      <text x="259" y="106" font-family="'DM Sans',sans-serif" font-size="12.5" font-weight="400" fill="rgba(255,255,255,0.4)" letter-spacing="2">research synthesis platform</text>
+    </svg>
+  </div>
+
+  <div class="logo-panel" style="background:#111111">
+    <span class="panel-tag" style="color:rgba(255,255,255,0.2)">Dark — #111111 / dark surfaces</span>
+    <svg width="100%" viewBox="0 0 520 128" style="max-width:460px;display:block">
+      <polygon points="106,15 58,98 154,98" fill="#1E1E1E" stroke="#585858" stroke-width="1"/>
+      <line x1="18" y1="62" x2="79" y2="62" stroke="#585858" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="133" cy="62" r="3.5" fill="#585858"/>
+      <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+      <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44"><tspan font-weight="500" fill="#FFFFFF">Prisma</tspan><tspan font-weight="300" fill="#5DCAA5" dx="4">Lab</tspan></text>
+      <text x="259" y="106" font-family="'DM Sans',sans-serif" font-size="12.5" font-weight="400" fill="rgba(255,255,255,0.35)" letter-spacing="2">research synthesis platform</text>
+    </svg>
+  </div>
+
+  <h3>Clear space</h3>
+  <p class="body mb24">Maintain minimum clear space around the logo equal to the height of the capital "P" in Prisma (~40px at standard size). No other elements enter this zone.</p>
+  <div class="cs-wrap">
+    <svg width="320" viewBox="0 0 520 128">
+      <polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/>
+      <line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/>
+      <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+      <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44"><tspan font-weight="500" fill="#1C1C1A">Prisma</tspan><tspan font-weight="300" fill="#5DCAA5" dx="4">Lab</tspan></text>
+      <text x="259" y="106" font-family="'DM Sans',sans-serif" font-size="12.5" font-weight="400" fill="#888780" letter-spacing="2">research synthesis platform</text>
+    </svg>
+  </div>
+  <p class="note">Dashed border = clear space boundary, not a design element</p>
+
+  <h3>Minimum size</h3>
+  <div style="display:flex;gap:32px;align-items:flex-end;flex-wrap:wrap;margin-top:12px">
+    <div>
+      <svg width="240" viewBox="0 0 520 128">
+        <polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/>
+        <line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/>
+        <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+        <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44"><tspan font-weight="500" fill="#1C1C1A">Prisma</tspan><tspan font-weight="300" fill="#5DCAA5" dx="4">Lab</tspan></text>
+        <text x="259" y="106" font-family="'DM Sans',sans-serif" font-size="12.5" font-weight="400" fill="#888780" letter-spacing="2">research synthesis platform</text>
+      </svg>
+      <p class="note">240px — minimum digital</p>
+    </div>
+    <div>
+      <svg width="160" viewBox="0 0 520 110">
+        <polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/>
+        <line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/>
+        <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+        <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44"><tspan font-weight="500" fill="#1C1C1A">Prisma</tspan><tspan font-weight="300" fill="#5DCAA5" dx="4">Lab</tspan></text>
+      </svg>
+      <p class="note">160px — without tagline</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<hr class="divider">
+
+<!-- 03 MARK -->
+<div class="section-white" id="mark">
+<div class="wrap">
+  <span class="eyebrow">03 — The mark</span>
+  <h2>Icon mark</h2>
+  <p class="lead mt16 mb32">Used when the PrismaLab name is already established in context. Never as a replacement for the full logo in primary communication.</p>
+
+  <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap">
+    <div style="text-align:center">
+      <div style="background:#FFFFFF;border:0.5px solid #D3D1C7;border-radius:12px;padding:20px;display:inline-block">
+        <svg width="80" viewBox="14 10 228 98">
+          <polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/>
+          <line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/>
+          <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p class="note" style="text-align:center">Icon — light</p>
+    </div>
+    <div style="text-align:center">
+      <div style="background:#111111;border-radius:12px;padding:20px;display:inline-block">
+        <svg width="80" viewBox="14 10 228 98">
+          <polygon points="106,15 58,98 154,98" fill="#1E1E1E" stroke="#585858" stroke-width="1"/>
+          <line x1="18" y1="62" x2="79" y2="62" stroke="#585858" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="133" cy="62" r="3.5" fill="#585858"/>
+          <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p class="note" style="text-align:center">Icon — dark</p>
+    </div>
+    <div style="text-align:center">
+      <div style="background:#111111;border-radius:22px;width:96px;height:96px;display:inline-flex;align-items:center;justify-content:center">
+        <svg width="64" viewBox="50 8 195 100">
+          <polygon points="106,15 58,98 154,98" fill="#1E1E1E" stroke="#585858" stroke-width="1.2"/>
+          <circle cx="133" cy="62" r="3.5" fill="#585858"/>
+          <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="3" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="3" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="3" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="3" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p class="note" style="text-align:center">App icon — dark</p>
+    </div>
+    <div style="text-align:center">
+      <div style="background:#1C3558;border-radius:22px;width:96px;height:96px;display:inline-flex;align-items:center;justify-content:center">
+        <svg width="64" viewBox="50 8 195 100">
+          <polygon points="106,15 58,98 154,98" fill="#243F6A" stroke="#4A74A8" stroke-width="1.2"/>
+          <circle cx="133" cy="62" r="3.5" fill="#4A74A8"/>
+          <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="3" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="3" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="3" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="3" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p class="note" style="text-align:center">App icon — navy</p>
+    </div>
+    <div style="text-align:center">
+      <div style="background:#FFFFFF;border:0.5px solid #D3D1C7;border-radius:22px;width:96px;height:96px;display:inline-flex;align-items:center;justify-content:center">
+        <svg width="64" viewBox="50 8 195 100">
+          <polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1.2"/>
+          <circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/>
+          <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="3" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="3" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="3" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="3" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p class="note" style="text-align:center">App icon — light</p>
+    </div>
+    <div style="text-align:center">
+      <div style="background:#FFFFFF;border:0.5px solid #D3D1C7;border-radius:6px;width:48px;height:48px;display:inline-flex;align-items:center;justify-content:center">
+        <svg width="32" height="32" viewBox="50 8 195 100">
+          <polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1.5"/>
+          <line x1="133" y1="62" x2="210" y2="28" stroke="#7F77DD" stroke-width="4" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="215" y2="50" stroke="#378ADD" stroke-width="4" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="216" y2="62" stroke="#1D9E75" stroke-width="4" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="215" y2="74" stroke="#EF9F27" stroke-width="4" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="210" y2="96" stroke="#D85A30" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p class="note" style="text-align:center">Favicon 32px</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<hr class="divider">
+
+<!-- 04 COLOUR -->
+<div class="section-white" id="colour">
+<div class="wrap">
+  <span class="eyebrow">04 — Colour system</span>
+  <h2>Brand palette</h2>
+  <p class="lead mt16 mb32">Three tiers: primary brand colour, spectrum palette, and neutrals.</p>
+
+  <h3>Primary brand colour</h3>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px">
+    <div class="swatch" style="width:200px"><div class="sw-block" style="background:#5DCAA5"></div><div class="sw-info"><p class="sw-name">PrismaLab Teal</p><p class="sw-hex">#5DCAA5</p><p class="sw-note">All surfaces · "Lab" wordmark</p></div></div>
+    <div class="swatch" style="width:150px"><div class="sw-block" style="background:#1D9E75"></div><div class="sw-info"><p class="sw-name">Teal Deep</p><p class="sw-hex">#1D9E75</p><p class="sw-note">CTA · highlights</p></div></div>
+    <div class="swatch" style="width:150px"><div class="sw-block" style="background:#9FE1CB"></div><div class="sw-info"><p class="sw-name">Teal Light</p><p class="sw-hex">#9FE1CB</p><p class="sw-note">Tints · hover</p></div></div>
+    <div class="swatch" style="width:150px"><div class="sw-block" style="background:#E1F5EE"></div><div class="sw-info"><p class="sw-name">Teal Subtle</p><p class="sw-hex">#E1F5EE</p><p class="sw-note">Backgrounds · badges</p></div></div>
+  </div>
+
+  <h3>Spectrum palette — decorative in logo / phase colours in UI</h3>
+  <p class="body mt8 mb16">These colours appear in the logo as a decorative spectrum. In the product UI they are also used to identify workflow phases independently. When new phases are added to the platform, new colours are added to the UI system — the logo mark is not affected.</p>
+  <div style="display:flex;gap:12px;flex-wrap:wrap">
+    <div class="swatch" style="width:140px"><div class="sw-block" style="background:#7F77DD"></div><div class="sw-info"><p class="sw-name">Spectrum 1</p><p class="sw-hex">#7F77DD</p></div></div>
+    <div class="swatch" style="width:140px"><div class="sw-block" style="background:#378ADD"></div><div class="sw-info"><p class="sw-name">Spectrum 2</p><p class="sw-hex">#378ADD</p></div></div>
+    <div class="swatch" style="width:140px"><div class="sw-block" style="background:#1D9E75"></div><div class="sw-info"><p class="sw-name">Spectrum 3</p><p class="sw-hex">#1D9E75</p></div></div>
+    <div class="swatch" style="width:140px"><div class="sw-block" style="background:#EF9F27"></div><div class="sw-info"><p class="sw-name">Spectrum 4</p><p class="sw-hex">#EF9F27</p></div></div>
+    <div class="swatch" style="width:140px"><div class="sw-block" style="background:#D85A30"></div><div class="sw-info"><p class="sw-name">Spectrum 5</p><p class="sw-hex">#D85A30</p></div></div>
+  </div>
+
+  <div style="margin-top:16px;background:#F8F7F4;border-radius:10px;padding:20px;border:0.5px solid #E0DFDA">
+    <p style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#888780;font-weight:500;margin-bottom:14px">Colour values — HEX · RGB · CMYK</p>
+    <div style="display:flex;flex-direction:column;gap:0">
+      <div style="display:grid;grid-template-columns:140px 1fr 1fr 1fr;gap:0;padding:8px 0;border-bottom:0.5px solid #E8E7E2">
+        <span style="font-size:11px;font-weight:500;color:#888780">Name</span>
+        <span style="font-size:11px;font-weight:500;color:#888780">HEX</span>
+        <span style="font-size:11px;font-weight:500;color:#888780">RGB</span>
+        <span style="font-size:11px;font-weight:500;color:#888780">CMYK</span>
+      </div>
+      <div style="display:grid;grid-template-columns:140px 1fr 1fr 1fr;gap:0;padding:8px 0;border-bottom:0.5px solid #E8E7E2;align-items:center">
+        <span style="display:flex;align-items:center;gap:8px;font-size:12px;color:#1C1C1A"><span style="width:12px;height:12px;background:#5DCAA5;border-radius:3px;display:inline-block;flex-shrink:0"></span>PrismaLab Teal</span>
+        <span style="font-size:11px;font-family:monospace;color:#555552">#5DCAA5</span>
+        <span style="font-size:11px;font-family:monospace;color:#555552">93 202 165</span>
+        <span style="font-size:11px;font-family:monospace;color:#555552">54 0 18 21</span>
+      </div>
+      <div style="display:grid;grid-template-columns:140px 1fr 1fr 1fr;gap:0;padding:8px 0;border-bottom:0.5px solid #E8E7E2;align-items:center">
+        <span style="display:flex;align-items:center;gap:8px;font-size:12px;color:#1C1C1A"><span style="width:12px;height:12px;background:#1D9E75;border-radius:3px;display:inline-block;flex-shrink:0"></span>Teal Deep</span>
+        <span style="font-size:11px;font-family:monospace;color:#555552">#1D9E75</span>
+        <span style="font-size:11px;font-family:monospace;color:#555552">29 158 117</span>
+        <span style="font-size:11px;font-family:monospace;color:#555552">82 0 26 38</span>
+      </div>
+      <div style="display:grid;grid-template-columns:140px 1fr 1fr 1fr;gap:0;padding:8px 0;border-bottom:0.5px solid #E8E7E2;align-items:center">
+        <span style="display:flex;align-items:center;gap:8px;font-size:12px;color:#1C1C1A"><span style="width:12px;height:12px;background:#7F77DD;border-radius:3px;display:inline-block;flex-shrink:0"></span>Spectrum 1</span>
+        <span style="font-size:11px;font-family:monospace;color:#555552">#7F77DD</span>
+        <span style="font-size:11px;font-family:monospace;color:#555552">127 119 221</span>
+        <span style="font-size:11px;font-family:monospace;color:#555552">43 46 0 13</span>
+      </div>
+      <div style="display:grid;grid-template-columns:140px 1fr 1fr 1fr;gap:0;padding:8px 0;border-bottom:0.5px solid #E8E7E2;align-items:center">
+        <span style="display:flex;align-items:center;gap:8px;font-size:12px;color:#1C1C1A"><span style="width:12px;height:12px;background:#378ADD;border-radius:3px;display:inline-block;flex-shrink:0"></span>Spectrum 2</span>
+        <span style="font-size:11px;font-family:monospace;color:#555552">#378ADD</span>
+        <span style="font-size:11px;font-family:monospace;color:#555552">55 138 221</span>
+        <span style="font-size:11px;font-family:monospace;color:#555552">75 38 0 13</span>
+      </div>
+      <div style="display:grid;grid-template-columns:140px 1fr 1fr 1fr;gap:0;padding:8px 0;border-bottom:0.5px solid #E8E7E2;align-items:center">
+        <span style="display:flex;align-items:center;gap:8px;font-size:12px;color:#1C1C1A"><span style="width:12px;height:12px;background:#EF9F27;border-radius:3px;display:inline-block;flex-shrink:0"></span>Spectrum 4</span>
+        <span style="font-size:11px;font-family:monospace;color:#555552">#EF9F27</span>
+        <span style="font-size:11px;font-family:monospace;color:#555552">239 159 39</span>
+        <span style="font-size:11px;font-family:monospace;color:#555552">0 33 84 6</span>
+      </div>
+      <div style="display:grid;grid-template-columns:140px 1fr 1fr 1fr;gap:0;padding:8px 0;align-items:center">
+        <span style="display:flex;align-items:center;gap:8px;font-size:12px;color:#1C1C1A"><span style="width:12px;height:12px;background:#D85A30;border-radius:3px;display:inline-block;flex-shrink:0"></span>Spectrum 5</span>
+        <span style="font-size:11px;font-family:monospace;color:#555552">#D85A30</span>
+        <span style="font-size:11px;font-family:monospace;color:#555552">216 90 48</span>
+        <span style="font-size:11px;font-family:monospace;color:#555552">0 58 78 15</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>Backgrounds</h3>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px">
+    <div class="swatch" style="width:140px"><div class="sw-block" style="background:#FFFFFF;border:0.5px solid #E8E7E2"></div><div class="sw-info"><p class="sw-name">White</p><p class="sw-hex">#FFFFFF</p></div></div>
+    <div class="swatch" style="width:140px"><div class="sw-block" style="background:#F8F7F4"></div><div class="sw-info"><p class="sw-name">Off-white</p><p class="sw-hex">#F8F7F4</p></div></div>
+    <div class="swatch" style="width:140px"><div class="sw-block" style="background:#1C3558"></div><div class="sw-info"><p class="sw-name">Navy</p><p class="sw-hex">#1C3558</p></div></div>
+    <div class="swatch" style="width:140px"><div class="sw-block" style="background:#1C1C1A"></div><div class="sw-info"><p class="sw-name">Near black</p><p class="sw-hex">#1C1C1A</p></div></div>
+    <div class="swatch" style="width:140px"><div class="sw-block" style="background:#111111"></div><div class="sw-info"><p class="sw-name">Dark</p><p class="sw-hex">#111111</p></div></div>
+  </div>
+
+  <h3>Text</h3>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px">
+    <div class="swatch" style="width:130px"><div class="sw-block" style="background:#1C1C1A"></div><div class="sw-info"><p class="sw-name">Primary</p><p class="sw-hex">#1C1C1A</p></div></div>
+    <div class="swatch" style="width:130px"><div class="sw-block" style="background:#555552"></div><div class="sw-info"><p class="sw-name">Secondary</p><p class="sw-hex">#555552</p></div></div>
+    <div class="swatch" style="width:130px"><div class="sw-block" style="background:#888780"></div><div class="sw-info"><p class="sw-name">Muted</p><p class="sw-hex">#888780</p></div></div>
+    <div class="swatch" style="width:130px"><div class="sw-block" style="background:#CBCAC3;border:0.5px solid #E0DFDA"></div><div class="sw-info"><p class="sw-name">Disabled</p><p class="sw-hex">#CBCAC3</p></div></div>
+  </div>
+</div>
+</div>
+
+<hr class="divider">
+
+<!-- 05 TYPOGRAPHY -->
+<div class="section-white" id="type">
+<div class="wrap">
+  <span class="eyebrow">05 — Typography</span>
+  <h2>Type system</h2>
+  <p class="lead mt16 mb32">DM Sans is the sole typeface across all PrismaLab touchpoints.</p>
+  <div class="type-row"><span class="type-meta">500 · Medium<br>Logo "Prisma" · H1 · CTA</span><span style="font-size:32px;font-weight:500;color:#1C1C1A">PrismaLab</span></div>
+  <div class="type-row"><span class="type-meta">400 · Regular<br>Body · UI labels</span><span style="font-size:22px;font-weight:400;color:#1C1C1A">Research synthesis platform</span></div>
+  <div class="type-row"><span class="type-meta">300 · Light<br>Logo "Lab" · Tagline</span><span style="font-size:32px;font-weight:300;color:#5DCAA5">Lab</span></div>
+  <h3>Scale</h3>
+  <div style="background:#F8F7F4;border-radius:10px;padding:24px;border:0.5px solid #E8E7E2;margin-top:12px;display:flex;flex-direction:column;gap:0">
+    <div class="sp-block" style="border:none;padding:8px 0"><span style="min-width:100px;font-size:11px;color:#888780">44 / 500</span><span style="font-size:20px;font-weight:500">Logo wordmark</span></div>
+    <div class="sp-block"><span style="min-width:100px;font-size:11px;color:#888780">32 / 500</span><span style="font-size:17px;font-weight:500">Page heading H1</span></div>
+    <div class="sp-block"><span style="min-width:100px;font-size:11px;color:#888780">24 / 500</span><span style="font-size:15px;font-weight:500">Section heading H2</span></div>
+    <div class="sp-block"><span style="min-width:100px;font-size:11px;color:#888780">18 / 500</span><span style="font-size:13px;font-weight:500">Subsection H3</span></div>
+    <div class="sp-block"><span style="min-width:100px;font-size:11px;color:#888780">15 / 400</span><span style="font-size:14px;font-weight:400">Body text — comfortable reading across UI and documentation</span></div>
+    <div class="sp-block"><span style="min-width:100px;font-size:11px;color:#888780">13 / 400</span><span style="font-size:12px;font-weight:400">Labels · metadata · captions</span></div>
+    <div class="sp-block" style="border:none"><span style="min-width:100px;font-size:11px;color:#888780">10 / 500 CAPS</span><span style="font-size:10px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase">Section eyebrow</span></div>
+  </div>
+</div>
+</div>
+
+<hr class="divider">
+
+<!-- 06 USAGE RULES -->
+<div class="section-white" id="rules">
+<div class="wrap">
+  <span class="eyebrow">06 — Usage rules</span>
+  <h2>Do's and don'ts</h2>
+  <p class="lead mt16 mb32">Always reproduce from approved source files.</p>
+  <div class="grid2">
+    <div class="rule"><div class="rule-preview"><svg width="100%" viewBox="0 0 520 128"><polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/><line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/><circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/><line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/><text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44"><tspan font-weight="500" fill="#1C1C1A">Prisma</tspan><tspan font-weight="300" fill="#5DCAA5" dx="4">Lab</tspan></text><text x="259" y="106" font-family="'DM Sans',sans-serif" font-size="12.5" font-weight="400" fill="#888780" letter-spacing="2">research synthesis platform</text></svg></div><div class="rule-body"><span class="rule-tag tag-do">Do</span><p class="rule-desc">Use approved logo on approved backgrounds at correct proportions.</p></div></div>
+    <div class="rule dont"><div class="rule-preview" style="overflow:hidden"><svg width="100%" viewBox="0 0 520 128" style="transform:scaleX(1.28);transform-origin:left"><polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/><line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/><circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/><line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/><text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44"><tspan font-weight="500" fill="#1C1C1A">Prisma</tspan><tspan font-weight="300" fill="#5DCAA5" dx="4">Lab</tspan></text></svg></div><div class="rule-body"><span class="rule-tag tag-dont">Don't</span><p class="rule-desc err">Don't stretch or distort. Always scale proportionally.</p></div></div>
+    <div class="rule dont"><div class="rule-preview"><svg width="100%" viewBox="0 0 520 128"><polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/><line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/><circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/><line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/><text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44"><tspan font-weight="500" fill="#1C1C1A">Prisma</tspan><tspan font-weight="300" fill="#E24B4A" dx="4">Lab</tspan></text></svg></div><div class="rule-body"><span class="rule-tag tag-dont">Don't</span><p class="rule-desc err">Don't change the colour of "Lab". Always #5DCAA5.</p></div></div>
+    <div class="rule dont"><div class="rule-preview" style="background:#EF9F27"><svg width="100%" viewBox="0 0 520 128"><polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/><line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/><circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/><line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/><text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44"><tspan font-weight="500" fill="#1C1C1A">Prisma</tspan><tspan font-weight="300" fill="#5DCAA5" dx="4">Lab</tspan></text></svg></div><div class="rule-body"><span class="rule-tag tag-dont">Don't</span><p class="rule-desc err">Don't use coloured or unapproved backgrounds.</p></div></div>
+    <div class="rule dont"><div class="rule-preview" style="overflow:hidden"><svg width="100%" viewBox="0 0 520 128" style="transform:rotate(-10deg);transform-origin:center"><polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/><line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/><circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/><line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/><text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44"><tspan font-weight="500" fill="#1C1C1A">Prisma</tspan><tspan font-weight="300" fill="#5DCAA5" dx="4">Lab</tspan></text></svg></div><div class="rule-body"><span class="rule-tag tag-dont">Don't</span><p class="rule-desc err">Don't rotate or tilt. Always display horizontally.</p></div></div>
+    <div class="rule dont"><div class="rule-preview" style="filter:drop-shadow(4px 4px 8px rgba(0,0,0,0.35))"><svg width="100%" viewBox="0 0 520 128"><polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/><line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/><circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/><line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/><text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44"><tspan font-weight="500" fill="#1C1C1A">Prisma</tspan><tspan font-weight="300" fill="#5DCAA5" dx="4">Lab</tspan></text></svg></div><div class="rule-body"><span class="rule-tag tag-dont">Don't</span><p class="rule-desc err">Don't apply shadows, glows, or effects to the logo.</p></div></div>
+  </div>
+</div>
+</div>
+
+<hr class="divider">
+
+<!-- 07 TAGLINE -->
+<div class="section-white" id="tagline">
+<div class="wrap">
+  <span class="eyebrow">07 — Tagline usage</span>
+  <h2>When to show the tagline</h2>
+  <p class="lead mt16 mb32"><em>research synthesis platform</em> is a descriptor, not a slogan. It appears only when context demands a full brand introduction.</p>
+  <div class="grid2">
+    <div style="background:#fff;border:0.5px solid #E0DFDA;border-radius:10px;overflow:hidden">
+      <div style="padding:16px 20px;background:#F8F7F4"><span class="rule-tag tag-do" style="margin-bottom:0">Show tagline</span></div>
+      <div style="padding:16px 20px"><ul class="checklist"><li>Website homepage hero</li><li>Product landing page</li><li>Conference presentations</li><li>Press kit and media assets</li><li>App loading / splash screen</li><li>Email signature (optional)</li></ul></div>
+    </div>
+    <div style="background:#fff;border:0.5px solid #F7C1C1;border-radius:10px;overflow:hidden">
+      <div style="padding:16px 20px;background:#FEF4F4"><span class="rule-tag tag-dont" style="margin-bottom:0">Hide tagline</span></div>
+      <div style="padding:16px 20px"><ul class="checklist"><li>App navigation bar</li><li>Favicon / app icon</li><li>Small UI components</li><li>Social media avatar</li><li>Repeated in-product usage</li><li>Below 240px logo width</li></ul></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<hr class="divider">
+
+<!-- 08 VOICE & TONE -->
+<div class="section-white" id="voice">
+<div class="wrap">
+  <span class="eyebrow">08 — Voice &amp; tone</span>
+  <h2>How PrismaLab speaks</h2>
+  <p class="lead mt16 mb32">Precise, direct, and respectful of the user's expertise — without being cold or overly technical.</p>
+  <div class="grid2">
+    <div class="voice-card">
+      <span class="voice-tag" style="color:#3B6D11">Precise, not jargon-heavy</span>
+      <p style="font-size:13px;color:#555552;line-height:1.6">Use correct scientific terminology but never obscure meaning.</p>
+      <div class="voice-ex" style="background:#EAF3DE;color:#3B6D11">"Export your forest plot in SVG or PDF."</div>
+      <div class="voice-ex" style="background:#FEF4F4;color:#A32D2D">"Utilise the arboricultural visualisation module to produce vector-based outputs."</div>
+    </div>
+    <div class="voice-card">
+      <span class="voice-tag" style="color:#3B6D11">Confident, not arrogant</span>
+      <p style="font-size:13px;color:#555552;line-height:1.6">State capabilities clearly. Don't oversell.</p>
+      <div class="voice-ex" style="background:#EAF3DE;color:#3B6D11">"PrismaLab handles the full review cycle — from protocol to publication."</div>
+      <div class="voice-ex" style="background:#FEF4F4;color:#A32D2D">"The most powerful meta-analysis platform ever built!"</div>
+    </div>
+    <div class="voice-card">
+      <span class="voice-tag" style="color:#3B6D11">Supportive, not prescriptive</span>
+      <p style="font-size:13px;color:#555552;line-height:1.6">The platform assists — the researcher decides.</p>
+      <div class="voice-ex" style="background:#EAF3DE;color:#3B6D11">"The AI assistant suggests an exclusion reason. You can accept, edit, or dismiss it."</div>
+      <div class="voice-ex" style="background:#FEF4F4;color:#A32D2D">"AI has automatically excluded this study."</div>
+    </div>
+    <div class="voice-card">
+      <span class="voice-tag" style="color:#3B6D11">Clear, not casual</span>
+      <p style="font-size:13px;color:#555552;line-height:1.6">Professional but human. No startup slang.</p>
+      <div class="voice-ex" style="background:#EAF3DE;color:#3B6D11">"3 studies are pending screening. Continue where you left off."</div>
+      <div class="voice-ex" style="background:#FEF4F4;color:#A32D2D">"Hey! You've got 3 studies waiting — let's knock those out! 🎉"</div>
+    </div>
+  </div>
+  <div style="margin-top:24px;padding:24px;background:#F8F7F4;border-radius:10px;border:0.5px solid #E0DFDA">
+    <p style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#888780;font-weight:500;margin-bottom:16px">Writing conventions</p>
+    <div class="grid2" style="gap:12px">
+      <div><p style="font-size:12px;font-weight:500;margin-bottom:4px">Product name</p><p style="font-size:12px;color:#555552;line-height:1.6">Always <strong>PrismaLab</strong> — one word, capital P and L. Never "Prismalab", "PRISMALAB", or "Prisma Lab".</p></div>
+      <div><p style="font-size:12px;font-weight:500;margin-bottom:4px">AI references</p><p style="font-size:12px;color:#555552;line-height:1.6">Refer to AI features as "AI assistant" or "AI suggestion" — never "AI decided".</p></div>
+      <div><p style="font-size:12px;font-weight:500;margin-bottom:4px">Scientific terms</p><p style="font-size:12px;color:#555552;line-height:1.6">Use: "systematic review", "meta-analysis", "effect size", "heterogeneity". Spell out on first use in non-expert contexts.</p></div>
+      <div><p style="font-size:12px;font-weight:500;margin-bottom:4px">Numbers</p><p style="font-size:12px;color:#555552;line-height:1.6">Use numerals in UI: "3 studies", "I² = 47%", "p = 0.02". Follow APA style in documentation.</p></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<hr class="divider">
+
+<!-- 09 MOTION -->
+<div class="section-white" id="motion">
+<div class="wrap">
+  <span class="eyebrow">09 — Motion</span>
+  <h2>Animation principles</h2>
+  <p class="lead mt16 mb32">Motion is functional and restrained. It confirms actions, communicates state changes, and guides attention — never decorates.</p>
+  <div class="grid3">
+    <div class="motion-card"><p class="motion-name">Instant</p><p class="motion-val">0ms</p><p class="motion-use">Toggle, checkbox, radio.</p></div>
+    <div class="motion-card"><p class="motion-name">Fast</p><p class="motion-val">120ms</p><p class="motion-use">Hover effects, button presses, tooltips.</p></div>
+    <div class="motion-card"><p class="motion-name">Default</p><p class="motion-val">200ms</p><p class="motion-use">Dropdown, modal, sidebar expand.</p></div>
+    <div class="motion-card"><p class="motion-name">Deliberate</p><p class="motion-val">320ms</p><p class="motion-use">Page transitions, panel slide.</p></div>
+    <div class="motion-card"><p class="motion-name">Emphasis</p><p class="motion-val">480ms</p><p class="motion-use">Loading screen reveal. Use sparingly.</p></div>
+    <div class="motion-card"><p class="motion-name">Easing</p><p class="motion-val" style="font-size:13px">ease-out</p><p class="motion-use">Default for all transitions. Things decelerate into position.</p></div>
+  </div>
+
+  <h3>Loading screen — correct layout</h3>
+  <p class="body mt8 mb24">Icon mark and wordmark are a single vertically centred unit. They are not two separate elements. The icon sits directly above the wordmark with 20px gap. The loading indicator sits 20px below the wordmark.</p>
+  <div style="background:#111111;border-radius:14px;overflow:hidden;max-width:560px">
+    <div style="height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0">
+      <!-- Icon: prism + rays only, viewBox tightly cropped around content -->
+      <svg width="90" viewBox="10 8 232 105" style="display:block;margin-bottom:20px">
+        <polygon points="106,15 58,98 154,98" fill="#1E1E1E" stroke="#585858" stroke-width="1.2"/>
+        <line x1="18" y1="62" x2="79" y2="62" stroke="#585858" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="133" cy="62" r="3.5" fill="#585858"/>
+        <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <!-- Wordmark: viewBox x from 248 to 490 — fully captures "Prisma Lab" without clipping -->
+      <svg width="200" viewBox="248 40 242 52" style="display:block;margin-bottom:20px">
+        <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44"><tspan font-weight="500" fill="#FFFFFF">Prisma</tspan><tspan font-weight="300" fill="#5DCAA5" dx="4">Lab</tspan></text>
+      </svg>
+      <div style="display:flex;gap:7px;align-items:center">
+        <div style="width:5px;height:5px;border-radius:50%;background:#5DCAA5"></div>
+        <div style="width:5px;height:5px;border-radius:50%;background:#5DCAA5;opacity:0.45"></div>
+        <div style="width:5px;height:5px;border-radius:50%;background:#5DCAA5;opacity:0.2"></div>
+      </div>
+    </div>
+    <div style="padding:10px 20px;background:#1A1A1A;border-top:0.5px solid #222">
+      <p style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.25);font-weight:500">App — loading / splash screen</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<hr class="divider">
+
+<!-- 10 DARK MODE -->
+<div class="section-white" id="darkmode">
+<div class="wrap">
+  <span class="eyebrow">10 — Dark mode</span>
+  <h2>Dark mode system</h2>
+  <p class="lead mt16 mb32">PrismaLab supports light, dark, and system-preference modes. All UI components must work in both. The logo switches variant automatically.</p>
+  <div class="grid2">
+    <div>
+      <h3>Light mode</h3>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;background:#fff;border:0.5px solid #E0DFDA"><div style="width:28px;height:28px;background:#FFFFFF;border:0.5px solid #E0DFDA;border-radius:5px;flex-shrink:0"></div><div><p style="font-size:12px;font-weight:500">Page background</p><p style="font-size:11px;color:#888780;font-family:monospace">#FFFFFF</p></div></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;background:#fff;border:0.5px solid #E0DFDA"><div style="width:28px;height:28px;background:#F8F7F4;border:0.5px solid #E0DFDA;border-radius:5px;flex-shrink:0"></div><div><p style="font-size:12px;font-weight:500">Card / sidebar</p><p style="font-size:11px;color:#888780;font-family:monospace">#F8F7F4</p></div></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;background:#fff;border:0.5px solid #E0DFDA"><div style="width:28px;height:28px;background:#E8E7E2;border-radius:5px;flex-shrink:0"></div><div><p style="font-size:12px;font-weight:500">Border / dividers</p><p style="font-size:11px;color:#888780;font-family:monospace">#E8E7E2</p></div></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;background:#fff;border:0.5px solid #E0DFDA"><div style="width:28px;height:28px;background:#1C1C1A;border-radius:5px;flex-shrink:0"></div><div><p style="font-size:12px;font-weight:500">Body text</p><p style="font-size:11px;color:#888780;font-family:monospace">#1C1C1A</p></div></div>
+      </div>
+    </div>
+    <div>
+      <h3>Dark mode</h3>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;background:#1C1C1A;border:0.5px solid #2E2E2C"><div style="width:28px;height:28px;background:#111111;border:0.5px solid #2E2E2C;border-radius:5px;flex-shrink:0"></div><div><p style="font-size:12px;font-weight:500;color:#fff">Page background</p><p style="font-size:11px;color:rgba(255,255,255,0.35);font-family:monospace">#111111</p></div></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;background:#1C1C1A;border:0.5px solid #2E2E2C"><div style="width:28px;height:28px;background:#1C1C1A;border:0.5px solid #2E2E2C;border-radius:5px;flex-shrink:0"></div><div><p style="font-size:12px;font-weight:500;color:#fff">Card / sidebar</p><p style="font-size:11px;color:rgba(255,255,255,0.35);font-family:monospace">#1C1C1A</p></div></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;background:#1C1C1A;border:0.5px solid #2E2E2C"><div style="width:28px;height:28px;background:#2E2E2C;border-radius:5px;flex-shrink:0"></div><div><p style="font-size:12px;font-weight:500;color:#fff">Border / dividers</p><p style="font-size:11px;color:rgba(255,255,255,0.35);font-family:monospace">#2E2E2C</p></div></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;background:#1C1C1A;border:0.5px solid #2E2E2C"><div style="width:28px;height:28px;background:#FFFFFF;border-radius:5px;flex-shrink:0"></div><div><p style="font-size:12px;font-weight:500;color:#fff">Body text</p><p style="font-size:11px;color:rgba(255,255,255,0.35);font-family:monospace">#FFFFFF</p></div></div>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:20px;padding:16px 22px;background:#E1F5EE;border-radius:10px;border:0.5px solid #9FE1CB">
+    <p style="font-size:12px;color:#0F6E56;line-height:1.6"><strong>Rule:</strong> #5DCAA5 is used unchanged in both light and dark mode. It has sufficient contrast on white and near-black surfaces. No dark-mode variant needed.</p>
+  </div>
+</div>
+</div>
+
+<hr class="divider">
+
+<!-- 11 GRID -->
+<div class="section-white" id="grid">
+<div class="wrap">
+  <span class="eyebrow">11 — Grid &amp; spacing</span>
+  <h2>Grid and spacing system</h2>
+  <p class="lead mt16 mb32">All layout and spacing decisions use an 8px base unit.</p>
+  <h3>Spacing scale</h3>
+  <div style="margin-top:12px">
+    <div class="sp-block"><span class="sp-label">4</span><div class="sp-rect" style="width:4px;height:4px"></div><span class="sp-use">Tight gaps — icon-to-label, inline badge padding</span></div>
+    <div class="sp-block"><span class="sp-label">8</span><div class="sp-rect" style="width:8px;height:8px"></div><span class="sp-use">Small gaps — list items, form rows</span></div>
+    <div class="sp-block"><span class="sp-label">12</span><div class="sp-rect" style="width:12px;height:12px"></div><span class="sp-use">Component internal padding — buttons, chips</span></div>
+    <div class="sp-block"><span class="sp-label">16</span><div class="sp-rect" style="width:16px;height:16px"></div><span class="sp-use">Card padding · section gaps · sidebar items</span></div>
+    <div class="sp-block"><span class="sp-label">24</span><div class="sp-rect" style="width:24px;height:24px"></div><span class="sp-use">Card padding large · between form groups</span></div>
+    <div class="sp-block"><span class="sp-label">32</span><div class="sp-rect" style="width:32px;height:32px"></div><span class="sp-use">Section vertical rhythm · panel gaps</span></div>
+    <div class="sp-block"><span class="sp-label">48</span><div class="sp-rect" style="width:48px;height:16px"></div><span class="sp-use">Page section padding</span></div>
+    <div class="sp-block" style="border:none"><span class="sp-label">80</span><div class="sp-rect" style="width:80px;height:16px"></div><span class="sp-use">Page-level vertical padding · hero sections</span></div>
+  </div>
+  <h3>Layout grid</h3>
+  <div class="grid2 mt12">
+    <div style="background:#fff;border:0.5px solid #E0DFDA;border-radius:10px;padding:20px"><p style="font-size:12px;font-weight:500;margin-bottom:8px">Desktop</p><p style="font-size:12px;color:#555552;line-height:1.7">Max width: 1280px · Columns: 12 · Gutter: 24px · Margin: 48px</p></div>
+    <div style="background:#fff;border:0.5px solid #E0DFDA;border-radius:10px;padding:20px"><p style="font-size:12px;font-weight:500;margin-bottom:8px">Mobile</p><p style="font-size:12px;color:#555552;line-height:1.7">Max width: 100% · Columns: 4 · Gutter: 16px · Margin: 16px</p></div>
+  </div>
+  <h3>Border radius</h3>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px">
+    <div style="background:#F8F7F4;border:0.5px solid #E0DFDA;border-radius:4px;padding:12px 16px;text-align:center"><p style="font-size:12px;font-weight:500">4px</p><p style="font-size:11px;color:#888780;margin-top:4px">Tags · badges</p></div>
+    <div style="background:#F8F7F4;border:0.5px solid #E0DFDA;border-radius:8px;padding:12px 16px;text-align:center"><p style="font-size:12px;font-weight:500">8px</p><p style="font-size:11px;color:#888780;margin-top:4px">Buttons · inputs</p></div>
+    <div style="background:#F8F7F4;border:0.5px solid #E0DFDA;border-radius:12px;padding:12px 16px;text-align:center"><p style="font-size:12px;font-weight:500">12px</p><p style="font-size:11px;color:#888780;margin-top:4px">Cards</p></div>
+    <div style="background:#F8F7F4;border:0.5px solid #E0DFDA;border-radius:16px;padding:12px 16px;text-align:center"><p style="font-size:12px;font-weight:500">16px</p><p style="font-size:11px;color:#888780;margin-top:4px">Modals</p></div>
+    <div style="background:#F8F7F4;border:0.5px solid #E0DFDA;border-radius:9999px;padding:12px 16px;text-align:center"><p style="font-size:12px;font-weight:500">Full</p><p style="font-size:11px;color:#888780;margin-top:4px">Pills · avatars</p></div>
+  </div>
+</div>
+</div>
+
+<hr class="divider">
+
+<!-- 12 ICONS -->
+<div class="section-white" id="icons">
+<div class="wrap">
+  <span class="eyebrow">12 — Iconography</span>
+  <h2>Icon style</h2>
+  <p class="lead mt16 mb32">Phosphor Icons — Regular weight. Clean, scientific, 1.5px stroke system.</p>
+  <div class="grid2">
+    <div style="background:#fff;border:0.5px solid #E0DFDA;border-radius:10px;padding:20px"><p style="font-size:12px;font-weight:500;margin-bottom:12px">Style rules</p><ul class="checklist"><li>Stroke weight: 1.5px at 24px</li><li>Corner style: rounded joins and caps</li><li>Grid: 24x24px base, 2px padding</li><li>Library: Phosphor Icons (Regular)</li><li>Colour: inherits from text colour token</li><li>Never filled unless indicating active state</li></ul></div>
+    <div style="background:#fff;border:0.5px solid #E0DFDA;border-radius:10px;padding:20px"><p style="font-size:12px;font-weight:500;margin-bottom:12px">States</p><ul class="checklist"><li>Outlined = default / inactive</li><li>Filled = active / selected</li><li>Active colour = #5DCAA5</li><li>Sizes: 16px UI / 20px sidebar / 24px toolbar</li><li>Touch target: min 44x44px</li></ul></div>
+  </div>
+</div>
+</div>
+
+<hr class="divider">
+
+<!-- 13 CO-BRANDING -->
+<div class="section-white" id="cobranding">
+<div class="wrap">
+  <span class="eyebrow">13 — Co-branding</span>
+  <h2>Co-branding &amp; partnerships</h2>
+  <p class="lead mt16 mb32">Rules for when PrismaLab appears alongside institutional or partner logos.</p>
+  <div class="grid2">
+    <div style="background:#fff;border:0.5px solid #E0DFDA;border-radius:10px;padding:20px"><span class="rule-tag tag-do">Do</span><ul class="checklist mt8"><li>Separate with a 1px vertical divider and equal clear space</li><li>Keep PrismaLab at approved minimum size</li><li>Maintain aspect ratio at all times</li><li>Place PrismaLab consistently — always same side</li></ul></div>
+    <div style="background:#fff;border:0.5px solid #F7C1C1;border-radius:10px;padding:20px"><span class="rule-tag tag-dont">Don't</span><ul class="checklist mt8"><li>Don't let partner logo appear larger</li><li>Don't integrate partner colours into the mark</li><li>Don't create combined or hybrid lockups</li><li>Don't use co-branded assets without approval</li></ul></div>
+  </div>
+  <h3>Example — co-branded header</h3>
+  <div style="margin-top:12px;background:#FFFFFF;border:0.5px solid #E0DFDA;border-radius:10px;padding:24px 32px;display:flex;align-items:center;max-width:520px">
+    <svg width="140" viewBox="0 0 520 110"><polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/><line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/><circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/><line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/><text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44"><tspan font-weight="500" fill="#1C1C1A">Prisma</tspan><tspan font-weight="300" fill="#5DCAA5" dx="4">Lab</tspan></text></svg>
+    <div style="width:1px;height:36px;background:#E0DFDA;margin:0 24px;flex-shrink:0"></div>
+    <div><p style="font-size:13px;font-weight:500;color:#1C1C1A">Partner Institution</p><p style="font-size:11px;color:#888780">Research Unit</p></div>
+  </div>
+  <p class="note">Equal visual weight, clear separation, consistent baseline alignment.</p>
+</div>
+</div>
+
+<hr class="divider">
+
+<!-- 14 APPLICATIONS -->
+
+<hr class="divider">
+
+<!-- 14 MONOCHROMATIC -->
+<div class="section-white" id="mono">
+<div class="wrap">
+  <span class="eyebrow">14 — Monochromatic</span>
+  <h2>One-colour variants</h2>
+  <p class="lead mt16 mb32">For single-colour contexts — emboss, engraving, stamps, administrative documents, fax, or any reproduction without access to the full palette. Always use an approved mono variant; never desaturate the colour logo yourself.</p>
+
+  <div class="grid2">
+    <div>
+      <div style="background:#FFFFFF;border:0.5px solid #D3D1C7;border-radius:12px;padding:28px 32px">
+        <span class="panel-tag" style="color:#B4B2A9">Positive — black on white</span>
+        <svg width="100%" viewBox="0 0 520 110" style="max-width:360px;display:block">
+          <defs>
+            <!-- Clip: rays only visible outside the prism (right of right face) -->
+            <clipPath id="rays-pos">
+              <rect x="133" y="-20" width="400" height="200"/>
+            </clipPath>
+          </defs>
+          <!-- Prism outline -->
+          <polygon points="106,15 58,98 154,98" fill="none" stroke="#1C1C1A" stroke-width="1.5"/>
+          <!-- Input beam — enters left face at (79,62) -->
+          <line x1="18" y1="62" x2="79" y2="62" stroke="#1C1C1A" stroke-width="1.5" stroke-linecap="round"/>
+          <!-- Emission point on right face -->
+          <circle cx="133" cy="62" r="2.5" fill="#1C1C1A"/>
+          <!-- Rays clipped to outside only -->
+          <g clip-path="url(#rays-pos)">
+            <line x1="133" y1="62" x2="235" y2="22" stroke="#1C1C1A" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="133" y1="62" x2="238" y2="44" stroke="#1C1C1A" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="133" y1="62" x2="240" y2="62" stroke="#1C1C1A" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="133" y1="62" x2="238" y2="80" stroke="#1C1C1A" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="133" y1="62" x2="235" y2="102" stroke="#1C1C1A" stroke-width="1.5" stroke-linecap="round"/>
+          </g>
+          <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44"><tspan font-weight="500" fill="#1C1C1A">Prisma</tspan><tspan font-weight="300" fill="#1C1C1A" dx="4">Lab</tspan></text>
+        </svg>
+      </div>
+      <p class="note mt8">Use: white paper, letterhead, stamps, emboss</p>
+    </div>
+    <div>
+      <div style="background:#111111;border-radius:12px;padding:28px 32px">
+        <span class="panel-tag" style="color:rgba(255,255,255,0.2)">Negative — white on black</span>
+        <svg width="100%" viewBox="0 0 520 110" style="max-width:360px;display:block">
+          <defs>
+            <clipPath id="rays-neg">
+              <rect x="133" y="-20" width="400" height="200"/>
+            </clipPath>
+          </defs>
+          <polygon points="106,15 58,98 154,98" fill="none" stroke="#FFFFFF" stroke-width="1.5"/>
+          <line x1="18" y1="62" x2="79" y2="62" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="133" cy="62" r="2.5" fill="#FFFFFF"/>
+          <g clip-path="url(#rays-neg)">
+            <line x1="133" y1="62" x2="235" y2="22" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="133" y1="62" x2="238" y2="44" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="133" y1="62" x2="240" y2="62" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="133" y1="62" x2="238" y2="80" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="133" y1="62" x2="235" y2="102" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round"/>
+          </g>
+          <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44"><tspan font-weight="500" fill="#FFFFFF">Prisma</tspan><tspan font-weight="300" fill="#FFFFFF" dx="4">Lab</tspan></text>
+        </svg>
+      </div>
+      <p class="note mt8">Use: dark materials, engraving, screen printing on dark</p>
+    </div>
+  </div>
+
+  <div style="margin-top:20px;padding:16px 22px;background:#F8F7F4;border-radius:10px;border:0.5px solid #E0DFDA">
+    <p style="font-size:12px;color:#555552;line-height:1.6"><strong>Rule:</strong> In mono contexts, "Lab" loses its teal colour and matches the single ink colour. The weight difference (Medium vs Light) still distinguishes the two parts. Never attempt to simulate the colour version by adding a grey tint — use the exact mono files provided.</p>
+  </div>
+</div>
+</div>
+
+<hr class="divider">
+
+<!-- 15 ACCESSIBILITY -->
+<div class="section-white" id="accessibility">
+<div class="wrap">
+  <span class="eyebrow">15 — Accessibility</span>
+  <h2>Contrast &amp; legibility</h2>
+  <p class="lead mt16 mb32">PrismaLab is a scientific tool used in research workflows. Text must be legible under all lighting conditions. All UI text must meet WCAG 2.1 AA minimum — 4.5:1 for body text, 3:1 for large text (18px+ bold or 24px+ regular).</p>
+
+  <h3>Approved text on background combinations</h3>
+  <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#FFFFFF;border:0.5px solid #E0DFDA;border-radius:8px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="display:flex;gap:6px">
+          <div style="width:24px;height:24px;background:#1C1C1A;border-radius:4px"></div>
+          <div style="width:24px;height:24px;background:#FFFFFF;border:0.5px solid #E0DFDA;border-radius:4px"></div>
+        </div>
+        <span style="font-size:13px;color:#1C1C1A;font-weight:500">#1C1C1A on #FFFFFF</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:12px;color:#888780">17.07:1</span>
+        <span style="font-size:10px;font-weight:500;background:#EAF3DE;color:#3B6D11;padding:2px 8px;border-radius:4px;letter-spacing:1px">AAA</span>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#FFFFFF;border:0.5px solid #E0DFDA;border-radius:8px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="display:flex;gap:6px">
+          <div style="width:24px;height:24px;background:#555552;border-radius:4px"></div>
+          <div style="width:24px;height:24px;background:#FFFFFF;border:0.5px solid #E0DFDA;border-radius:4px"></div>
+        </div>
+        <span style="font-size:13px;color:#1C1C1A;font-weight:500">#555552 on #FFFFFF</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:12px;color:#888780">7.48:1</span>
+        <span style="font-size:10px;font-weight:500;background:#EAF3DE;color:#3B6D11;padding:2px 8px;border-radius:4px;letter-spacing:1px">AAA</span>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#FFFFFF;border:0.5px solid #E0DFDA;border-radius:8px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="display:flex;gap:6px">
+          <div style="width:24px;height:24px;background:#1C1C1A;border-radius:4px"></div>
+          <div style="width:24px;height:24px;background:#5DCAA5;border-radius:4px"></div>
+        </div>
+        <span style="font-size:13px;color:#1C1C1A;font-weight:500">#1C1C1A on #5DCAA5 (brand)</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:12px;color:#888780">8.5:1</span>
+        <span style="font-size:10px;font-weight:500;background:#EAF3DE;color:#3B6D11;padding:2px 8px;border-radius:4px;letter-spacing:1px">AAA</span>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#FFFFFF;border:0.5px solid #E0DFDA;border-radius:8px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="display:flex;gap:6px">
+          <div style="width:24px;height:24px;background:#5DCAA5;border-radius:4px"></div>
+          <div style="width:24px;height:24px;background:#111111;border-radius:4px"></div>
+        </div>
+        <span style="font-size:13px;color:#1C1C1A;font-weight:500">#5DCAA5 on #111111 (dark bg)</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:12px;color:#888780">9.4:1</span>
+        <span style="font-size:10px;font-weight:500;background:#EAF3DE;color:#3B6D11;padding:2px 8px;border-radius:4px;letter-spacing:1px">AAA</span>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#FFFFFF;border:0.5px solid #E0DFDA;border-radius:8px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="display:flex;gap:6px">
+          <div style="width:24px;height:24px;background:#5DCAA5;border-radius:4px"></div>
+          <div style="width:24px;height:24px;background:#1C3558;border-radius:4px"></div>
+        </div>
+        <span style="font-size:13px;color:#1C1C1A;font-weight:500">#5DCAA5 on #1C3558 (navy)</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:12px;color:#888780">6.15:1</span>
+        <span style="font-size:10px;font-weight:500;background:#EAF3DE;color:#3B6D11;padding:2px 8px;border-radius:4px;letter-spacing:1px">AA</span>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#FFFFFF;border:0.5px solid #E0DFDA;border-radius:8px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="display:flex;gap:6px">
+          <div style="width:24px;height:24px;background:#FFFFFF;border:0.5px solid #E0DFDA;border-radius:4px"></div>
+          <div style="width:24px;height:24px;background:#111111;border-radius:4px"></div>
+        </div>
+        <span style="font-size:13px;color:#1C1C1A;font-weight:500">#FFFFFF on #111111</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:12px;color:#888780">18.88:1</span>
+        <span style="font-size:10px;font-weight:500;background:#EAF3DE;color:#3B6D11;padding:2px 8px;border-radius:4px;letter-spacing:1px">AAA</span>
+      </div>
+    </div>
+
+    <!-- Failures -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#FEF4F4;border:0.5px solid #F7C1C1;border-radius:8px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="display:flex;gap:6px">
+          <div style="width:24px;height:24px;background:#FFFFFF;border:0.5px solid #E0DFDA;border-radius:4px"></div>
+          <div style="width:24px;height:24px;background:#5DCAA5;border-radius:4px"></div>
+        </div>
+        <span style="font-size:13px;color:#A32D2D;font-weight:500">#FFFFFF on #5DCAA5 — never use for text</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:12px;color:#888780">2.01:1</span>
+        <span style="font-size:10px;font-weight:500;background:#F7C1C1;color:#A32D2D;padding:2px 8px;border-radius:4px;letter-spacing:1px">FAIL</span>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#FEF4F4;border:0.5px solid #F7C1C1;border-radius:8px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="display:flex;gap:6px">
+          <div style="width:24px;height:24px;background:#888780;border-radius:4px"></div>
+          <div style="width:24px;height:24px;background:#FFFFFF;border:0.5px solid #E0DFDA;border-radius:4px"></div>
+        </div>
+        <span style="font-size:13px;color:#A32D2D;font-weight:500">#888780 on #FFFFFF — muted text below 18px fails</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="font-size:12px;color:#888780">3.61:1</span>
+        <span style="font-size:10px;font-weight:500;background:#F7C1C1;color:#A32D2D;padding:2px 8px;border-radius:4px;letter-spacing:1px">AA lg only</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>Non-colour indicators</h3>
+  <p class="body mt8 mb16">Never rely on colour alone to convey state. Every colour-coded UI element must have a secondary indicator.</p>
+  <div class="grid2">
+    <div style="background:#fff;border:0.5px solid #E0DFDA;border-radius:10px;padding:20px">
+      <p style="font-size:12px;font-weight:500;margin-bottom:12px">State must also use</p>
+      <ul class="checklist">
+        <li>Icon or symbol (✓ ✕ ⚠)</li>
+        <li>Text label alongside colour badge</li>
+        <li>Pattern or shape change</li>
+        <li>Focus ring on interactive elements (2px, #5DCAA5)</li>
+        <li>Underline for hyperlinks, not colour alone</li>
+      </ul>
+    </div>
+    <div style="background:#fff;border:0.5px solid #E0DFDA;border-radius:10px;padding:20px">
+      <p style="font-size:12px;font-weight:500;margin-bottom:12px">Minimum sizes</p>
+      <ul class="checklist">
+        <li>Body text: 15px / 400</li>
+        <li>UI labels: 13px / 400 minimum</li>
+        <li>Interactive targets: 44×44px minimum</li>
+        <li>Focus rings: 2px solid, offset 2px</li>
+        <li>Don't use muted (#888780) for critical info</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</div>
+
+<hr class="divider">
+
+<!-- 16 DESIGN TOKENS -->
+<div class="section-white" id="tokens">
+<div class="wrap">
+  <span class="eyebrow">16 — Design tokens</span>
+  <h2>Token system</h2>
+  <p class="lead mt16 mb32">Tokens are the named bridge between brand decisions and implementation. All UI colours, spacing, and motion should reference these tokens — not raw hex values — so the system can adapt to themes without breaking.</p>
+
+  <div class="grid2">
+    <div>
+      <h3>Colour tokens</h3>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:0;background:#fff;border:0.5px solid #E0DFDA;border-radius:10px;overflow:hidden">
+        <div style="padding:10px 16px;background:#F8F7F4;border-bottom:0.5px solid #E0DFDA"><p style="font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:#888780">Surface</p></div>
+        <div style="padding:10px 16px;border-bottom:0.5px solid #E8E7E2;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-family:monospace;color:#1D9E75">--bg-primary</span><span style="font-size:11px;color:#888780">#FFFFFF</span></div>
+        <div style="padding:10px 16px;border-bottom:0.5px solid #E8E7E2;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-family:monospace;color:#1D9E75">--bg-secondary</span><span style="font-size:11px;color:#888780">#F8F7F4</span></div>
+        <div style="padding:10px 16px;border-bottom:0.5px solid #E8E7E2;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-family:monospace;color:#1D9E75">--bg-elevated</span><span style="font-size:11px;color:#888780">#FFFFFF + shadow</span></div>
+        <div style="padding:10px 16px;border-bottom:0.5px solid #E8E7E2;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-family:monospace;color:#1D9E75">--bg-overlay</span><span style="font-size:11px;color:#888780">rgba(28,28,26,.6)</span></div>
+        <div style="padding:10px 16px;background:#F8F7F4;border-bottom:0.5px solid #E0DFDA;border-top:0.5px solid #E0DFDA"><p style="font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:#888780">Text</p></div>
+        <div style="padding:10px 16px;border-bottom:0.5px solid #E8E7E2;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-family:monospace;color:#1D9E75">--text-primary</span><span style="font-size:11px;color:#888780">#1C1C1A</span></div>
+        <div style="padding:10px 16px;border-bottom:0.5px solid #E8E7E2;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-family:monospace;color:#1D9E75">--text-secondary</span><span style="font-size:11px;color:#888780">#555552</span></div>
+        <div style="padding:10px 16px;border-bottom:0.5px solid #E8E7E2;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-family:monospace;color:#1D9E75">--text-muted</span><span style="font-size:11px;color:#888780">#888780</span></div>
+        <div style="padding:10px 16px;border-bottom:0.5px solid #E8E7E2;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-family:monospace;color:#1D9E75">--text-disabled</span><span style="font-size:11px;color:#888780">#CBCAC3</span></div>
+        <div style="padding:10px 16px;border-bottom:0.5px solid #E8E7E2;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-family:monospace;color:#1D9E75">--text-on-brand</span><span style="font-size:11px;color:#888780">#1C1C1A (not white)</span></div>
+        <div style="padding:10px 16px;background:#F8F7F4;border-bottom:0.5px solid #E0DFDA;border-top:0.5px solid #E0DFDA"><p style="font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:#888780">Brand &amp; interactive</p></div>
+        <div style="padding:10px 16px;border-bottom:0.5px solid #E8E7E2;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-family:monospace;color:#1D9E75">--brand</span><span style="font-size:11px;color:#888780">#5DCAA5</span></div>
+        <div style="padding:10px 16px;border-bottom:0.5px solid #E8E7E2;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-family:monospace;color:#1D9E75">--brand-hover</span><span style="font-size:11px;color:#888780">#1D9E75</span></div>
+        <div style="padding:10px 16px;border-bottom:0.5px solid #E8E7E2;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-family:monospace;color:#1D9E75">--brand-subtle</span><span style="font-size:11px;color:#888780">#E1F5EE</span></div>
+        <div style="padding:10px 16px;border-bottom:0.5px solid #E8E7E2;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-family:monospace;color:#1D9E75">--focus-ring</span><span style="font-size:11px;color:#888780">#5DCAA5, 2px offset</span></div>
+      </div>
+    </div>
+    <div>
+      <h3>State tokens</h3>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:0;background:#fff;border:0.5px solid #E0DFDA;border-radius:10px;overflow:hidden">
+        <div style="padding:10px 16px;background:#F8F7F4;border-bottom:0.5px solid #E0DFDA"><p style="font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:#888780">Semantic states</p></div>
+        <div style="padding:10px 16px;border-bottom:0.5px solid #E8E7E2;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-family:monospace;color:#1D9E75">--success</span><span style="font-size:11px;color:#888780">#1D9E75</span></div>
+        <div style="padding:10px 16px;border-bottom:0.5px solid #E8E7E2;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-family:monospace;color:#1D9E75">--success-subtle</span><span style="font-size:11px;color:#888780">#E1F5EE</span></div>
+        <div style="padding:10px 16px;border-bottom:0.5px solid #E8E7E2;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-family:monospace;color:#1D9E75">--warning</span><span style="font-size:11px;color:#888780">#EF9F27</span></div>
+        <div style="padding:10px 16px;border-bottom:0.5px solid #E8E7E2;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-family:monospace;color:#1D9E75">--warning-subtle</span><span style="font-size:11px;color:#888780">#FDF3E0</span></div>
+        <div style="padding:10px 16px;border-bottom:0.5px solid #E8E7E2;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-family:monospace;color:#1D9E75">--danger</span><span style="font-size:11px;color:#888780">#D85A30</span></div>
+        <div style="padding:10px 16px;border-bottom:0.5px solid #E8E7E2;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-family:monospace;color:#1D9E75">--danger-subtle</span><span style="font-size:11px;color:#888780">#FCEEE9</span></div>
+        <div style="padding:10px 16px;border-bottom:0.5px solid #E8E7E2;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-family:monospace;color:#1D9E75">--info</span><span style="font-size:11px;color:#888780">#378ADD</span></div>
+        <div style="padding:10px 16px;border-bottom:0.5px solid #E8E7E2;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-family:monospace;color:#1D9E75">--info-subtle</span><span style="font-size:11px;color:#888780">#E5F0FB</span></div>
+        <div style="padding:10px 16px;background:#F8F7F4;border-bottom:0.5px solid #E0DFDA;border-top:0.5px solid #E0DFDA"><p style="font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:#888780">Border</p></div>
+        <div style="padding:10px 16px;border-bottom:0.5px solid #E8E7E2;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-family:monospace;color:#1D9E75">--border-default</span><span style="font-size:11px;color:#888780">#E0DFDA</span></div>
+        <div style="padding:10px 16px;border-bottom:0.5px solid #E8E7E2;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-family:monospace;color:#1D9E75">--border-strong</span><span style="font-size:11px;color:#888780">#CBCAC3</span></div>
+        <div style="padding:10px 16px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:12px;font-family:monospace;color:#1D9E75">--border-brand</span><span style="font-size:11px;color:#888780">#5DCAA5</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<hr class="divider">
+
+<!-- 17 UI COMPONENTS -->
+<div class="section-white" id="components">
+<div class="wrap">
+  <span class="eyebrow">17 — UI Components</span>
+  <h2>Component library</h2>
+  <p class="lead mt16 mb32">Core components used throughout PrismaLab. All components are built on the 8px grid with DM Sans and the token system above.</p>
+
+  <!-- Buttons -->
+  <h3>Buttons</h3>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:12px;padding:24px;background:#F8F7F4;border-radius:10px;border:0.5px solid #E0DFDA">
+    <button style="background:#5DCAA5;color:#1C1C1A;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:9px 20px;border-radius:8px;border:none;cursor:pointer">Primary</button>
+    <button style="background:transparent;color:#1D9E75;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:9px 20px;border-radius:8px;border:1.5px solid #5DCAA5;cursor:pointer">Secondary</button>
+    <button style="background:transparent;color:#555552;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:9px 20px;border-radius:8px;border:0.5px solid #E0DFDA;cursor:pointer">Ghost</button>
+    <button style="background:#FCEEE9;color:#D85A30;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:9px 20px;border-radius:8px;border:1px solid #D85A30;cursor:pointer">Destructive</button>
+    <button style="background:#F8F7F4;color:#CBCAC3;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:9px 20px;border-radius:8px;border:0.5px solid #E0DFDA;cursor:default">Disabled</button>
+  </div>
+  <p class="note">Primary: bg #5DCAA5, text #1C1C1A (dark text — white fails contrast). Hover: bg #1D9E75.</p>
+
+  <!-- Input -->
+  <h3>Input field</h3>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;margin-top:12px;padding:24px;background:#F8F7F4;border-radius:10px;border:0.5px solid #E0DFDA">
+    <div style="display:flex;flex-direction:column;gap:6px;min-width:220px">
+      <label style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:#1C1C1A">Search DOI or title</label>
+      <input type="text" placeholder="10.1234/..." style="font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 12px;border-radius:8px;border:0.5px solid #E0DFDA;background:#fff;color:#1C1C1A;outline:none;width:240px">
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px;min-width:220px">
+      <label style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:#1C1C1A">Active / focus state</label>
+      <input type="text" value="10.1016/j.lancet..." style="font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 12px;border-radius:8px;border:1.5px solid #5DCAA5;background:#fff;color:#1C1C1A;outline:none;width:240px">
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px;min-width:220px">
+      <label style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:#D85A30">Error state</label>
+      <input type="text" value="invalid input" style="font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 12px;border-radius:8px;border:1.5px solid #D85A30;background:#FCEEE9;color:#1C1C1A;outline:none;width:240px">
+      <span style="font-size:11px;color:#D85A30">Required field</span>
+    </div>
+  </div>
+
+  <!-- Badges -->
+  <h3>Badges &amp; status chips</h3>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;padding:20px;background:#F8F7F4;border-radius:10px;border:0.5px solid #E0DFDA;align-items:center">
+    <span style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;background:#E1F5EE;color:#0F6E56;padding:3px 10px;border-radius:9999px">Included</span>
+    <span style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;background:#FCEEE9;color:#D85A30;padding:3px 10px;border-radius:9999px">Excluded</span>
+    <span style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;background:#FDF3E0;color:#B07310;padding:3px 10px;border-radius:9999px">Pending</span>
+    <span style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;background:#E5F0FB;color:#1C5BA8;padding:3px 10px;border-radius:9999px">In review</span>
+    <span style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;background:#F8F7F4;color:#888780;padding:3px 10px;border-radius:9999px;border:0.5px solid #E0DFDA">Duplicate</span>
+    <span style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;background:#F3F0FC;color:#5B51B8;padding:3px 10px;border-radius:9999px">Full text</span>
+  </div>
+
+  <!-- Tabs -->
+  <h3>Tabs</h3>
+  <div style="margin-top:12px;padding:20px;background:#F8F7F4;border-radius:10px;border:0.5px solid #E0DFDA">
+    <div style="display:flex;gap:0;border-bottom:1.5px solid #E0DFDA">
+      <div style="padding:8px 20px;border-bottom:2px solid #5DCAA5;margin-bottom:-1.5px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:#1D9E75;cursor:pointer">Overview</div>
+      <div style="padding:8px 20px;font-family:'DM Sans',sans-serif;font-size:13px;color:#888780;cursor:pointer">Screening</div>
+      <div style="padding:8px 20px;font-family:'DM Sans',sans-serif;font-size:13px;color:#888780;cursor:pointer">Extraction</div>
+      <div style="padding:8px 20px;font-family:'DM Sans',sans-serif;font-size:13px;color:#888780;cursor:pointer">Analysis</div>
+    </div>
+    <div style="padding:16px 0 0;font-family:'DM Sans',sans-serif;font-size:12px;color:#888780">Active tab: 2px bottom border, colour --brand. Inactive: --text-muted.</div>
+  </div>
+
+  <!-- Table row -->
+  <h3>Table row — screening</h3>
+  <div style="margin-top:12px;border-radius:10px;overflow:hidden;border:0.5px solid #E0DFDA">
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 80px;background:#F8F7F4;border-bottom:0.5px solid #E0DFDA;padding:8px 16px">
+      <span style="font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:#888780">Title / Authors</span>
+      <span style="font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:#888780">Year</span>
+      <span style="font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:#888780">Journal</span>
+      <span style="font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:#888780">Status</span>
+    </div>
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 80px;background:#fff;border-bottom:0.5px solid #E8E7E2;padding:12px 16px;align-items:center">
+      <div><p style="font-size:13px;font-weight:500;color:#1C1C1A;margin-bottom:2px">Effect of yoga on anxiety disorders: a meta-analysis</p><p style="font-size:11px;color:#888780">Smith et al.</p></div>
+      <span style="font-size:13px;color:#555552">2023</span>
+      <span style="font-size:13px;color:#555552">Lancet Psychiatry</span>
+      <span style="font-size:11px;font-weight:500;background:#E1F5EE;color:#0F6E56;padding:3px 10px;border-radius:9999px;text-align:center">Included</span>
+    </div>
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 80px;background:#FAFAF8;border-bottom:0.5px solid #E8E7E2;padding:12px 16px;align-items:center">
+      <div><p style="font-size:13px;font-weight:500;color:#1C1C1A;margin-bottom:2px">Mindfulness-based cognitive therapy: review</p><p style="font-size:11px;color:#888780">Jones & Wang</p></div>
+      <span style="font-size:13px;color:#555552">2022</span>
+      <span style="font-size:13px;color:#555552">JAMA</span>
+      <span style="font-size:11px;font-weight:500;background:#FCEEE9;color:#D85A30;padding:3px 10px;border-radius:9999px;text-align:center">Excluded</span>
+    </div>
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 80px;background:#fff;padding:12px 16px;align-items:center">
+      <div><p style="font-size:13px;font-weight:500;color:#1C1C1A;margin-bottom:2px">Cognitive behavioural therapy efficacy: RCT</p><p style="font-size:11px;color:#888780">Davis et al.</p></div>
+      <span style="font-size:13px;color:#555552">2024</span>
+      <span style="font-size:13px;color:#555552">BMJ</span>
+      <span style="font-size:11px;font-weight:500;background:#FDF3E0;color:#B07310;padding:3px 10px;border-radius:9999px;text-align:center">Pending</span>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <h3>Toast / notifications</h3>
+  <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;max-width:400px">
+    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:#E1F5EE;border-radius:8px;border:0.5px solid #9FE1CB">
+      <div style="width:6px;height:6px;border-radius:50%;background:#1D9E75;margin-top:4px;flex-shrink:0"></div>
+      <div><p style="font-size:13px;font-weight:500;color:#0F6E56">Study imported successfully</p><p style="font-size:12px;color:#0F6E56;opacity:0.8;margin-top:2px">47 records added to your project.</p></div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:#FDF3E0;border-radius:8px;border:0.5px solid #F0CC80">
+      <div style="width:6px;height:6px;border-radius:50%;background:#EF9F27;margin-top:4px;flex-shrink:0"></div>
+      <div><p style="font-size:13px;font-weight:500;color:#8A5E0A">Duplicate records detected</p><p style="font-size:12px;color:#8A5E0A;opacity:0.8;margin-top:2px">3 records match existing entries.</p></div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:#FCEEE9;border-radius:8px;border:0.5px solid #F0A887">
+      <div style="width:6px;height:6px;border-radius:50%;background:#D85A30;margin-top:4px;flex-shrink:0"></div>
+      <div><p style="font-size:13px;font-weight:500;color:#A02A10">Export failed</p><p style="font-size:12px;color:#A02A10;opacity:0.8;margin-top:2px">Check your network connection and retry.</p></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<hr class="divider">
+
+<!-- 18 DATA VISUALISATION -->
+<div class="section-white" id="dataviz">
+<div class="wrap">
+  <span class="eyebrow">18 — Data visualisation</span>
+  <h2>Statistical output guidelines</h2>
+  <p class="lead mt16 mb32">PrismaLab produces scientific charts and tables. Visual outputs must be consistent, publication-ready, and accessible. These guidelines define the visual language for all statistical outputs.</p>
+
+  <!-- Forest plot -->
+  <h3>Forest plot</h3>
+  <p class="body mt8 mb16">The primary output of a meta-analysis. Box = study effect estimate, width of box = weight, horizontal line = confidence interval, diamond = pooled estimate.</p>
+  <div style="background:#FFFFFF;border:0.5px solid #E0DFDA;border-radius:10px;padding:24px;overflow-x:auto">
+    <svg width="100%" viewBox="0 0 640 240" style="max-width:640px;min-width:400px;display:block;font-family:'DM Sans',sans-serif">
+      <!-- Axis -->
+      <line x1="240" y1="20" x2="240" y2="210" stroke="#E0DFDA" stroke-width="1" stroke-dasharray="3,3"/>
+      <line x1="120" y1="210" x2="580" y2="210" stroke="#CBCAC3" stroke-width="1"/>
+      <!-- Axis labels -->
+      <text x="120" y="224" font-size="10" fill="#888780" text-anchor="middle">−1.0</text>
+      <text x="240" y="224" font-size="10" fill="#888780" text-anchor="middle">0</text>
+      <text x="360" y="224" font-size="10" fill="#888780" text-anchor="middle">1.0</text>
+      <text x="480" y="224" font-size="10" fill="#888780" text-anchor="middle">2.0</text>
+      <text x="350" y="238" font-size="10" fill="#888780" text-anchor="middle">Standardised Mean Difference (SMD)</text>
+      <!-- Header -->
+      <text x="16" y="16" font-size="10" font-weight="500" fill="#888780">Study</text>
+      <text x="540" y="16" font-size="10" font-weight="500" fill="#888780">SMD [95% CI]</text>
+      <!-- Study 1 -->
+      <text x="16" y="48" font-size="11" fill="#1C1C1A">Smith 2023</text>
+      <line x1="180" y1="44" x2="310" y2="44" stroke="#378ADD" stroke-width="1.5"/>
+      <rect x="228" y="38" width="24" height="12" fill="#378ADD" rx="1"/>
+      <text x="540" y="48" font-size="11" fill="#555552">0.42 [0.11, 0.73]</text>
+      <!-- Study 2 -->
+      <text x="16" y="84" font-size="11" fill="#1C1C1A">Jones 2022</text>
+      <line x1="160" y1="80" x2="290" y2="80" stroke="#378ADD" stroke-width="1.5"/>
+      <rect x="210" y="74" width="16" height="12" fill="#378ADD" rx="1"/>
+      <text x="540" y="84" font-size="11" fill="#555552">0.21 [−0.22, 0.64]</text>
+      <!-- Study 3 -->
+      <text x="16" y="120" font-size="11" fill="#1C1C1A">Davis 2024</text>
+      <line x1="220" y1="116" x2="380" y2="116" stroke="#378ADD" stroke-width="1.5"/>
+      <rect x="270" y="109" width="32" height="14" fill="#378ADD" rx="1"/>
+      <text x="540" y="120" font-size="11" fill="#555552">0.65 [0.32, 0.98]</text>
+      <!-- Study 4 -->
+      <text x="16" y="156" font-size="11" fill="#1C1C1A">Brown 2021</text>
+      <line x1="190" y1="152" x2="330" y2="152" stroke="#378ADD" stroke-width="1.5"/>
+      <rect x="238" y="146" width="20" height="12" fill="#378ADD" rx="1"/>
+      <text x="540" y="156" font-size="11" fill="#555552">0.35 [0.02, 0.68]</text>
+      <!-- Divider -->
+      <line x1="16" y1="170" x2="620" y2="170" stroke="#E8E7E2" stroke-width="0.5"/>
+      <!-- Pooled diamond -->
+      <text x="16" y="196" font-size="11" font-weight="500" fill="#1C1C1A">Overall (I²=34%)</text>
+      <polygon points="200,192 310,186 420,192 310,198" fill="#1D9E75"/>
+      <text x="540" y="196" font-size="11" font-weight="500" fill="#1D9E75">0.41 [0.24, 0.59]</text>
+    </svg>
+  </div>
+  <p class="note">Study boxes: #378ADD. Pooled diamond: #1D9E75 (brand teal). CI lines: same as box. Null line: dashed #E0DFDA.</p>
+
+  <!-- Risk of bias -->
+  <h3>Risk of bias table</h3>
+  <p class="body mt8 mb16">Colour-coded domain assessment using Cochrane RoB 2 domains. Never rely on colour alone — always include a symbol.</p>
+  <div style="background:#FFFFFF;border:0.5px solid #E0DFDA;border-radius:10px;overflow:hidden">
+    <table style="width:100%;border-collapse:collapse;font-family:'DM Sans',sans-serif">
+      <thead>
+        <tr style="background:#F8F7F4">
+          <th style="text-align:left;font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:#888780;padding:10px 16px;border-bottom:0.5px solid #E0DFDA">Study</th>
+          <th style="font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:#888780;padding:10px 8px;border-bottom:0.5px solid #E0DFDA;text-align:center">Randomisation</th>
+          <th style="font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:#888780;padding:10px 8px;border-bottom:0.5px solid #E0DFDA;text-align:center">Allocation</th>
+          <th style="font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:#888780;padding:10px 8px;border-bottom:0.5px solid #E0DFDA;text-align:center">Blinding</th>
+          <th style="font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:#888780;padding:10px 8px;border-bottom:0.5px solid #E0DFDA;text-align:center">Attrition</th>
+          <th style="font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:#888780;padding:10px 8px;border-bottom:0.5px solid #E0DFDA;text-align:center">Overall</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:0.5px solid #E8E7E2">
+          <td style="font-size:12px;color:#1C1C1A;padding:10px 16px">Smith 2023</td>
+          <td style="text-align:center;padding:8px"><span style="background:#E1F5EE;color:#0F6E56;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:500">✓ Low</span></td>
+          <td style="text-align:center;padding:8px"><span style="background:#E1F5EE;color:#0F6E56;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:500">✓ Low</span></td>
+          <td style="text-align:center;padding:8px"><span style="background:#FDF3E0;color:#B07310;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:500">? Unclear</span></td>
+          <td style="text-align:center;padding:8px"><span style="background:#E1F5EE;color:#0F6E56;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:500">✓ Low</span></td>
+          <td style="text-align:center;padding:8px"><span style="background:#FDF3E0;color:#B07310;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:500">? Some</span></td>
+        </tr>
+        <tr>
+          <td style="font-size:12px;color:#1C1C1A;padding:10px 16px">Jones 2022</td>
+          <td style="text-align:center;padding:8px"><span style="background:#E1F5EE;color:#0F6E56;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:500">✓ Low</span></td>
+          <td style="text-align:center;padding:8px"><span style="background:#FCEEE9;color:#D85A30;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:500">✕ High</span></td>
+          <td style="text-align:center;padding:8px"><span style="background:#FCEEE9;color:#D85A30;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:500">✕ High</span></td>
+          <td style="text-align:center;padding:8px"><span style="background:#FDF3E0;color:#B07310;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:500">? Unclear</span></td>
+          <td style="text-align:center;padding:8px"><span style="background:#FCEEE9;color:#D85A30;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:500">✕ High</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="padding:10px 16px;background:#F8F7F4;border-top:0.5px solid #E0DFDA;display:flex;gap:16px;flex-wrap:wrap">
+      <span style="font-size:11px;display:flex;align-items:center;gap:6px"><span style="background:#E1F5EE;color:#0F6E56;padding:2px 8px;border-radius:4px;font-weight:500">✓ Low</span><span style="color:#888780">Low risk</span></span>
+      <span style="font-size:11px;display:flex;align-items:center;gap:6px"><span style="background:#FDF3E0;color:#B07310;padding:2px 8px;border-radius:4px;font-weight:500">? Unclear</span><span style="color:#888780">Some concerns</span></span>
+      <span style="font-size:11px;display:flex;align-items:center;gap:6px"><span style="background:#FCEEE9;color:#D85A30;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500">✕ High</span><span style="color:#888780">High risk</span></span>
+    </div>
+  </div>
+
+  <!-- Phase colours in data viz -->
+  <h3>Workflow phase colours</h3>
+  <p class="body mt8 mb16">Used in dashboards, progress trackers, and phase labels. Independent from the logo spectrum.</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+    <div style="background:#F3F0FC;border:0.5px solid #C4BEEE;border-radius:8px;padding:10px 16px;text-align:center"><div style="width:32px;height:6px;background:#7F77DD;border-radius:3px;margin:0 auto 8px"></div><p style="font-size:11px;font-weight:500;color:#5B51B8">Protocol</p><p style="font-size:10px;color:#888780;font-family:monospace">#7F77DD</p></div>
+    <div style="background:#E5F0FB;border:0.5px solid #A8C8F0;border-radius:8px;padding:10px 16px;text-align:center"><div style="width:32px;height:6px;background:#378ADD;border-radius:3px;margin:0 auto 8px"></div><p style="font-size:11px;font-weight:500;color:#1C5BA8">Search</p><p style="font-size:10px;color:#888780;font-family:monospace">#378ADD</p></div>
+    <div style="background:#E1F5EE;border:0.5px solid #9FE1CB;border-radius:8px;padding:10px 16px;text-align:center"><div style="width:32px;height:6px;background:#1D9E75;border-radius:3px;margin:0 auto 8px"></div><p style="font-size:11px;font-weight:500;color:#0F6E56">Screening</p><p style="font-size:10px;color:#888780;font-family:monospace">#1D9E75</p></div>
+    <div style="background:#FDF3E0;border:0.5px solid #F0CC80;border-radius:8px;padding:10px 16px;text-align:center"><div style="width:32px;height:6px;background:#EF9F27;border-radius:3px;margin:0 auto 8px"></div><p style="font-size:11px;font-weight:500;color:#8A5E0A">Extraction</p><p style="font-size:10px;color:#888780;font-family:monospace">#EF9F27</p></div>
+    <div style="background:#FCEEE9;border:0.5px solid #F0A887;border-radius:8px;padding:10px 16px;text-align:center"><div style="width:32px;height:6px;background:#D85A30;border-radius:3px;margin:0 auto 8px"></div><p style="font-size:11px;font-weight:500;color:#A02A10">Analysis</p><p style="font-size:10px;color:#888780;font-family:monospace">#D85A30</p></div>
+  </div>
+  <p class="note">New phases added to the product receive additional colours from an extension of this palette. The logo mark is unaffected.</p>
+</div>
+</div>
+
+<hr class="divider">
+<div class="section-white" id="applications">
+<div class="wrap">
+  <span class="eyebrow">19 — Applications</span>
+  <h2>In use</h2>
+  <p class="lead mt16 mb32">PrismaLab identity applied across key touchpoints.</p>
+
+  <h3>Website — light navigation</h3>
+  <div class="app-card mt12">
+    <div style="background:#FFFFFF;padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between">
+      <svg width="150" viewBox="0 0 520 110"><polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/><line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/><circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/><line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/><text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44"><tspan font-weight="500" fill="#1C1C1A">Prisma</tspan><tspan font-weight="300" fill="#5DCAA5" dx="4">Lab</tspan></text></svg>
+      <div style="display:flex;gap:32px;align-items:center"><span style="font-size:13px;color:#555552">Features</span><span style="font-size:13px;color:#555552">Docs</span><span style="font-size:13px;color:#555552">Pricing</span><span style="background:#5DCAA5;color:#fff;font-size:12px;font-weight:500;padding:7px 18px;border-radius:7px">Get started</span></div>
+    </div>
+    <span class="app-tag">Website — light navbar</span>
+  </div>
+
+  <div class="app-card">
+    <div style="background:#111111;padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between">
+      <svg width="150" viewBox="0 0 520 110"><polygon points="106,15 58,98 154,98" fill="#1E1E1E" stroke="#585858" stroke-width="1"/><line x1="18" y1="62" x2="79" y2="62" stroke="#585858" stroke-width="1.5" stroke-linecap="round"/><circle cx="133" cy="62" r="3.5" fill="#585858"/><line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/><text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44"><tspan font-weight="500" fill="#FFFFFF">Prisma</tspan><tspan font-weight="300" fill="#5DCAA5" dx="4">Lab</tspan></text></svg>
+      <div style="display:flex;gap:32px;align-items:center"><span style="font-size:13px;color:rgba(255,255,255,0.45)">Features</span><span style="font-size:13px;color:rgba(255,255,255,0.45)">Docs</span><span style="font-size:13px;color:rgba(255,255,255,0.45)">Pricing</span><span style="background:#5DCAA5;color:#fff;font-size:12px;font-weight:500;padding:7px 18px;border-radius:7px">Get started</span></div>
+    </div>
+    <span class="app-tag app-tag-dark">Website — dark navbar</span>
+  </div>
+
+  <h3>Email signature</h3>
+  <div class="app-card mt12">
+    <div style="background:#FFFFFF;padding:28px 32px">
+      <div style="border-left:2px solid #5DCAA5;padding-left:20px">
+        <p style="font-size:14px;font-weight:500;margin-bottom:2px">Name Surname</p>
+        <p style="font-size:13px;color:#888780;margin-bottom:16px">Role · PrismaLab</p>
+        <svg width="110" viewBox="0 0 520 110"><polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/><line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/><circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/><line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/><text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44"><tspan font-weight="500" fill="#1C1C1A">Prisma</tspan><tspan font-weight="300" fill="#5DCAA5" dx="4">Lab</tspan></text></svg>
+      </div>
+    </div>
+    <span class="app-tag">Email signature</span>
+  </div>
+</div>
+</div>
+
+<hr class="divider">
+
+<!-- 15 CHECKLIST -->
+<div class="section-white" id="assets">
+<div class="wrap">
+  <span class="eyebrow">20 — Asset checklist</span>
+  <h2>Required files</h2>
+  <p class="lead mt16 mb32">Naming convention: <code style="font-size:12px;background:#F8F7F4;padding:2px 6px;border-radius:4px;font-family:monospace">prismalab-[asset]-[variant]-[size].[ext]</code></p>
+  <div class="grid2">
+    <div><h3>Logo</h3><ul class="checklist mt8"><li>Logo light — SVG</li><li>Logo mid-tone — SVG</li><li>Logo dark — SVG</li><li>Logo light — PNG @1x @2x @3x</li><li>Logo dark — PNG @1x @2x @3x</li><li>Logo without tagline — all variants</li></ul></div>
+    <div><h3>Icon mark</h3><ul class="checklist mt8"><li>Icon mark light — SVG</li><li>Icon mark dark — SVG</li><li>App icon dark — 1024x1024 PNG</li><li>App icon navy — 1024x1024 PNG</li><li>App icon light — 1024x1024 PNG</li><li>Favicon — 32x32 + 16x16 ICO</li><li>Apple touch icon — 180x180 PNG</li><li>Social avatar — 400x400 PNG</li></ul></div>
+    <div><h3>Digital / social</h3><ul class="checklist mt8"><li>OG image — 1200x630 PNG</li><li>Twitter card — 1200x600 PNG</li><li>LinkedIn cover — 1584x396 PNG</li><li>Loading animation — Lottie JSON</li></ul></div>
+    <div><h3>Design system</h3><ul class="checklist mt8"><li>Figma component library</li><li>Colour tokens — CSS variables</li><li>Font licence — DM Sans (OFL)</li><li>Icon set — Phosphor (licensed)</li><li>Brand guidelines HTML (this doc)</li></ul></div>
+  </div>
+</div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+<div class="wrap" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
+  <svg width="130" viewBox="0 0 520 128"><polygon points="106,15 58,98 154,98" fill="#1E1E1E" stroke="#585858" stroke-width="1"/><line x1="18" y1="62" x2="79" y2="62" stroke="#585858" stroke-width="1.5" stroke-linecap="round"/><circle cx="133" cy="62" r="3.5" fill="#585858"/><line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/><line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/><text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44"><tspan font-weight="500" fill="#FFFFFF">Prisma</tspan><tspan font-weight="300" fill="#5DCAA5" dx="4">Lab</tspan></text></svg>
+  <div style="text-align:right"><p style="font-size:12px;color:rgba(255,255,255,0.3)">Brand Guidelines v2.0</p><p style="font-size:12px;color:rgba(255,255,255,0.2);margin-top:4px">All rights reserved · PrismaLab</p></div>
+</div>
+</div>
+
+</main>
+</body>
+</html>

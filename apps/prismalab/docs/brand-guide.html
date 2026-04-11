@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PrismaLab — Brand Guidelines v1.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:#F8F7F4;color:#1C1C1A;line-height:1.6}
+.wrap{max-width:960px;margin:0 auto;padding:0 56px}
+.section{padding:80px 0}
+.section-dark{background:#111111;color:#fff;padding:80px 0}
+.section-navy{background:#1C3558;color:#fff;padding:80px 0}
+.section-light{background:#fff;padding:80px 0}
+hr{border:none;border-top:0.5px solid #E0DFDA}
+.section-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#888780;font-weight:500;margin-bottom:40px}
+.section-label-light{color:rgba(255,255,255,0.4)}
+h2{font-size:28px;font-weight:500;margin-bottom:12px;line-height:1.3}
+h3{font-size:16px;font-weight:500;margin-bottom:10px}
+p.body{font-size:15px;color:#555552;line-height:1.75;max-width:600px}
+p.body-inv{font-size:15px;color:rgba(255,255,255,0.6);line-height:1.75;max-width:600px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.mt8{margin-top:8px}.mt16{margin-top:16px}.mt24{margin-top:24px}.mt40{margin-top:40px}.mt56{margin-top:56px}
+.mb8{margin-bottom:8px}.mb16{margin-bottom:16px}.mb24{margin-bottom:24px}
+/* panels */
+.logo-panel{border-radius:12px;padding:40px 48px;margin-bottom:12px}
+.panel-label{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;font-weight:500;margin-bottom:20px}
+/* color swatches */
+.swatch{border-radius:10px;overflow:hidden;box-shadow:0 0 0 0.5px rgba(0,0,0,0.08)}
+.swatch-block{height:72px}
+.swatch-info{padding:10px 14px;background:#fff;border-top:0.5px solid #E8E7E2}
+.swatch-name{font-size:12px;font-weight:500;color:#1C1C1A}
+.swatch-hex{font-size:11px;color:#888780;font-family:monospace;margin-top:2px}
+/* type */
+.type-row{padding:20px 0;border-bottom:0.5px solid #E0DFDA;display:flex;align-items:baseline;gap:32px}
+.type-meta{font-size:11px;color:#888780;min-width:120px;flex-shrink:0}
+/* rule cards */
+.rule-card{border-radius:10px;padding:20px;border:0.5px solid #E0DFDA;background:#fff;position:relative;overflow:hidden}
+.rule-card.dont{border-color:#F7C1C1;background:#FCEBEB}
+.rule-tag{font-size:9px;letter-spacing:2px;font-weight:500;padding:3px 9px;border-radius:4px;display:inline-block;margin-bottom:16px;text-transform:uppercase}
+.tag-do{background:#EAF3DE;color:#3B6D11}
+.tag-dont{background:#F7C1C1;color:#A32D2D}
+.rule-desc{font-size:12px;color:#555552;margin-top:12px;line-height:1.5}
+.rule-desc.inv{color:#F7C1C1}
+/* icon showcase */
+.icon-wrap{display:inline-flex;flex-direction:column;align-items:center;gap:10px}
+.icon-label{font-size:11px;color:#888780;text-align:center}
+/* clearspace */
+.cs-outer{display:inline-block;border:1.5px dashed #CBCAC3;border-radius:4px;padding:28px;background:#FAFAF8}
+.cs-note{font-size:11px;color:#888780;margin-top:8px}
+/* app mockups */
+.app-card{border-radius:12px;overflow:hidden;border:0.5px solid #E0DFDA;background:#fff}
+.app-card-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#888780;padding:10px 16px;background:#F8F7F4;border-top:0.5px solid #E0DFDA;font-weight:500}
+/* checklist */
+.checklist{list-style:none}
+.checklist li{padding:12px 0;border-bottom:0.5px solid #E0DFDA;font-size:14px;color:#1C1C1A;display:flex;align-items:center;gap:12px}
+.checklist li::before{content:"";display:block;width:6px;height:6px;border-radius:50%;background:#5DCAA5;flex-shrink:0}
+/* footer */
+.footer{background:#1C1C1A;padding:48px 0}
+.footer-text{font-size:12px;color:rgba(255,255,255,0.35);letter-spacing:0.5px}
+@media(max-width:680px){
+  .wrap{padding:0 24px}
+  .grid2,.grid3,.grid5{grid-template-columns:1fr 1fr}
+  .logo-panel{padding:28px 24px}
+}
+</style>
+</head>
+<body>
+
+<!-- ─────────────────── COVER ─────────────────── -->
+<div class="section-dark">
+<div class="wrap">
+  <p style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:64px">PrismaLab · Brand Guidelines · v1.0</p>
+  <svg width="100%" viewBox="0 0 520 128" style="max-width:480px">
+    <polygon points="106,15 58,98 154,98" fill="#1E1E1E" stroke="#585858" stroke-width="1"/>
+    <line x1="18" y1="62" x2="79" y2="62" stroke="#585858" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="133" cy="62" r="3.5" fill="#585858"/>
+    <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+    <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="500" fill="#FFFFFF">Prisma</text>
+    <text x="403" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="300" fill="#5DCAA5">Lab</text>
+    <text x="259" y="106" font-family="'DM Sans',sans-serif" font-size="12.5" font-weight="400" fill="rgba(255,255,255,0.35)" letter-spacing="2">research synthesis platform</text>
+  </svg>
+  <p style="font-size:13px;color:rgba(255,255,255,0.35);margin-top:56px;letter-spacing:0.5px">Identity, colour, typography, usage rules and application guidelines for all touchpoints.</p>
+</div>
+</div>
+
+<!-- ─────────────────── BRAND STORY ─────────────────── -->
+<div class="section-light">
+<div class="wrap">
+  <p class="section-label">01 — Brand concept</p>
+  <h2>From evidence to conclusion</h2>
+  <p class="body mt16">PrismaLab is a platform for the full cycle of evidence synthesis — from protocol and literature search to systematic screening, data extraction, quality assessment and statistical meta-analysis. The name brings together <em>PRISMA</em>, the gold-standard reporting guideline for systematic reviews, and <em>Lab</em>, a space where rigorous, reproducible work happens.</p>
+  <p class="body mt16">The visual mark is a prism refracting a single beam of raw evidence into its structured components. The five coloured rays represent the phases of synthesis: search, screen, extract, appraise, and analyse. Where they converge is the conclusion — the pooled estimate that only a rigorous review can produce.</p>
+</div>
+</div>
+
+<hr>
+
+<!-- ─────────────────── THE LOGO ─────────────────── -->
+<div class="section-light">
+<div class="wrap">
+  <p class="section-label">02 — The logo</p>
+  <h2>Horizontal lockup</h2>
+  <p class="body mt16 mb24">The primary logo is always used in its horizontal form. Three approved variants exist — one for each background tier. Never mix components from different variants.</p>
+
+  <!-- Light -->
+  <div class="logo-panel" style="background:#FFFFFF;border:0.5px solid #D3D1C7">
+    <p class="panel-label" style="color:#B4B2A9">Light — #FFFFFF</p>
+    <svg width="100%" viewBox="0 0 520 128" style="max-width:480px">
+      <polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/>
+      <line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/>
+      <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+      <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="500" fill="#1C1C1A">Prisma</text>
+      <text x="403" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="300" fill="#5DCAA5">Lab</text>
+      <text x="259" y="106" font-family="'DM Sans',sans-serif" font-size="12.5" font-weight="400" fill="#888780" letter-spacing="2">research synthesis platform</text>
+    </svg>
+  </div>
+
+  <!-- Mid -->
+  <div class="logo-panel" style="background:#1C3558">
+    <p class="panel-label" style="color:rgba(255,255,255,0.35)">Mid-tone — #1C3558</p>
+    <svg width="100%" viewBox="0 0 520 128" style="max-width:480px">
+      <polygon points="106,15 58,98 154,98" fill="#243F6A" stroke="#4A74A8" stroke-width="1"/>
+      <line x1="18" y1="62" x2="79" y2="62" stroke="#4A74A8" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="133" cy="62" r="3.5" fill="#4A74A8"/>
+      <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+      <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="500" fill="#FFFFFF">Prisma</text>
+      <text x="403" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="300" fill="#5DCAA5">Lab</text>
+      <text x="259" y="106" font-family="'DM Sans',sans-serif" font-size="12.5" font-weight="400" fill="rgba(255,255,255,0.4)" letter-spacing="2">research synthesis platform</text>
+    </svg>
+  </div>
+
+  <!-- Dark -->
+  <div class="logo-panel" style="background:#111111">
+    <p class="panel-label" style="color:rgba(255,255,255,0.25)">Dark — #111111</p>
+    <svg width="100%" viewBox="0 0 520 128" style="max-width:480px">
+      <polygon points="106,15 58,98 154,98" fill="#1E1E1E" stroke="#585858" stroke-width="1"/>
+      <line x1="18" y1="62" x2="79" y2="62" stroke="#585858" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="133" cy="62" r="3.5" fill="#585858"/>
+      <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+      <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="500" fill="#FFFFFF">Prisma</text>
+      <text x="403" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="300" fill="#5DCAA5">Lab</text>
+      <text x="259" y="106" font-family="'DM Sans',sans-serif" font-size="12.5" font-weight="400" fill="rgba(255,255,255,0.35)" letter-spacing="2">research synthesis platform</text>
+    </svg>
+  </div>
+
+  <!-- Clear space -->
+  <div class="mt56">
+    <h3>Clear space</h3>
+    <p class="body mt8 mb24">Always maintain a minimum clear space around the logo equal to the height of the "P" in Prisma. No other visual elements should enter this zone.</p>
+    <div class="cs-outer">
+      <svg width="340" viewBox="0 0 520 128">
+        <polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/>
+        <line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/>
+        <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+        <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="500" fill="#1C1C1A">Prisma</text>
+        <text x="403" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="300" fill="#5DCAA5">Lab</text>
+        <text x="259" y="106" font-family="'DM Sans',sans-serif" font-size="12.5" font-weight="400" fill="#888780" letter-spacing="2">research synthesis platform</text>
+      </svg>
+    </div>
+    <p class="cs-note">↑ Dashed border represents the clear space boundary — not a design element</p>
+  </div>
+
+  <!-- Minimum size -->
+  <div class="mt40">
+    <h3>Minimum size</h3>
+    <p class="body mt8 mb24">Below these sizes the wordmark becomes illegible. Use the icon mark instead.</p>
+    <div style="display:flex;align-items:flex-end;gap:40px;flex-wrap:wrap">
+      <div>
+        <svg width="240" viewBox="0 0 520 128">
+          <polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/>
+          <line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/>
+          <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+          <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="500" fill="#1C1C1A">Prisma</text>
+          <text x="403" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="300" fill="#5DCAA5">Lab</text>
+          <text x="259" y="106" font-family="'DM Sans',sans-serif" font-size="12.5" font-weight="400" fill="#888780" letter-spacing="2">research synthesis platform</text>
+        </svg>
+        <p style="font-size:11px;color:#888780;margin-top:6px">240px — minimum digital</p>
+      </div>
+      <div>
+        <svg width="180" viewBox="0 0 520 128">
+          <polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/>
+          <line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/>
+          <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+          <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="500" fill="#1C1C1A">Prisma</text>
+          <text x="403" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="300" fill="#5DCAA5">Lab</text>
+          <text x="259" y="106" font-family="'DM Sans',sans-serif" font-size="12.5" font-weight="400" fill="#888780" letter-spacing="2">research synthesis platform</text>
+        </svg>
+        <p style="font-size:11px;color:#888780;margin-top:6px">180px — minimum print</p>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<hr>
+
+<!-- ─────────────────── THE MARK ─────────────────── -->
+<div class="section-light">
+<div class="wrap">
+  <p class="section-label">03 — The mark</p>
+  <h2>Icon mark</h2>
+  <p class="body mt16 mb40">The icon mark is used when the PrismaLab name is already established in context — app icons, favicons, loading screens, and small interface elements. It is never used as a replacement for the full logo in primary communication.</p>
+
+  <div style="display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap">
+
+    <!-- Icon light -->
+    <div class="icon-wrap">
+      <div style="background:#FFFFFF;border:0.5px solid #D3D1C7;border-radius:12px;padding:20px">
+        <svg width="100" viewBox="14 10 228 98">
+          <polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/>
+          <line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/>
+          <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p class="icon-label">Light</p>
+    </div>
+
+    <!-- Icon dark -->
+    <div class="icon-wrap">
+      <div style="background:#111111;border-radius:12px;padding:20px">
+        <svg width="100" viewBox="14 10 228 98">
+          <polygon points="106,15 58,98 154,98" fill="#1E1E1E" stroke="#585858" stroke-width="1"/>
+          <line x1="18" y1="62" x2="79" y2="62" stroke="#585858" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="133" cy="62" r="3.5" fill="#585858"/>
+          <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p class="icon-label">Dark</p>
+    </div>
+
+    <!-- App icon rounded square dark -->
+    <div class="icon-wrap">
+      <div style="background:#111111;border-radius:22px;padding:16px;width:96px;height:96px;display:flex;align-items:center;justify-content:center">
+        <svg width="68" viewBox="50 8 195 100">
+          <polygon points="106,15 58,98 154,98" fill="#1E1E1E" stroke="#585858" stroke-width="1.2"/>
+          <circle cx="133" cy="62" r="3.5" fill="#585858"/>
+          <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="3" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="3" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="3" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="3" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p class="icon-label">App icon — dark</p>
+    </div>
+
+    <!-- App icon rounded square navy -->
+    <div class="icon-wrap">
+      <div style="background:#1C3558;border-radius:22px;padding:16px;width:96px;height:96px;display:flex;align-items:center;justify-content:center">
+        <svg width="68" viewBox="50 8 195 100">
+          <polygon points="106,15 58,98 154,98" fill="#243F6A" stroke="#4A74A8" stroke-width="1.2"/>
+          <circle cx="133" cy="62" r="3.5" fill="#4A74A8"/>
+          <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="3" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="3" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="3" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="3" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p class="icon-label">App icon — navy</p>
+    </div>
+
+    <!-- App icon rounded square light -->
+    <div class="icon-wrap">
+      <div style="background:#FFFFFF;border:0.5px solid #D3D1C7;border-radius:22px;padding:16px;width:96px;height:96px;display:flex;align-items:center;justify-content:center">
+        <svg width="68" viewBox="50 8 195 100">
+          <polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1.2"/>
+          <circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/>
+          <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="3" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="3" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="3" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="3" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p class="icon-label">App icon — light</p>
+    </div>
+
+    <!-- Favicon 32 -->
+    <div class="icon-wrap">
+      <div style="background:#FFFFFF;border:0.5px solid #D3D1C7;border-radius:6px;padding:8px;width:48px;height:48px;display:flex;align-items:center;justify-content:center">
+        <svg width="32" height="32" viewBox="50 8 195 100">
+          <polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1.5"/>
+          <line x1="133" y1="62" x2="210" y2="28" stroke="#7F77DD" stroke-width="4" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="215" y2="50" stroke="#378ADD" stroke-width="4" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="216" y2="62" stroke="#1D9E75" stroke-width="4" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="215" y2="74" stroke="#EF9F27" stroke-width="4" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="210" y2="96" stroke="#D85A30" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p class="icon-label">Favicon 32px</p>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<hr>
+
+<!-- ─────────────────── COLOR SYSTEM ─────────────────── -->
+<div class="section-light">
+<div class="wrap">
+  <p class="section-label">04 — Colour system</p>
+  <h2>Brand palette</h2>
+  <p class="body mt16 mb40">The palette is divided into three groups: the primary brand colour, the spectrum palette (the five beam colours representing the phases of synthesis), and the background and text system.</p>
+
+  <h3 class="mb16">Primary brand colour</h3>
+  <div style="display:flex;gap:12px;flex-wrap:wrap">
+    <div class="swatch" style="width:200px">
+      <div class="swatch-block" style="background:#5DCAA5"></div>
+      <div class="swatch-info">
+        <p class="swatch-name">PrismaLab Teal</p>
+        <p class="swatch-hex">#5DCAA5</p>
+      </div>
+    </div>
+    <div class="swatch" style="width:140px">
+      <div class="swatch-block" style="background:#1D9E75"></div>
+      <div class="swatch-info">
+        <p class="swatch-name">Teal Deep</p>
+        <p class="swatch-hex">#1D9E75</p>
+        <p style="font-size:10px;color:#B4B2A9;margin-top:2px">Light bg only</p>
+      </div>
+    </div>
+    <div class="swatch" style="width:140px">
+      <div class="swatch-block" style="background:#9FE1CB"></div>
+      <div class="swatch-info">
+        <p class="swatch-name">Teal Light</p>
+        <p class="swatch-hex">#9FE1CB</p>
+        <p style="font-size:10px;color:#B4B2A9;margin-top:2px">Dark bg tints</p>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="mt40 mb16">Spectrum palette — the five phases</h3>
+  <div class="grid5">
+    <div class="swatch">
+      <div class="swatch-block" style="background:#7F77DD"></div>
+      <div class="swatch-info">
+        <p class="swatch-name">Search</p>
+        <p class="swatch-hex">#7F77DD</p>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-block" style="background:#378ADD"></div>
+      <div class="swatch-info">
+        <p class="swatch-name">Screen</p>
+        <p class="swatch-hex">#378ADD</p>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-block" style="background:#1D9E75"></div>
+      <div class="swatch-info">
+        <p class="swatch-name">Extract</p>
+        <p class="swatch-hex">#1D9E75</p>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-block" style="background:#EF9F27"></div>
+      <div class="swatch-info">
+        <p class="swatch-name">Appraise</p>
+        <p class="swatch-hex">#EF9F27</p>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-block" style="background:#D85A30"></div>
+      <div class="swatch-info">
+        <p class="swatch-name">Analyse</p>
+        <p class="swatch-hex">#D85A30</p>
+      </div>
+    </div>
+  </div>
+  <p style="font-size:11px;color:#888780;margin-top:10px">These five colours may be used throughout the platform UI to identify each phase of the workflow.</p>
+
+  <h3 class="mt40 mb16">Background system</h3>
+  <div class="grid3">
+    <div class="swatch">
+      <div class="swatch-block" style="background:#FFFFFF;border:0.5px solid #E0DFDA"></div>
+      <div class="swatch-info">
+        <p class="swatch-name">Light</p>
+        <p class="swatch-hex">#FFFFFF</p>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-block" style="background:#1C3558"></div>
+      <div class="swatch-info">
+        <p class="swatch-name">Mid-tone</p>
+        <p class="swatch-hex">#1C3558</p>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-block" style="background:#111111"></div>
+      <div class="swatch-info">
+        <p class="swatch-name">Dark</p>
+        <p class="swatch-hex">#111111</p>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="mt40 mb16">Text system</h3>
+  <div style="display:flex;gap:12px;flex-wrap:wrap">
+    <div class="swatch" style="width:140px">
+      <div class="swatch-block" style="background:#1C1C1A"></div>
+      <div class="swatch-info"><p class="swatch-name">Primary</p><p class="swatch-hex">#1C1C1A</p></div>
+    </div>
+    <div class="swatch" style="width:140px">
+      <div class="swatch-block" style="background:#555552"></div>
+      <div class="swatch-info"><p class="swatch-name">Secondary</p><p class="swatch-hex">#555552</p></div>
+    </div>
+    <div class="swatch" style="width:140px">
+      <div class="swatch-block" style="background:#888780"></div>
+      <div class="swatch-info"><p class="swatch-name">Muted</p><p class="swatch-hex">#888780</p></div>
+    </div>
+    <div class="swatch" style="width:140px">
+      <div class="swatch-block" style="background:#CBCAC3;border:0.5px solid #E0DFDA"></div>
+      <div class="swatch-info"><p class="swatch-name">Disabled</p><p class="swatch-hex">#CBCAC3</p></div>
+    </div>
+    <div class="swatch" style="width:140px">
+      <div class="swatch-block" style="background:#FFFFFF;border:0.5px solid #E0DFDA"></div>
+      <div class="swatch-info"><p class="swatch-name">Reversed</p><p class="swatch-hex">#FFFFFF</p></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<hr>
+
+<!-- ─────────────────── TYPOGRAPHY ─────────────────── -->
+<div class="section-light">
+<div class="wrap">
+  <p class="section-label">05 — Typography</p>
+  <h2>Type system</h2>
+  <p class="body mt16 mb40">DM Sans is the typeface used across all PrismaLab touchpoints — in the logo, UI, marketing, and documentation. Its three weights define clear hierarchy.</p>
+
+  <div class="type-row">
+    <span class="type-meta">500 · Medium<br>Logo wordmark "Prisma"<br>Headings · CTA</span>
+    <span style="font-size:36px;font-weight:500;color:#1C1C1A;font-family:'DM Sans',sans-serif">PrismaLab</span>
+  </div>
+  <div class="type-row">
+    <span class="type-meta">400 · Regular<br>Body text<br>UI labels · Descriptors</span>
+    <span style="font-size:24px;font-weight:400;color:#1C1C1A;font-family:'DM Sans',sans-serif">Research synthesis platform</span>
+  </div>
+  <div class="type-row">
+    <span class="type-meta">300 · Light<br>Logo wordmark "Lab"<br>Tagline · Captions</span>
+    <span style="font-size:36px;font-weight:300;color:#5DCAA5;font-family:'DM Sans',sans-serif">Lab</span>
+  </div>
+
+  <div class="mt40" style="background:#F8F7F4;border-radius:10px;padding:28px;border:0.5px solid #E0DFDA">
+    <p style="font-size:11px;color:#888780;font-weight:500;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px">Type scale reference</p>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:baseline;gap:24px"><span style="font-size:11px;color:#888780;min-width:80px">44px / 500</span><span style="font-size:20px;font-weight:500;font-family:'DM Sans',sans-serif">Logo wordmark</span></div>
+      <div style="display:flex;align-items:baseline;gap:24px"><span style="font-size:11px;color:#888780;min-width:80px">32px / 500</span><span style="font-size:18px;font-weight:500;font-family:'DM Sans',sans-serif">Page heading H1</span></div>
+      <div style="display:flex;align-items:baseline;gap:24px"><span style="font-size:11px;color:#888780;min-width:80px">24px / 500</span><span style="font-size:16px;font-weight:500;font-family:'DM Sans',sans-serif">Section heading H2</span></div>
+      <div style="display:flex;align-items:baseline;gap:24px"><span style="font-size:11px;color:#888780;min-width:80px">16px / 400</span><span style="font-size:15px;font-weight:400;font-family:'DM Sans',sans-serif">Body text — comfortable reading across UI and documentation</span></div>
+      <div style="display:flex;align-items:baseline;gap:24px"><span style="font-size:11px;color:#888780;min-width:80px">12px / 400</span><span style="font-size:12px;font-weight:400;font-family:'DM Sans',sans-serif">Labels, metadata, captions</span></div>
+      <div style="display:flex;align-items:baseline;gap:24px"><span style="font-size:11px;color:#888780;min-width:80px">10px / 500</span><span style="font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;font-family:'DM Sans',sans-serif">Section labels · Eyebrows</span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<hr>
+
+<!-- ─────────────────── USAGE RULES ─────────────────── -->
+<div class="section-light">
+<div class="wrap">
+  <p class="section-label">06 — Usage rules</p>
+  <h2>Do's and don'ts</h2>
+  <p class="body mt16 mb40">The logo must always be reproduced from the official files. These rules protect consistency across all applications.</p>
+
+  <div class="grid2">
+    <!-- DO 1 -->
+    <div class="rule-card">
+      <span class="rule-tag tag-do">Do</span>
+      <div style="background:#F8F7F4;border-radius:8px;padding:16px;margin-bottom:8px">
+        <svg width="100%" viewBox="0 0 520 128">
+          <polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/>
+          <line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/>
+          <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+          <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="500" fill="#1C1C1A">Prisma</text>
+          <text x="403" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="300" fill="#5DCAA5">Lab</text>
+          <text x="259" y="106" font-family="'DM Sans',sans-serif" font-size="12.5" font-weight="400" fill="#888780" letter-spacing="2">research synthesis platform</text>
+        </svg>
+      </div>
+      <p class="rule-desc">Use the approved logo on approved backgrounds at the correct proportions.</p>
+    </div>
+
+    <!-- DONT 1 — stretch -->
+    <div class="rule-card dont">
+      <span class="rule-tag tag-dont">Don't</span>
+      <div style="background:#F8F7F4;border-radius:8px;padding:16px;margin-bottom:8px;overflow:hidden">
+        <svg width="100%" viewBox="0 0 520 128" style="transform:scaleX(1.25);transform-origin:left">
+          <polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/>
+          <line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/>
+          <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+          <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="500" fill="#1C1C1A">Prisma</text>
+          <text x="403" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="300" fill="#5DCAA5">Lab</text>
+          <text x="259" y="106" font-family="'DM Sans',sans-serif" font-size="12.5" font-weight="400" fill="#888780" letter-spacing="2">research synthesis platform</text>
+        </svg>
+      </div>
+      <p class="rule-desc inv" style="color:#A32D2D">Don't stretch or distort the logo. Always scale proportionally.</p>
+    </div>
+
+    <!-- DONT 2 — wrong Lab colour -->
+    <div class="rule-card dont">
+      <span class="rule-tag tag-dont">Don't</span>
+      <div style="background:#F8F7F4;border-radius:8px;padding:16px;margin-bottom:8px">
+        <svg width="100%" viewBox="0 0 520 128">
+          <polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/>
+          <line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/>
+          <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+          <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="500" fill="#1C1C1A">Prisma</text>
+          <text x="403" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="300" fill="#E24B4A">Lab</text>
+          <text x="259" y="106" font-family="'DM Sans',sans-serif" font-size="12.5" font-weight="400" fill="#888780" letter-spacing="2">research synthesis platform</text>
+        </svg>
+      </div>
+      <p class="rule-desc" style="color:#A32D2D">Don't change the colour of "Lab". It must always be #5DCAA5.</p>
+    </div>
+
+    <!-- DONT 3 — wrong background -->
+    <div class="rule-card dont">
+      <span class="rule-tag tag-dont">Don't</span>
+      <div style="background:#EF9F27;border-radius:8px;padding:16px;margin-bottom:8px">
+        <svg width="100%" viewBox="0 0 520 128">
+          <polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/>
+          <line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/>
+          <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+          <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="500" fill="#1C1C1A">Prisma</text>
+          <text x="403" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="300" fill="#5DCAA5">Lab</text>
+          <text x="259" y="106" font-family="'DM Sans',sans-serif" font-size="12.5" font-weight="400" fill="#888780" letter-spacing="2">research synthesis platform</text>
+        </svg>
+      </div>
+      <p class="rule-desc" style="color:#A32D2D">Don't place the logo on coloured or unapproved backgrounds. Only use the three approved background tiers.</p>
+    </div>
+
+    <!-- DONT 4 — shadow -->
+    <div class="rule-card dont">
+      <span class="rule-tag tag-dont">Don't</span>
+      <div style="background:#F8F7F4;border-radius:8px;padding:16px;margin-bottom:8px">
+        <svg width="100%" viewBox="0 0 520 128" style="filter:drop-shadow(4px 4px 8px rgba(0,0,0,0.4))">
+          <polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/>
+          <line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/>
+          <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+          <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="500" fill="#1C1C1A">Prisma</text>
+          <text x="403" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="300" fill="#5DCAA5">Lab</text>
+          <text x="259" y="106" font-family="'DM Sans',sans-serif" font-size="12.5" font-weight="400" fill="#888780" letter-spacing="2">research synthesis platform</text>
+        </svg>
+      </div>
+      <p class="rule-desc" style="color:#A32D2D">Don't apply shadows, glows, or any visual effects to the logo.</p>
+    </div>
+
+    <!-- DONT 5 — rotate -->
+    <div class="rule-card dont">
+      <span class="rule-tag tag-dont">Don't</span>
+      <div style="background:#F8F7F4;border-radius:8px;padding:16px;margin-bottom:8px;overflow:hidden">
+        <svg width="100%" viewBox="0 0 520 128" style="transform:rotate(-12deg);transform-origin:center">
+          <polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/>
+          <line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/>
+          <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+          <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="500" fill="#1C1C1A">Prisma</text>
+          <text x="403" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="300" fill="#5DCAA5">Lab</text>
+          <text x="259" y="106" font-family="'DM Sans',sans-serif" font-size="12.5" font-weight="400" fill="#888780" letter-spacing="2">research synthesis platform</text>
+        </svg>
+      </div>
+      <p class="rule-desc" style="color:#A32D2D">Don't rotate or tilt the logo. It is always displayed horizontally.</p>
+    </div>
+
+    <!-- DONT 6 — outline only -->
+    <div class="rule-card dont">
+      <span class="rule-tag tag-dont">Don't</span>
+      <div style="background:#F8F7F4;border-radius:8px;padding:16px;margin-bottom:8px">
+        <svg width="100%" viewBox="0 0 520 128">
+          <polygon points="106,15 58,98 154,98" fill="none" stroke="#CBCAC3" stroke-width="1"/>
+          <line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="133" cy="62" r="3.5" fill="none" stroke="#CBCAC3" stroke-width="1"/>
+          <line x1="133" y1="62" x2="235" y2="22" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="44" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="240" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="80" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="235" y2="102" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+          <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="500" fill="#CBCAC3">Prisma</text>
+          <text x="403" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="300" fill="#CBCAC3">Lab</text>
+          <text x="259" y="106" font-family="'DM Sans',sans-serif" font-size="12.5" font-weight="400" fill="#CBCAC3" letter-spacing="2">research synthesis platform</text>
+        </svg>
+      </div>
+      <p class="rule-desc" style="color:#A32D2D">Don't reduce to a single colour or use an outline/ghost version. The colour spectrum is essential.</p>
+    </div>
+
+    <!-- DO 2 — icon usage -->
+    <div class="rule-card">
+      <span class="rule-tag tag-do">Do</span>
+      <div style="background:#111111;border-radius:8px;padding:16px;display:flex;gap:16px;align-items:center;margin-bottom:8px">
+        <div style="background:#111111;border-radius:16px;padding:12px;width:64px;height:64px;display:flex;align-items:center;justify-content:center;border:0.5px solid #333">
+          <svg width="40" viewBox="50 8 195 100">
+            <polygon points="106,15 58,98 154,98" fill="#1E1E1E" stroke="#585858" stroke-width="1.2"/>
+            <circle cx="133" cy="62" r="3.5" fill="#585858"/>
+            <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="3" stroke-linecap="round"/>
+            <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="3" stroke-linecap="round"/>
+            <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="3" stroke-linecap="round"/>
+            <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="3" stroke-linecap="round"/>
+            <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <span style="font-family:'DM Sans',sans-serif;font-size:13px;color:rgba(255,255,255,0.5)">Use icon mark at small sizes or when context already establishes the PrismaLab name.</span>
+      </div>
+      <p class="rule-desc">Use the icon mark for app icons, favicons, avatars, and UI elements below 240px.</p>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<hr>
+
+<!-- ─────────────────── APPLICATIONS ─────────────────── -->
+<div class="section-light">
+<div class="wrap">
+  <p class="section-label">07 — Applications</p>
+  <h2>In use</h2>
+  <p class="body mt16 mb40">Examples of how the PrismaLab identity applies across key touchpoints.</p>
+
+  <!-- Website navbar -->
+  <h3 class="mb16">Website — navigation bar</h3>
+  <div class="app-card mb24">
+    <div style="background:#FFFFFF;padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid #E0DFDA">
+      <svg width="160" viewBox="0 0 520 128">
+        <polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/>
+        <line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/>
+        <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+        <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="500" fill="#1C1C1A">Prisma</text>
+        <text x="403" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="300" fill="#5DCAA5">Lab</text>
+      </svg>
+      <div style="display:flex;gap:32px;align-items:center">
+        <span style="font-size:13px;color:#555552;font-family:'DM Sans',sans-serif">Features</span>
+        <span style="font-size:13px;color:#555552;font-family:'DM Sans',sans-serif">Docs</span>
+        <span style="font-size:13px;color:#555552;font-family:'DM Sans',sans-serif">Pricing</span>
+        <span style="background:#5DCAA5;color:#fff;font-size:12px;font-weight:500;padding:7px 18px;border-radius:6px;font-family:'DM Sans',sans-serif">Get started</span>
+      </div>
+    </div>
+    <p class="app-card-label">Website — light navbar</p>
+  </div>
+
+  <!-- Dark navbar -->
+  <div class="app-card mb40">
+    <div style="background:#111111;padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid #333">
+      <svg width="160" viewBox="0 0 520 128">
+        <polygon points="106,15 58,98 154,98" fill="#1E1E1E" stroke="#585858" stroke-width="1"/>
+        <line x1="18" y1="62" x2="79" y2="62" stroke="#585858" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="133" cy="62" r="3.5" fill="#585858"/>
+        <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+        <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="500" fill="#FFFFFF">Prisma</text>
+        <text x="403" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="300" fill="#5DCAA5">Lab</text>
+      </svg>
+      <div style="display:flex;gap:32px;align-items:center">
+        <span style="font-size:13px;color:rgba(255,255,255,0.5);font-family:'DM Sans',sans-serif">Features</span>
+        <span style="font-size:13px;color:rgba(255,255,255,0.5);font-family:'DM Sans',sans-serif">Docs</span>
+        <span style="font-size:13px;color:rgba(255,255,255,0.5);font-family:'DM Sans',sans-serif">Pricing</span>
+        <span style="background:#5DCAA5;color:#fff;font-size:12px;font-weight:500;padding:7px 18px;border-radius:6px;font-family:'DM Sans',sans-serif">Get started</span>
+      </div>
+    </div>
+    <p class="app-card-label" style="background:#1A1A1A;color:rgba(255,255,255,0.3)">Website — dark navbar</p>
+  </div>
+
+  <!-- Loading screen -->
+  <h3 class="mb16">App — loading screen</h3>
+  <div class="app-card mb40">
+    <div style="background:#111111;height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px">
+      <svg width="80" viewBox="50 8 195 100">
+        <polygon points="106,15 58,98 154,98" fill="#1E1E1E" stroke="#585858" stroke-width="1.2"/>
+        <circle cx="133" cy="62" r="3.5" fill="#585858"/>
+        <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="3" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="3" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="3" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="3" stroke-linecap="round"/>
+        <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <svg width="180" viewBox="0 0 520 55">
+        <text x="258" y="44" font-family="'DM Sans',sans-serif" font-size="44" font-weight="500" fill="#FFFFFF">Prisma</text>
+        <text x="403" y="44" font-family="'DM Sans',sans-serif" font-size="44" font-weight="300" fill="#5DCAA5">Lab</text>
+      </svg>
+      <div style="display:flex;gap:6px">
+        <div style="width:4px;height:4px;border-radius:50%;background:#5DCAA5;opacity:1"></div>
+        <div style="width:4px;height:4px;border-radius:50%;background:#5DCAA5;opacity:0.5"></div>
+        <div style="width:4px;height:4px;border-radius:50%;background:#5DCAA5;opacity:0.25"></div>
+      </div>
+    </div>
+    <p class="app-card-label" style="background:#1A1A1A;color:rgba(255,255,255,0.3)">App — loading / splash screen</p>
+  </div>
+
+  <!-- Email signature -->
+  <h3 class="mb16">Email signature</h3>
+  <div class="app-card">
+    <div style="background:#FFFFFF;padding:28px 32px">
+      <div style="border-left:3px solid #5DCAA5;padding-left:20px">
+        <p style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:#1C1C1A;margin-bottom:2px">Name Surname</p>
+        <p style="font-family:'DM Sans',sans-serif;font-size:13px;color:#888780;margin-bottom:12px">Role · PrismaLab</p>
+        <svg width="100" viewBox="0 0 520 128">
+          <polygon points="106,15 58,98 154,98" fill="#F4F3EF" stroke="#CBCAC3" stroke-width="1"/>
+          <line x1="18" y1="62" x2="79" y2="62" stroke="#CBCAC3" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="133" cy="62" r="3.5" fill="#CBCAC3"/>
+          <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+          <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="500" fill="#1C1C1A">Prisma</text>
+          <text x="403" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="300" fill="#5DCAA5">Lab</text>
+          <text x="259" y="106" font-family="'DM Sans',sans-serif" font-size="12.5" font-weight="400" fill="#888780" letter-spacing="2">research synthesis platform</text>
+        </svg>
+      </div>
+    </div>
+    <p class="app-card-label">Email signature</p>
+  </div>
+
+</div>
+</div>
+
+<hr>
+
+<!-- ─────────────────── ASSET CHECKLIST ─────────────────── -->
+<div class="section-light">
+<div class="wrap">
+  <p class="section-label">08 — Asset checklist</p>
+  <h2>Required files</h2>
+  <p class="body mt16 mb32">The following files should be produced and maintained in the brand asset library.</p>
+
+  <div class="grid2">
+    <div>
+      <h3 class="mb16">Logo files</h3>
+      <ul class="checklist">
+        <li>Logo — light — SVG</li>
+        <li>Logo — mid-tone — SVG</li>
+        <li>Logo — dark — SVG</li>
+        <li>Logo — light — PNG @1x, @2x, @3x</li>
+        <li>Logo — dark — PNG @1x, @2x, @3x</li>
+        <li>Logo without tagline — all variants</li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="mb16">Icon mark files</h3>
+      <ul class="checklist">
+        <li>Icon mark — light — SVG</li>
+        <li>Icon mark — dark — SVG</li>
+        <li>App icon — 1024×1024 PNG (dark)</li>
+        <li>App icon — 1024×1024 PNG (light)</li>
+        <li>Favicon — 32×32 ICO</li>
+        <li>Favicon — 16×16 ICO</li>
+        <li>Favicon — 180×180 (Apple touch icon)</li>
+        <li>Social avatar — 400×400 PNG</li>
+      </ul>
+    </div>
+    <div class="mt16">
+      <h3 class="mb16">UI assets</h3>
+      <ul class="checklist">
+        <li>Colour tokens — CSS variables file</li>
+        <li>Loading animation (icon mark)</li>
+        <li>OG image — 1200×630 (website)</li>
+        <li>Twitter card — 1200×600</li>
+      </ul>
+    </div>
+    <div class="mt16">
+      <h3 class="mb16">Documentation</h3>
+      <ul class="checklist">
+        <li>Brand guidelines PDF (this document)</li>
+        <li>Font licence — DM Sans (OFL)</li>
+        <li>Colour palette — ASE / Figma styles</li>
+        <li>Logo Figma component library</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ─────────────────── FOOTER ─────────────────── -->
+<div class="footer">
+<div class="wrap" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
+  <svg width="120" viewBox="0 0 520 128">
+    <polygon points="106,15 58,98 154,98" fill="#1E1E1E" stroke="#585858" stroke-width="1"/>
+    <line x1="18" y1="62" x2="79" y2="62" stroke="#585858" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="133" cy="62" r="3.5" fill="#585858"/>
+    <line x1="133" y1="62" x2="235" y2="22" stroke="#7F77DD" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="133" y1="62" x2="238" y2="44" stroke="#378ADD" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="133" y1="62" x2="240" y2="62" stroke="#1D9E75" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="133" y1="62" x2="238" y2="80" stroke="#EF9F27" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="133" y1="62" x2="235" y2="102" stroke="#D85A30" stroke-width="2.5" stroke-linecap="round"/>
+    <text x="258" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="500" fill="#FFFFFF">Prisma</text>
+    <text x="403" y="79" font-family="'DM Sans',sans-serif" font-size="44" font-weight="300" fill="#5DCAA5">Lab</text>
+  </svg>
+  <div style="text-align:right">
+    <p class="footer-text">Brand Guidelines v1.0</p>
+    <p class="footer-text" style="margin-top:4px">All rights reserved · PrismaLab</p>
+  </div>
+</div>
+</div>
+
+</body>
+</html>

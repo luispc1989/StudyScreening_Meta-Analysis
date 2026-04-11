@@ -126,11 +126,11 @@ Because of this, a future architectural direction has already been identified:
 - Excel as import/output layer;
 - a local project database as the internal source of truth;
 - a project file that can be reopened later, by the same or another user;
-- a `hub launcher` coordinating multiple tools and phases of the meta-analysis workflow.
+- `PrismaLab`, a future app master coordinating multiple tools and phases of the meta-analysis workflow.
 
-## Future hub launcher
+## Future PrismaLab application
 
-The future system is expected to include a broader launcher layer, tentatively described as a `hub launcher`.
+The future system is expected to include a broader application layer called `PrismaLab`.
 
 Its role would be to centralize:
 
@@ -142,6 +142,66 @@ Its role would be to centralize:
 - reuse of previous project state.
 
 This is important because the `PDF Fetcher` is already evolving from a single-purpose tool into part of a larger meta-analysis workflow ecosystem.
+
+## App master direction
+
+The expected master application is no longer being conceptualized as a Streamlit-only layer.
+
+During development, Streamlit proved highly effective for:
+
+- rapid prototyping;
+- workflow validation;
+- tool-specific interfaces such as `S.C.O.U.T.`;
+- fast iteration over research-use features.
+
+However, once the project was reframed as a future multi-tool ecosystem, a different requirement emerged: the top-level application needs to feel like a coherent project workspace rather than a collection of internal scripts.
+
+For that reason, the current direction for the app master is:
+
+- `React / Next.js` for the master frontend;
+- Python retained for workflow logic and tool backends;
+- local database persistence for project state;
+- Excel preserved as import/export format rather than as the living internal state.
+
+This is not only a technical preference. It reflects a usability and architectural shift: the system is moving from a tool-first prototype into a project-first application.
+
+## Why the app master should be phase-oriented
+
+The expected master app should be organized by the phases of the meta-analysis workflow rather than by a flat list of tools.
+
+The intended phases are:
+
+1. question definition;
+2. literature search;
+3. study screening;
+4. critical appraisal of studies;
+5. data extraction;
+6. statistical synthesis;
+7. discussion and conclusion.
+
+Within that structure, tools become subordinate to workflow meaning. This is important because it changes the interface from a technical launcher into a research-oriented workbench.
+
+In this model:
+
+- the app explains where the user is in the research process;
+- each phase can expose its own tools;
+- project continuity becomes easier to understand;
+- future dissertation writing can map software structure directly onto methodological stages.
+
+## Current prototyping step for the app master
+
+A first visual prototype of the future master app has already been created in:
+
+- `apps/prismalab`
+
+This prototype is intentionally lightweight. It is not yet the operational application. Its purpose is to test:
+
+- visual direction;
+- navigation logic;
+- phase-oriented organization;
+- the relationship between project state, tools, and future database integration.
+
+This is relevant for the dissertation because it demonstrates that architectural planning is already being translated into tangible interface prototypes rather than remaining only a conceptual future plan.
 
 ## Future database rationale
 
@@ -160,6 +220,18 @@ In this future model:
 - Excel remains the import and export interface;
 - the database becomes the internal operational memory;
 - the project becomes portable through a local project file.
+
+This architectural direction has now moved from a purely conceptual intention
+into an initial concrete foundation inside `tools/prismalab`.
+
+The first implementation step is a minimal SQLite project database designed to:
+
+- store project identity;
+- preserve import provenance from multiple bibliographic databases;
+- preserve row-level raw source data before merge;
+- maintain a canonical article model with optional missing fields;
+- include contact information such as author email when available;
+- support future duplicate analysis and long-term project reopening.
 
 This is especially relevant for a dissertation because it shows that the project already points toward a mature research software architecture rather than a disposable script.
 

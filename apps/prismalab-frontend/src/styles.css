@@ -1,0 +1,163 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* PrismaLab brand */
+  --color-brand: var(--brand);
+  --color-brand-deep: var(--brand-deep);
+  --color-brand-light: var(--brand-light);
+  --color-brand-subtle: var(--brand-subtle);
+  --color-spectrum-1: var(--spectrum-1);
+  --color-spectrum-2: var(--spectrum-2);
+  --color-spectrum-3: var(--spectrum-3);
+  --color-spectrum-4: var(--spectrum-4);
+  --color-spectrum-5: var(--spectrum-5);
+  --color-phase-protocol: var(--spectrum-1);
+  --color-phase-search: var(--spectrum-2);
+  --color-phase-screening: var(--spectrum-3);
+  --color-phase-appraisal: var(--spectrum-4);
+  --color-phase-extraction: var(--spectrum-5);
+  --color-phase-synthesis: oklch(0.55 0.15 280);
+  --color-phase-discussion: oklch(0.55 0.10 230);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+
+  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+:root {
+  --radius: 0.5rem;
+
+  /* PrismaLab brand */
+  --brand: oklch(0.75 0.12 165);
+  --brand-deep: oklch(0.60 0.14 165);
+  --brand-light: oklch(0.84 0.10 165);
+  --brand-subtle: oklch(0.94 0.04 165);
+  --spectrum-1: oklch(0.58 0.17 290);
+  --spectrum-2: oklch(0.58 0.16 250);
+  --spectrum-3: oklch(0.60 0.14 165);
+  --spectrum-4: oklch(0.72 0.16 75);
+  --spectrum-5: oklch(0.58 0.17 35);
+
+  /* Surfaces */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.18 0.01 90);
+  --card: oklch(0.98 0.005 90);
+  --card-foreground: oklch(0.18 0.01 90);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.01 90);
+
+  /* Brand mapped to primary */
+  --primary: oklch(0.60 0.14 165);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.97 0.005 90);
+  --secondary-foreground: oklch(0.18 0.01 90);
+  --muted: oklch(0.97 0.005 90);
+  --muted-foreground: oklch(0.58 0.02 90);
+  --accent: oklch(0.94 0.04 165);
+  --accent-foreground: oklch(0.18 0.01 90);
+  --destructive: oklch(0.58 0.17 35);
+  --destructive-foreground: oklch(1 0 0);
+
+  /* Borders */
+  --border: oklch(0.91 0.005 90);
+  --input: oklch(0.91 0.005 90);
+  --ring: oklch(0.75 0.12 165);
+
+  /* Sidebar */
+  --sidebar: oklch(0.98 0.005 90);
+  --sidebar-foreground: oklch(0.18 0.01 90);
+  --sidebar-primary: oklch(0.60 0.14 165);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.94 0.04 165);
+  --sidebar-accent-foreground: oklch(0.18 0.01 90);
+  --sidebar-border: oklch(0.91 0.005 90);
+  --sidebar-ring: oklch(0.75 0.12 165);
+
+  /* Semantic states */
+  --success: oklch(0.60 0.14 165);
+  --warning: oklch(0.72 0.16 75);
+  --danger: oklch(0.58 0.17 35);
+  --info: oklch(0.58 0.16 250);
+}
+
+.dark {
+  --background: oklch(0.15 0.005 90);
+  --foreground: oklch(0.95 0.005 90);
+  --card: oklch(0.18 0.01 90);
+  --card-foreground: oklch(0.95 0.005 90);
+  --popover: oklch(0.18 0.01 90);
+  --popover-foreground: oklch(0.95 0.005 90);
+  --primary: oklch(0.75 0.12 165);
+  --primary-foreground: oklch(0.15 0.005 90);
+  --secondary: oklch(0.22 0.01 90);
+  --secondary-foreground: oklch(0.95 0.005 90);
+  --muted: oklch(0.22 0.01 90);
+  --muted-foreground: oklch(0.65 0.02 90);
+  --accent: oklch(0.25 0.02 165);
+  --accent-foreground: oklch(0.95 0.005 90);
+  --destructive: oklch(0.65 0.17 35);
+  --destructive-foreground: oklch(0.95 0.005 90);
+  --border: oklch(0.25 0.005 90);
+  --input: oklch(0.25 0.005 90);
+  --ring: oklch(0.75 0.12 165);
+  --sidebar: oklch(0.15 0.005 90);
+  --sidebar-foreground: oklch(0.95 0.005 90);
+  --sidebar-primary: oklch(0.75 0.12 165);
+  --sidebar-primary-foreground: oklch(0.15 0.005 90);
+  --sidebar-accent: oklch(0.22 0.01 90);
+  --sidebar-accent-foreground: oklch(0.95 0.005 90);
+  --sidebar-border: oklch(0.25 0.005 90);
+  --sidebar-ring: oklch(0.75 0.12 165);
+
+  --brand-subtle: oklch(0.25 0.04 165);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+  }
+}
