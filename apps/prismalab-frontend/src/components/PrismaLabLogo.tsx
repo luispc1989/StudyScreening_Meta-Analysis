@@ -2,8 +2,10 @@ type LogoTone = "auto" | "light" | "dark";
 
 function FullLogo({
   tone,
+  showTagline = true,
 }: {
   tone: "light" | "dark";
+  showTagline?: boolean;
 }) {
   const isLight = tone === "light";
   const prismFill = isLight ? "#F4F3EF" : "#1E1E1E";
@@ -12,7 +14,11 @@ function FullLogo({
   const tagline = isLight ? "#888780" : "rgba(255,255,255,0.35)";
 
   return (
-    <svg viewBox="0 0 520 128" xmlns="http://www.w3.org/2000/svg" className="h-auto w-full">
+    <svg
+      viewBox={showTagline ? "0 0 520 128" : "0 10 520 92"}
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-auto w-full"
+    >
       <polygon points="106,15 58,98 154,98" fill={prismFill} stroke={prismStroke} strokeWidth="1" />
       <line x1="18" y1="62" x2="79" y2="62" stroke={prismStroke} strokeWidth="1.5" strokeLinecap="round" />
       <circle cx="133" cy="62" r="3.5" fill={prismStroke} />
@@ -25,17 +31,19 @@ function FullLogo({
         <tspan fontWeight="500" fill={textPrimary}>Prisma</tspan>
         <tspan fontWeight="300" fill="#5DCAA5" dx="4">Lab</tspan>
       </text>
-      <text
-        x="259"
-        y="106"
-        fontFamily="'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif"
-        fontSize="12.5"
-        fontWeight="400"
-        fill={tagline}
-        letterSpacing="2"
-      >
-        research synthesis platform
-      </text>
+      {showTagline ? (
+        <text
+          x="259"
+          y="106"
+          fontFamily="'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif"
+          fontSize="12.5"
+          fontWeight="400"
+          fill={tagline}
+          letterSpacing="2"
+        >
+          research synthesis platform
+        </text>
+      ) : null}
     </svg>
   );
 }
@@ -116,18 +124,24 @@ export function PrismaLabWordmark({
   className = "",
   size = "md",
   tone = "auto",
+  showTagline = true,
 }: {
   className?: string;
-  showTagline?: boolean;
   size?: "sm" | "md" | "lg";
   tone?: LogoTone;
+  showTagline?: boolean;
 }) {
-  const widthClass = size === "sm" ? "max-w-[16rem]" : size === "lg" ? "max-w-[64rem]" : "max-w-[24rem]";
+  const widthClass =
+    size === "sm"
+      ? "max-w-[16rem]"
+      : size === "lg"
+        ? "max-w-[64rem]"
+        : "max-w-[24rem]";
 
   if (tone === "light" || tone === "dark") {
     return (
       <div className={`${widthClass} ${className}`} aria-label="PrismaLab research synthesis platform">
-        <FullLogo tone={tone} />
+        <FullLogo tone={tone} showTagline={showTagline} />
       </div>
     );
   }
@@ -135,10 +149,10 @@ export function PrismaLabWordmark({
   return (
     <div className={`${widthClass} ${className}`} aria-label="PrismaLab research synthesis platform">
       <div className="block dark:hidden">
-        <FullLogo tone="light" />
+        <FullLogo tone="light" showTagline={showTagline} />
       </div>
       <div className="hidden dark:block">
-        <FullLogo tone="dark" />
+        <FullLogo tone="dark" showTagline={showTagline} />
       </div>
     </div>
   );
@@ -148,11 +162,12 @@ export function PrismaLabLogo({
   className = "",
   size = "md",
   tone = "auto",
+  showTagline = true,
 }: {
   className?: string;
-  showTagline?: boolean;
   size?: "sm" | "md" | "lg";
   tone?: LogoTone;
+  showTagline?: boolean;
 }) {
-  return <PrismaLabWordmark className={className} size={size} tone={tone} />;
+  return <PrismaLabWordmark className={className} size={size} tone={tone} showTagline={showTagline} />;
 }

@@ -332,11 +332,11 @@ function AppShell() {
         }`}
       >
         {/* Logo */}
-        <div className={`flex items-center border-b border-border ${collapsed ? "h-16 px-2" : "h-18 px-4"}`}>
+        <div className={`flex items-center border-b border-border ${collapsed ? "h-16 px-2" : "h-28 px-2.5"}`}>
           {collapsed ? (
             <PrismaLabMark size={44} className="mx-auto" />
           ) : (
-            <PrismaLabLogo size="sm" className="w-full max-w-[14rem]" />
+            <PrismaLabLogo size="lg" showTagline={false} className="w-full max-w-none" />
           )}
         </div>
 
