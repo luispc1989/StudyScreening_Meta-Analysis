@@ -233,7 +233,7 @@ That future layer is expected to:
 
 The current repository already includes an early prototype for that direction in:
 
-- `apps/prismalab`
+- `archive/apps/prismalab-prototype`
 
 This prototype is exploratory, but it is important because it documents the architectural transition from a tool-first prototype into a project-first application ecosystem.
 
@@ -598,3 +598,4 @@ If these notes are to be turned into dissertation text, a good structure would b
 7. limitations and future extensions.
 
 This would let the technical implementation support the methodological narrative cleanly.
+

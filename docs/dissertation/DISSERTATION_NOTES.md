@@ -192,7 +192,7 @@ In this model:
 
 A first visual prototype of the future master app has already been created in:
 
-- `apps/prismalab`
+- `archive/apps/prismalab-prototype`
 
 This prototype is intentionally lightweight. It is not yet the operational application. Its purpose is to test:
 
@@ -308,6 +308,283 @@ not oscillating between two unrelated app models. Instead, it is converging on a
 single local-first product with one interface and one persistence model, later
 distributed through a desktop runtime.
 
+## Detailed rationale for the current PrismaLab frontend prototype
+
+The recent frontend work should not be described in the dissertation as a
+purely cosmetic redesign. It is better understood as an architectural
+clarification phase in which the future product assumptions of `PrismaLab` were
+made explicit through interface and interaction design.
+
+Several important implementation lines emerged during this stage.
+
+### 1. Access and authentication were treated as local-workspace concerns
+
+The access page was intentionally implemented as the entrance to a local
+research environment rather than as a conventional web SaaS sign-in screen.
+
+This decision led to several implementation choices:
+
+- local account creation instead of remote registration;
+- local session continuity;
+- remembered local account selection;
+- explicit distinction between account access and later profile settings;
+- removal of misleading email-reset assumptions.
+
+The reason for this strategy is methodological and architectural. The intended
+`PrismaLab` product is a local-first research environment, expected to support
+long-running projects that may be reopened months or years later on the same
+machine or under a portable local project model. A generic email-based
+authentication flow would have implied backend infrastructure and trust
+assumptions that do not currently match the project direction.
+
+### 2. Recovery was implemented through a Recovery Key rather than email
+
+The `Recovery Key` flow is one of the most important product decisions already
+materialized in the prototype.
+
+The implemented behavior now includes:
+
+- generation of a unique recovery key at account creation;
+- one-time display of that key;
+- explicit warning that it is the only recovery mechanism;
+- a dedicated local recovery flow;
+- invalidation of the old key after successful password reset;
+- regeneration and re-display of a new key after recovery.
+
+The reason for this design is that recovery had to remain coherent with a
+local-first system. Email-based reset would have introduced a false expectation
+of remote account infrastructure. The recovery key, by contrast, fits the logic
+of a local profile that must remain recoverable without a cloud backend.
+
+### 3. The login model evolved from username entry to account selection
+
+As soon as multiple local accounts began to exist on the same machine, the
+original login pattern became less appropriate.
+
+The prototype therefore evolved toward:
+
+- selecting an existing local account first;
+- entering the password only afterwards;
+- remembering the previously used local account;
+- keeping account creation as a separate explicit action.
+
+This matters for the dissertation because it reflects a design decision derived
+from observed product semantics rather than from generic UI fashion. In a
+local-first multi-profile environment, the machine already knows what accounts
+exist. Asking the user to type a username every time becomes less logical than
+selecting the local account directly.
+
+### 4. Account and profile semantics were intentionally separated
+
+During implementation it became clear that the words `user`, `account`, and
+`profile` were being used interchangeably, which created conceptual drift.
+
+This was corrected by treating:
+
+- `account` as the authentication and access concept;
+- `profile` as the in-app identity and settings concept.
+
+This distinction is methodologically useful because it prevents the future
+dissertation text from describing a blurred identity model. It also creates a
+cleaner basis for later features such as settings, preferences, external
+integrations, and role-specific project behavior.
+
+### 5. The frontend prototype exposed why an internal identifier is still needed
+
+The registration flow originally exposed both a visible full name and a
+username. Later evaluation showed that asking the user to manually define a
+username was no longer justified by the desired experience.
+
+The current direction therefore keeps:
+
+- a human-facing full name;
+- an internal stable identifier generated automatically.
+
+This is worth documenting because it shows a transition from a conventional
+website-style registration form to a more research-tool-oriented account model.
+The decision was not merely cosmetic. It preserved internal stability while
+reducing unnecessary cognitive overhead in the access flow.
+
+### 6. Session handling was deliberately treated as a desktop-like behavior
+
+One recurring design question concerned the meaning of session continuity in a
+research tool used across long time spans.
+
+The important conceptual distinction that emerged is:
+
+- a password proves identity and should protect access and sensitive actions;
+- a local session should preserve continuity of work across app restarts;
+- `Remember me` should support local convenience rather than imply a cloud-like
+  perpetual authentication contract.
+
+Because the current implementation still lives in a browser-based prototype,
+true system-level distinctions such as "same PC boot cycle" versus "new system
+boot" cannot yet be enforced robustly. This limitation itself is relevant for
+the dissertation, because it demonstrates why some session policies belong more
+naturally to the future desktop shell than to a pure browser prototype.
+
+### 7. A unified loading language was implemented on purpose
+
+The access flow, logout flow, and sign-in flow originally risked using
+different loading behaviors or temporary blank states.
+
+This was corrected by introducing a unified branded loading/splash treatment
+based on the `PrismaLab` identity, adaptable to light and dark themes.
+
+The importance of this decision is not only aesthetic. Consistent loading
+states reduce the perception of instability and make a research application feel
+more reliable, especially when profile state, routing, or local session
+hydration introduce brief transitions.
+
+### 8. The Ray assistant was treated as a product component, not just a chat box
+
+The `Ray` prototype went through substantial refinement. This matters because
+the dissertation should not present the assistant as a generic LLM wrapper.
+
+The implemented direction now includes:
+
+- separate `Ray` branding and lockups;
+- theme-aware assistant identity assets;
+- a floating launcher distinct from the main platform brand;
+- a resizable and movable side panel;
+- keyboard closing (`Esc`);
+- persistent per-account chat history;
+- internal conversation history management;
+- a dedicated thinking state;
+- separation between the assistant as helper and the platform as workspace.
+
+This is important conceptually because it defines `Ray` as an assistant inside
+the platform, not as the platform itself.
+
+### 9. Ray history persistence became a concrete test of profile-local state
+
+The assistant history was deliberately moved toward per-account persistence.
+
+This exposed a very relevant product requirement:
+
+- when a user leaves the app and returns with the same account,
+- the assistant history should still be there;
+- another account should see its own distinct history.
+
+This requirement is especially important for dissertation framing because it
+shows how the frontend prototype is already functioning as a testbed for
+account-scoped project memory, not merely for visual interface experiments.
+
+### 10. The Home page versus Workflow separation became explicit
+
+One major architectural clarification in the recent frontend work was that the
+first page after access should not simply be another workflow phase.
+
+Instead, the interface now distinguishes:
+
+- a `Home` entry page for workspace-level orientation;
+- a separate `Workflow` area for phase-specific work.
+
+The current home is intentionally limited to:
+
+- workspace welcome and state summary;
+- key actions such as opening or starting a project;
+- short project-state cards;
+- immediate next actions.
+
+The reason for this is that the user first needs orientation at the workspace
+level before entering a methodological phase. This distinction will help the
+dissertation explain that the system is moving from "tool launching" toward a
+structured project environment.
+
+## Bugs, frictions, and implementation lessons from the frontend prototype
+
+The dissertation notes should also preserve the fact that the current frontend
+direction was shaped by concrete implementation frictions rather than by
+abstract planning alone.
+
+### Temporary state flicker after logout
+
+At one point, after logout the access page briefly showed older user-oriented
+state before switching to the corrected account-based version.
+
+The underlying problem was hydration timing: the first render occurred before
+local account state had been fully read.
+
+The fix was to delay the final access-page decision until local state hydration
+completed. This is worth documenting because it shows how local-first interfaces
+can easily produce misleading transient states if hydration order is not handled
+carefully.
+
+### Password reset logic originally failed to explain one important case
+
+During recovery, setting a new password identical to the old one initially led
+to an unhelpful error path.
+
+This revealed that the recovery logic was not yet distinguishing clearly
+between:
+
+- invalid recovery details;
+- valid recovery details but invalid new-password choice.
+
+The correction was important because it turned a vague security-style failure
+into a meaningful user explanation, improving both usability and interpretive
+clarity.
+
+### Session and browser storage semantics produced false assumptions
+
+Several issues emerged because the browser prototype stores local accounts and
+session information in local storage:
+
+- existing accounts could persist unexpectedly across tests;
+- old developer/test users remained present;
+- browser state could be mistaken for application database state.
+
+This is highly relevant for dissertation writing because it reinforces a key
+point: browser storage is a temporary prototyping layer, not the intended final
+source of truth. It works well for validating flows, but it also exposes why the
+project needs a future local database and desktop shell.
+
+### Ray history could be overwritten during initialization
+
+One important bug occurred when the assistant state initialized with an empty
+default conversation and wrote that state too early, thereby replacing the
+persisted history of the active account.
+
+The fix required making history hydration explicit and delaying writes until the
+stored account history had first been loaded.
+
+This is especially valuable as dissertation material because it illustrates a
+general software-engineering lesson: local persistence is not only about saving
+state; it is also about preserving load order and avoiding accidental overwrite
+during startup.
+
+### Drawer sizing and positioning required iteration
+
+The `Ray` panel went through multiple refinements:
+
+- too tall for the intended workspace context;
+- too large in hero-banner style for a side panel;
+- incorrect opening position within the main workspace area;
+- drag and history interactions interfering with one another.
+
+These iterations are worth recording because they show that interaction design
+in a research workspace is not trivial decoration. Window behavior, history
+management, and visual density affect whether the assistant feels like a useful
+embedded tool or a disruptive overlay.
+
+## Why this level of documentation matters
+
+The dissertation should show that the frontend work was not simply a matter of
+"making the interface nicer." It already functioned as a concrete site for
+testing:
+
+- local-first account semantics;
+- recovery logic without backend dependency;
+- session and continuity behavior;
+- the boundary between platform and assistant;
+- the distinction between workspace home and methodological workflow;
+- the future suitability of desktop deployment over a purely browser-based app.
+
+In other words, the frontend prototype is already part of the research and
+architecture story of the project. It should therefore be documented with the
+same seriousness as the retrieval pipeline and persistence-layer decisions.
+
 ## Future database rationale
 
 The database direction is motivated by practical and methodological concerns.
@@ -351,3 +628,4 @@ These notes matter because they capture not just features, but design reasoning.
 - why the architecture is now moving conceptually toward a project database and hub model.
 
 This allows the final dissertation text to describe the tool not just as code, but as a research-support system that evolved through observed practical constraints.
+

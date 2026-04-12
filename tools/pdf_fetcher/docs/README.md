@@ -122,8 +122,6 @@ Recent SCOUT refinements include:
 ## Documentation in this folder
 
 - [PDF_FETCHER_APP_NOTES.md](/c:/Users/Luís%20Pinto%20Coelho/Desktop/Dissertação/StudyScreening_Meta-Analysis/tools/pdf_fetcher/docs/PDF_FETCHER_APP_NOTES.md) - architectural and methodological notes
-- [DISSERTATION_NOTES.md](/c:/Users/Luís%20Pinto%20Coelho/Desktop/Dissertação/StudyScreening_Meta-Analysis/tools/pdf_fetcher/docs/DISSERTATION_NOTES.md) - dissertation-oriented global notes
-- [IMPLEMENTATION_LOG.md](/c:/Users/Luís%20Pinto%20Coelho/Desktop/Dissertação/StudyScreening_Meta-Analysis/tools/pdf_fetcher/docs/IMPLEMENTATION_LOG.md) - concise chronological implementation log
 - [KNOWN_ISSUES_AND_LESSONS.md](/c:/Users/Luís%20Pinto%20Coelho/Desktop/Dissertação/StudyScreening_Meta-Analysis/tools/pdf_fetcher/docs/KNOWN_ISSUES_AND_LESSONS.md) - bugs, issues, and lessons learned
 - [PHASE0_DOI_ENRICHMENT_NOTES.md](/c:/Users/Luís%20Pinto%20Coelho/Desktop/Dissertação/StudyScreening_Meta-Analysis/tools/pdf_fetcher/docs/PHASE0_DOI_ENRICHMENT_NOTES.md) - Phase 0 notes
 - [PHASE1_BASIC_DOWNLOAD_NOTES.md](/c:/Users/Luís%20Pinto%20Coelho/Desktop/Dissertação/StudyScreening_Meta-Analysis/tools/pdf_fetcher/docs/PHASE1_BASIC_DOWNLOAD_NOTES.md) - Phase 1 notes
@@ -131,6 +129,12 @@ Recent SCOUT refinements include:
 - [USER_GUIDE.md](/c:/Users/Luís%20Pinto%20Coelho/Desktop/Dissertação/StudyScreening_Meta-Analysis/tools/pdf_fetcher/docs/USER_GUIDE.md) - user manual
 - [DEVELOPER_GUIDE.md](/c:/Users/Luís%20Pinto%20Coelho/Desktop/Dissertação/StudyScreening_Meta-Analysis/tools/pdf_fetcher/docs/DEVELOPER_GUIDE.md) - technical developer guide
 - [TROUBLESHOOTING.md](/c:/Users/Luís%20Pinto%20Coelho/Desktop/Dissertação/StudyScreening_Meta-Analysis/tools/pdf_fetcher/docs/TROUBLESHOOTING.md) - troubleshooting
+
+## Dissertation and cross-project notes
+
+General dissertation-support and cross-application notes now live in:
+
+- [docs/dissertation](/c:/Users/Lu�s%20Pinto%20Coelho/Desktop/Disserta��o/StudyScreening_Meta-Analysis/docs/dissertation)
 
 ## Forward-looking note
 
@@ -142,7 +146,7 @@ The current system still uses Excel as the main persistence bridge between phase
 
 An early visual prototype for that direction already exists in:
 
-- `apps/prismalab`
+- `archive/apps/prismalab-prototype`
 
 An initial database foundation for that direction now exists in:
 
@@ -154,3 +158,5 @@ The current architectural expectation is:
 - `React / Next.js` for the future app master frontend;
 - Python retained for workflow logic and tool backends;
 - a local project database as the long-term internal source of truth.
+
+

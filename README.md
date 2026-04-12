@@ -1,108 +1,84 @@
-# Título Provisório da Dissertação
+# PrismaLab
 
-> Estrutura-base do repositório Git da dissertação. Criado em 2025-11-07.
+Monorepo for the evolving `PrismaLab` research workspace and its related tools.
 
-## Objetivos
+This repository now contains:
 
-- Descrever, de forma sucinta, o problema, o contexto e os objetivos da dissertação.
-- Identificar as perguntas de investigação e as hipóteses de trabalho.
-- Assegurar uma organização clara, reprodutível e auditável dos dados, scripts e resultados.
+- active application code for the PrismaLab frontend and desktop shell;
+- Python research tools such as `PDF Fetcher`;
+- dissertation and cross-project documentation;
+- supporting data, scripts, tests, and experimental archives.
 
-## Estrutura do repositório
+## Current structure
 
 ```text
-data/                # dados (ver secção 'Dados e LFS')
-docs/                # material de escrita e elementos de submissão
-models/              # modelos treinados e metadados
-notebooks/           # Jupyter notebooks organizados por etapa
-references/          # bibliografia (.bib) e normas
-reports/             # figuras, tabelas e artefactos para o relatório
-scripts/             # scripts CLI para tarefas repetíveis
-src/dissertacao/     # pacote Python com código reutilizável
-tests/               # testes automáticos (pytest)
-configs/             # ficheiros de configuração (YAML/ENV)
-.github/workflows/   # CI (lint, testes, build de relatório)
+apps/
+  prismalab-frontend/        active frontend application
+  prismalab-desktop/         desktop shell scaffold
+
+tools/
+  pdf_fetcher/               staged PDF retrieval and SCOUT workflow
+  prismalab/                 early database and backend-oriented PrismaLab foundations
+
+docs/
+  dissertation/              dissertation-wide and cross-project notes
+  ray-assistant/             Ray-specific reference material
+
+shared/
+  README.md                  reserved for future shared code between apps/tools
+
+archive/
+  apps/prismalab-prototype/  archived earlier Next.js PrismaLab prototype
+
+configs/
+data/
+models/
+notebooks/
+scripts/
+tests/
 ```
 
-## Requisitos mínimos
+## Repository logic
 
-- Python 3.10+
-- (Opcional) R 4.3+
-- Git LFS para ficheiros grandes
+The repository should be understood as a workspace monorepo rather than as a
+single app.
 
-## Dados e LFS
+Use these rules:
 
-- **`data/raw/`** e **`data/external/`** devem ser tratados como diretórios de dados de origem.
-- Evitar versionar ficheiros pesados (CSV/ZIP/XLSX de grande dimensão) sem Git LFS.
-- Usar um `README.md` em cada subpasta de dados para documentar:
-  - origem;
-  - licença/condições de uso;
-  - estrutura/esquema;
-  - observações de pré-processamento.
+- `apps/` for active application shells and user-facing interfaces;
+- `tools/` for Python tools and backend-oriented workflow modules;
+- `docs/` for cross-project documentation and dissertation material;
+- `shared/` only for code that is genuinely reused across apps or tools;
+- `archive/` for non-active prototypes or historical material.
 
-## Reprodutibilidade
+## Current PrismaLab direction
 
-- Configuração em `configs/config.yaml` e variáveis sensíveis em `.env` (não versionado).
-- Execução de tarefas repetíveis por linha de comando via `scripts/`.
-- Código reutilizável em `src/dissertacao/`.
-- Testes automáticos em `tests/`.
-- Preservação de logs e artefactos intermédios relevantes para auditoria metodológica.
+The current product direction is:
 
-## Citações e bibliografia
+- `apps/prismalab-frontend` as the active PrismaLab UI codebase;
+- `apps/prismalab-desktop` as the desktop wrapper direction;
+- `tools/prismalab` as the early local database/back-end foundation;
+- `tools/pdf_fetcher` as one major workflow module inside the broader ecosystem.
 
-- Usar `references/referencias.bib` e o ficheiro CSL de acordo com o estilo exigido pela faculdade.
-- Manter consistência de citações no relatório e nos materiais de apoio.
-- Centralizar referências e normas em `references/`.
+An older visual prototype was retained for reference in:
 
-## Pipeline de Study Screening (meta-análise)
+- `archive/apps/prismalab-prototype`
 
-Este repositório inclui um pipeline para preparação, limpeza, normalização e triagem inicial (*study screening*) de registos bibliográficos provenientes de múltiplas fontes:
+## Documentation
 
-- Web of Science (**WoS**)
-- Google Scholar (**GS**) *(em desenvolvimento)*
-- Grey Literature (**GL**) *(em desenvolvimento)*
+Cross-project and dissertation documentation:
 
-### Objetivo do pipeline
+- `docs/dissertation/README.md`
 
-Criar ficheiros de trabalho padronizados, rastreáveis e replicáveis para:
+PDF Fetcher-specific documentation:
 
-- documentar a pesquisa bibliográfica por fonte;
-- consolidar e normalizar metadados;
-- apoiar a triagem inicial por título e resumo;
-- registar decisões de inclusão/exclusão;
-- manter logs técnicos e relatórios de qualidade.
+- `tools/pdf_fetcher/docs/README.md`
 
-### Estado atual
+## Important note on repository rename
 
-- Implementado: `scripts/build_wos_workbook.py`
-- Planeado: `scripts/build_gs_workbook.py`
-- Planeado: `scripts/build_gl_workbook.py`
-- Planeado: script de merge final (WoS + GS + GL)
+The repository is being conceptually renamed from
+`StudyScreening_Meta-Analysis` to `PrismaLab`.
 
-### Outputs principais por execução (source-level)
-
-Cada execução do script gera uma pasta de execução (*run folder*) com, pelo menos:
-
-- `01_merged_cleaned.xlsx`
-- `02_quality_report.xlsx`
-- `03_duplicates_log.xlsx`
-- `run_log.json`
-
-Podem também ser gerados ficheiros CSV auxiliares (consoante a configuração do script).
-
-### Documentação detalhada
-
-Ver:
-
-- `docs/README_pipeline.md`
-
-## Convenções gerais do workflow (resumo)
-
-- O processamento é feito **por fonte** (WoS, GS, GL) antes do merge final.
-- A triagem inicial é feita em folhas de trabalho do tipo `*_screening_view`.
-- A rastreabilidade é assegurada por identificadores e metadados de proveniência (ex.: `source_record_id`, `source`, `run_id`).
-- Logs e relatórios devem ser preservados para suporte metodológico e auditoria.
-
-## Licença
-
-All rights reserved until dissertation submission.
+Internal organization has been updated accordingly, but the outer folder and
+GitHub repository name should be renamed explicitly as a separate step once the
+working session can be safely closed or moved.

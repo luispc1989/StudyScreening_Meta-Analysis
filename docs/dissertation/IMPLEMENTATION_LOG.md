@@ -193,7 +193,7 @@ The architectural direction for the future master application was clarified:
 
 - the master app should be phase-oriented rather than tool-flat;
 - the long-term frontend direction should be `React / Next.js`;
-- a first PrismaLab prototype was created in `apps/prismalab`.
+- a first PrismaLab prototype was created in `apps/prismalab` and is now archived as `archive/apps/prismalab-prototype`.
 
 ### Why
 
@@ -295,7 +295,7 @@ This prototype now includes:
 
 ### Why
 
-The initial `apps/prismalab` prototype was useful for high-level visual direction, but it was still too lightweight to validate actual product behavior. A more concrete frontend layer was needed to test how the future master app should feel and behave as a local-first research workspace.
+The initial `apps/prismalab` prototype, now archived as `archive/apps/prismalab-prototype`, was useful for high-level visual direction, but it was still too lightweight to validate actual product behavior. A more concrete frontend layer was needed to test how the future master app should feel and behave as a local-first research workspace.
 
 ### Impact
 
@@ -330,3 +330,88 @@ The repository now has an explicit packaging direction for PrismaLab:
 - one future local database;
 - desktop-specific behaviors to be implemented in the native shell rather than
   simulated in the browser prototype.
+
+---
+
+## 2026-04-12
+
+### Change
+
+The `PrismaLab` frontend prototype was substantially refined in four connected
+areas:
+
+- local authentication and access semantics;
+- local recovery and account continuity;
+- `Ray` assistant interaction model;
+- workspace home versus workflow separation.
+
+Concretely, this included:
+
+- account selection on the access page instead of a purely typed username flow;
+- automatic generation of internal account identifiers instead of exposing
+  `username` as a primary registration field;
+- one-time `Recovery Key` display and local recovery flow;
+- improved login validation, password visibility, disabled/loading states, and
+  branded splash transitions;
+- clearer distinction between `account` and `profile` language;
+- `Ray` launcher, banner, avatars, theme-aware assets, history menu, delete
+  controls, thinking state, movable/resizable panel, and per-account persisted
+  history;
+- explicit `Home` navigation entry separated from `Workflow`;
+- routing changes so the post-login entry point is now `/app`, while workflow
+  pages remain separate.
+
+### Why
+
+The previous prototype still mixed together several concepts that needed to be
+made clearer before the dissertation could describe the future product
+coherently:
+
+- the difference between a local account and an in-app profile;
+- the difference between a workspace home and a workflow phase;
+- the difference between a platform (`PrismaLab`) and an assistant (`Ray`);
+- the difference between browser-prototype persistence and the future local
+  database source of truth.
+
+The access flow also needed to become more consistent with a local-first
+research environment rather than resembling a generic web-platform sign-in.
+
+At the same time, the assistant needed to move beyond a decorative chat widget
+and become a more plausible embedded research tool with account-scoped memory
+and clearer behavioral rules.
+
+### Impact
+
+The frontend prototype now supports a much stronger dissertation narrative.
+
+It no longer serves only as a visual mockup; it now demonstrates:
+
+- a coherent local authentication model;
+- recovery without remote email infrastructure;
+- assistant persistence per local account;
+- separation between workspace orientation and phase-oriented work;
+- a practical bridge from web prototyping toward a future desktop-local-first
+  runtime.
+
+### Bugs and lessons recorded during this stage
+
+Several implementation frictions shaped these refinements:
+
+- temporary post-logout flicker caused by hydration timing;
+- recovery errors that initially did not distinguish "same password" from
+  "invalid recovery details";
+- account/test data unexpectedly persisting because browser local storage was
+  acting as the temporary persistence layer;
+- assistant history being overwritten if startup hydration and persistence order
+  were not carefully managed;
+- the `Ray` panel opening at incorrect positions until its coordinates were
+  constrained to the actual workspace area;
+- overly large assistant banner proportions that had to be reduced from hero
+  scale to side-panel scale;
+- assistant history controls that initially felt visually unclear and therefore
+  had to be reorganized.
+
+These are useful dissertation notes because they show that the current
+architecture emerged through observed interaction problems and incremental
+correction, not merely through top-down design claims.
+

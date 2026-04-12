@@ -235,7 +235,7 @@ O projeto ja esta a apontar para uma arquitetura mais ampla do que o PDF Fetcher
 
 Existe ja um primeiro prototipo visual dessa direcao em:
 
-- `apps/prismalab`
+- `archive/apps/prismalab-prototype`
 
 Existe tambem agora uma primeira base tecnica para a futura persistencia local
 do projeto em:
@@ -246,3 +246,4 @@ do projeto em:
 Essa base foi pensada para receber dados bibliograficos de multiplas fontes,
 preservar proveniencia, aceitar campos em falta e preparar deduplicacao e
 continuidade de projeto a longo prazo.
+
