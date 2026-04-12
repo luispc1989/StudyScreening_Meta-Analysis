@@ -270,6 +270,34 @@ The frontend prototype also clarifies an important branding and product distinct
 
 This matters because the system is no longer being conceptualized as a loose mixture of tools and AI components. The frontend is starting to formalize a clearer architecture in which the assistant supports the workspace without replacing the platform identity itself.
 
+### Branding as architectural clarification rather than decoration
+
+The current `PrismaLab` and `Ray` branding work should also be documented as
+part of the product architecture.
+
+This branding effort is not only about making the interface visually coherent.
+It helps formalize several conceptual distinctions that matter for the
+dissertation:
+
+- `PrismaLab` is the persistent research workspace;
+- `Ray` is an assistant embedded within that workspace;
+- the platform should feel institutional, stable, and serious;
+- the assistant should feel supportive and identifiable without visually
+  replacing the platform itself.
+
+This logic shaped several implementation decisions, including:
+
+- keeping `PrismaLab` as the dominant identity on access and workspace screens;
+- giving `Ray` its own visual system, lockups, avatars, and tab/icon assets;
+- separating platform branding from assistant branding in the UI hierarchy;
+- treating branding assets as reusable product resources rather than scattered
+  prototype leftovers.
+
+This matters for the dissertation because the identity system already expresses
+architectural meaning. It tells the user that the software is not merely a
+collection of scripts plus an AI chatbot. It is a research platform with an
+internal assistant, and that distinction is part of the system design itself.
+
 ### Dashboard as project-first workspace
 
 The current authenticated dashboard is now evolving toward a project-first structure rather than a decorative landing screen.

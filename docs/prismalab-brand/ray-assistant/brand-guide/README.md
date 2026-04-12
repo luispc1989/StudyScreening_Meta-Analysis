@@ -1,6 +1,7 @@
 # Ray Assistant Brand Guide
 
-This folder stores the visual branding references for `Ray Assistant`.
+This folder stores the visual branding references for `Ray Assistant` as part
+of the broader PrismaLab brand system.
 
 ## Suggested structure
 
@@ -16,6 +17,6 @@ This folder stores the visual branding references for `Ray Assistant`.
 
 ## Notes
 
-- Keep Ray-specific branding material here rather than mixing it with PrismaLab files.
+- Keep Ray-specific branding material here inside `docs/prismalab-brand/`.
 - This folder is intended for documentation and design-reference material.
 - If the brand guide evolves, keep the canonical version here.

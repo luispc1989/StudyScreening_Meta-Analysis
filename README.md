@@ -22,7 +22,7 @@ tools/
 
 docs/
   dissertation/              dissertation-wide and cross-project notes
-  ray-assistant/             Ray-specific reference material
+  prismalab-brand/           PrismaLab and Ray brand/reference material
 
 shared/
   README.md                  reserved for future shared code between apps/tools

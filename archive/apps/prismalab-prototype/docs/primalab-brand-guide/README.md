@@ -1,21 +1,8 @@
-# PrismaLab Brand Guide
+# PrismaLab Brand Guide Archive Note
 
-This folder stores the visual branding references for `PrismaLab`.
+The active PrismaLab branding material was moved to:
 
-## Suggested structure
+- `docs/prismalab-brand`
 
-- `prismalab-brand-guide.html`
-  Main brand guide document.
-- `assets/`
-  Supporting files used by the brand guide, such as:
-  - logos
-  - icons
-  - screenshots
-  - textures
-  - reference images
-
-## Notes
-
-- Keep brand-specific material here rather than at the repository root.
-- This folder is documentation/reference material for the `PrismaLab` app.
-- If the guide evolves, prefer updating this folder instead of scattering visual references across the repo.
+This archived folder now remains only as historical context for the older
+prototype structure.
