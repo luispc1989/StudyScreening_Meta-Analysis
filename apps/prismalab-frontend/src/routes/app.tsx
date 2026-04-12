@@ -6,10 +6,11 @@ import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { RayAssistant, type RayConversationSummary, type RayMessage } from "@/components/RayAssistant";
 import { RayAvatar } from "@/components/RayLogo";
 import { getStoredUser, hasActiveSession, logout, touchActiveSession } from "@/lib/auth";
+import { WorkspaceHomePage } from "@/routes/app.dashboard";
 import {
   FileQuestion, Search, FileCheck, ShieldCheck, Database,
   BarChart3, MessageSquareText, Settings, LogOut, PanelLeft,
-  ChevronRight,
+  ChevronRight, House,
 } from "lucide-react";
 
 export const Route = createFileRoute("/app")({
@@ -66,6 +67,7 @@ function AppShell() {
   const workspaceRef = useRef<HTMLDivElement | null>(null);
 
   const isActive = (path: string) => location.pathname.includes(path);
+  const showWorkspaceHome = location.pathname === "/app" || location.pathname === "/app/";
   const activeConversation =
     rayConversations.find((conversation) => conversation.id === activeConversationId) ?? rayConversations[0];
   const conversationSummaries = useMemo<RayConversationSummary[]>(
@@ -340,11 +342,33 @@ function AppShell() {
           )}
         </div>
 
-        {/* Phase navigation */}
+        {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5">
           {!collapsed && (
             <span className="text-[10px] font-medium tracking-[0.2em] uppercase text-muted-foreground px-2 mb-2 block">
-              Workflow Phases
+              Workspace
+            </span>
+          )}
+          <Link
+            to="/app"
+            className={`mb-2 flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm transition-colors duration-120 ${
+              showWorkspaceHome
+                ? "bg-accent text-foreground font-medium"
+                : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+            }`}
+            title={collapsed ? "Home" : undefined}
+          >
+            <div className="relative flex-shrink-0">
+              <House className="h-4 w-4" />
+              <div className={`absolute -left-1 -top-1 h-1.5 w-1.5 rounded-full bg-brand-deep ${showWorkspaceHome ? "opacity-100" : "opacity-40"}`} />
+            </div>
+            {!collapsed && <span className="truncate">Home</span>}
+            {!collapsed && showWorkspaceHome && <ChevronRight className="h-3 w-3 ml-auto opacity-40" />}
+          </Link>
+
+          {!collapsed && (
+            <span className="text-[10px] font-medium tracking-[0.2em] uppercase text-muted-foreground px-2 mb-2 mt-3 block">
+              Workflow
             </span>
           )}
           {phases.map((phase) => {
@@ -421,7 +445,7 @@ function AppShell() {
         {/* Content + Ray panel */}
         <div ref={workspaceRef} className="relative flex-1 overflow-hidden">
           <main className="h-full overflow-y-auto">
-            <Outlet />
+            {showWorkspaceHome ? <WorkspaceHomePage /> : <Outlet />}
           </main>
 
           {/* Ray Assistant Panel */}

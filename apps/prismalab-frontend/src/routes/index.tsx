@@ -8,7 +8,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   if (typeof window !== "undefined") {
     if (isLoggedIn()) {
-      window.location.href = "/app/dashboard";
+      window.location.href = "/app";
     } else {
       window.location.href = "/login";
     }

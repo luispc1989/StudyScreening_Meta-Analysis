@@ -99,7 +99,7 @@ function RegisterPage() {
                   confirmationLabel="I understand that this recovery key is the only way to recover access if I forget my password."
                   onContinue={() => {
                     setStoredUser(recoveryState.user, recoveryState.remember);
-                    navigate({ to: "/app/dashboard" });
+                    navigate({ to: "/app" });
                   }}
                 />
               ) : (

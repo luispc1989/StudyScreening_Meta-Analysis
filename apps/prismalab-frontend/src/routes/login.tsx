@@ -52,7 +52,7 @@ function LoginPage() {
     if (typeof window === "undefined") return;
     if (!isHydrated) return;
     if (hasActiveSession()) {
-      navigate({ to: "/app/dashboard" });
+      navigate({ to: "/app" });
     }
   }, [isHydrated, navigate]);
 
@@ -118,7 +118,7 @@ function LoginPage() {
         return;
       }
       setStoredUser(user, remember);
-      navigate({ to: "/app/dashboard" });
+      navigate({ to: "/app" });
     }, 900);
   };
 
@@ -134,7 +134,7 @@ function LoginPage() {
       devAccount,
       true,
     );
-    navigate({ to: "/app/dashboard" });
+    navigate({ to: "/app" });
   };
 
   const handleDevSave = async () => {
